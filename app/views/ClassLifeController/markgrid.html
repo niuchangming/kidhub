@@ -1,0 +1,267 @@
+<link href="@{'/public/stylesheets/markgrid.css'}" rel="stylesheet" media="screen">
+<div class="alert cb-alert">
+	<img class="al-chico" src="/public/images/monster/cute2.png"/>
+	<div>
+		<h3>Zhang Xiaopeng</h3>
+		<p><span>+1 due to Helpping others</span></p>
+	</div>
+	<img class="al-ico" src="/public/images/heart.png"/>
+</div>	
+#{extends "main.html"/}
+#{set user: user /}
+
+<div class="dash-container">
+	#{subheader user:user, clz:clz, as:"dash"/}
+	<div class="dash-content">
+		<div class="left-menu">
+			<div class="list-group">
+			  <a href="#" class="list-group-item active">Daily report</a>
+			  <a href="#" class="list-group-item">Class schedule</a>
+			  <a href="@{ClassLifeController.showmenubyweek(clz?.id)}" class="list-group-item">Food menu</a>
+			  <a href="#" class="list-group-item">Class photo</a>
+			  <a href="@{ClassLifeController.markGrid(clz?.id)}" class="list-group-item">Baby behavior</a>
+			  <a href="@{ClassLifeController.moodGrid(clz?.id)}" class="list-group-item">Baby mood</a>
+			  <a href="#" class="list-group-item">Class statistics</a>
+			</div>
+		</div>
+		<div class="right-detail">
+			<div class="chgrid-wraper">
+				#{if clz?.children?.size() > 0}
+					#{list items: clz?.children, as:'child'}
+						<div id="ch-${child?.id}" class="col-xs-12 col-sm-6 col-md-4 col-lg-2 ch-info round-item">
+							<a class="round-item-txt round-item-link color-present" data-toggle="modal" data-target="#bemark-model">
+								${child?.score}
+							</a>
+							<div class="round-item-avatar">
+								<a>
+									<img src="../../${child.avatarURL}"/>
+								</a>
+							</div>
+						</div>
+					#{/list}
+				#{/if}
+				#{else}
+					<div id="nonch-wraper">
+						<div class="clz-add-wraper">
+						   	<a class="cre-clz-plus" href="@{RosterController.classRoster(clz?.id)}"></a>
+						   	<h3 class="add-clz-btn">There is no child in this class<br>Click on \"Plus\" button to add child !</h3>
+						   	<img src="http://www.ck12.org/media/dashboard/images/groups-img.png">
+						</div>
+					</div>
+				#{/else}
+			</div>
+			
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="bemark-model" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-center">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3 id="h-giv"></h3>
+      </div>
+      <div class="modal-body">
+        <div class="tabs-wraper">
+			<section class="tabs">
+	            <input id="tab-1" type="radio" name="radio-set" class="tab-selector-1" checked="checked" />
+		        <label for="tab-1" class="tab-label-1">Positive</label>
+		
+	            <input id="tab-2" type="radio" name="radio-set" class="tab-selector-2" />
+		        <label for="tab-2" class="tab-label-2">Negative</label>
+		        
+		        <input id="tab-3" type="radio" name="radio-set" class="tab-selector-3" />
+		        <label for="tab-3" class="tab-label-3">Others</label>
+		
+			
+		        <div class="content">
+			        <div class="content-1">
+			        	<ul class="pop-list">
+			        		#{list items:posTypes, as:'pos'}
+				        		<li id="type-${pos.id}" class="type-item">
+				        			<a><img src="${pos?.iconURL}" /></a>
+				        			<span>${pos?.type}</span>
+				        		</li>
+			        		#{/list}
+			        	</ul>
+				    </div>
+			        <div class="content-2">
+			        	<ul class="pop-list">
+			        		#{list items:negTypes, as:'neg'}
+				        		<li id="type-${neg.id}" class="type-item">
+				        			<a><img src="${neg?.iconURL}" /></a>
+				        			<span>${neg?.type}</span>
+				        		</li>
+			        		#{/list}
+			        	</ul>
+				    </div>
+				    <div class="content-3">
+				    	<div class="form-group beh-wraper">
+							<label for="oth-behavior">Behavior</label>
+							<input class="form-control" id="oth-behavior" name="othBehavior" placeholder="Write your behavior" />
+						</div>
+						<div class="form-group beh-wei-wraper">
+							<label for="oth-weight">Weight</label>
+							<input class="form-control" id="oth-weight" name="othWeight" placeholder="-/+number" />
+						</div>
+				    	<div class="form-group">
+							<label>Your reasons</label>
+							<textarea class="form-control" id="othmrk-reason" name="reason" rows="3" placeholder="Write your reason here"></textarea>
+						</div>
+						<div class="form-popup">
+							<input class="form-submit othmrk-submit" type="submit" value="Submit"/>
+						</div>
+				    </div>
+		        </div>
+			</section>
+			
+			<section class="reasons">
+				<div class="content">
+					<h3>Give Zhangsan '-1' due to Helpping others.</h3>
+					<div class="form-group">
+						<label for="mark-reason">Your reasons</label>
+						<textarea id="mark-reason" class="form-control" rows="5" placeholder="Write your reason here"></textarea>
+					</div>
+				    <div class="form-popup">
+				    	<input class="form-submit mark-pre" type="button" value="Previous" style="float:left;">	
+						<input class="form-submit mark-submit" type="submit" value="Submit">
+					</div>
+				</div>
+			</section>
+		</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+	$(document).ready(function(){
+		
+		initSetup();
+		
+		$('.mark-submit').on('click', function(){
+			$.ajax({
+				url: "/classlifecontroller/markChildbyId",
+                type: "POST",
+                data: {
+                	childId: $('.ch-info.selected').attr('id').replace('ch-', ''),
+                	typeId: $('.type-item.selected').attr('id').replace('type-', ''),
+					reason: $('#mark-reason').val()
+                },
+                success: function(response, status){
+                	if(status == "success"){
+                		var child = jQuery.parseJSON(JSON.stringify(response));
+                		var oldScore = $('#ch-' + child.id).find('.round-item-link').text();
+                		var newScore = child.score;
+                		var dif = newScore - oldScore;
+                		if(dif >= 0){
+             				$('div.cb-alert').removeClass("alert-danger");
+             				$('div.cb-alert').addClass("alert-success");
+             			}else{
+             				$('div.cb-alert').removeClass("alert-success");
+             				$('div.cb-alert').addClass("alert-danger");
+             			}
+                		
+                		$('#bemark-model').modal('hide');
+                		$('#ch-' + child.id).find('.round-item-link').text(child.score);
+                		
+                		popupAlert();
+                		
+                		$("div.cb-alert h3").text(child.firstName + " " + child.lastName);
+                		$("div.cb-alert p").text(dif + " due to "+ $('.type-item.selected > span').text());
+                		$("div.cb-alert img.al-ico").attr("src", $('.type-item.selected img').attr("src"));
+                		$("div.cb-alert img.al-chico").attr("src", "../../" + child.avatarURL);
+                	}
+                }
+			});
+		});
+		
+		$('.othmrk-submit').on('click', function(){
+			$.ajax({
+				url: "/classlifecontroller/markChildbyId",
+                type: "POST",
+                data: {
+                	childId: $('.ch-info.selected').attr('id').replace('ch-', ''),
+					reason: $('#othmrk-reason').val(),
+					othBehavior: $('#oth-behavior').val(),
+					othWeight: $('#oth-weight').val()
+                },
+                success: function(response, status){
+                	if(status == "success"){
+                		var child = jQuery.parseJSON(JSON.stringify(response));
+                		var oldScore = $('#ch-' + child.id).find('.round-item-link').text();
+                		var newScore = child.score;
+                		var dif = newScore - oldScore;
+             			if(dif >= 0){
+             				$('div.cb-alert').removeClass("alert-danger");
+             				$('div.cb-alert').addClass("alert-success");
+             			}else{
+             				$('div.cb-alert').removeClass("alert-success");
+             				$('div.cb-alert').addClass("alert-danger");
+             			}
+                		
+                		$('#bemark-model').modal('hide');
+                		$('#ch-' + child.id).find('.round-item-link').text(child.score);
+                		
+                		popupAlert();
+                		
+                		$("div.cb-alert h3").text(child.firstName + " " + child.lastName);
+                		$("div.cb-alert p").text(dif + " due to "+ $('#oth-behavior').val());
+                		$("div.cb-alert img.al-ico").attr("src", $('.type-item.selected img').attr("src"));
+                		$("div.cb-alert img.al-chico").attr("src", "../../" + child.avatarURL);
+                		
+                		setTimeout ( function(){
+                			$(".cb-alert.active").removeClass('active');
+                        }, 3000);
+                	}
+                }
+			});
+		});
+		
+		$("div.chgrid-wraper").on('click', '.round-item-link', function(event){
+			var id = $(this).parent().attr('id');
+			$('.ch-info.selected').removeClass('selected');
+			$(this).parent().addClass('selected');
+		});
+		
+	});
+	
+	function initSetup(){
+		$('.reasons').css("display", "none");
+		$('.pop-list > li').on('click', function(){
+			$(".tabs").css("display", "none");
+			$('.reasons').css("display", "block");
+			
+			$('#mark-reason').val("");
+			$('.type-item.selected').removeClass('selected');
+			$(this).addClass('selected');
+		});
+		
+		
+		$('.mark-pre').on('click', function(){
+			$(".tabs").css("display", "block");
+			$('.reasons').css("display", "none");
+		});
+		
+		
+		$('#bemark-model').on('hidden.bs.modal', function () {
+			$(".tabs").css("display", "block");
+			$('.reasons').css("display", "none");
+		})
+	}
+	
+	function popupAlert(){
+		var alertEle = $(".cb-alert");
+		alertEle.addClass('appear');
+		setTimeout ( function(){
+			alertEle.addClass('active');
+        }, 1);
+		
+		setTimeout ( function(){
+			alertEle.removeClass('active');
+			setTimeout ( function(){
+    			alertEle.removeClass('appear');
+            }, 300);
+        }, 3000);
+	}
+</script>

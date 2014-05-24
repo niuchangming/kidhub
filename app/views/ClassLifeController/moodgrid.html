@@ -1,0 +1,158 @@
+<link href="@{'/public/stylesheets/markgrid.css'}" rel="stylesheet" media="screen">
+<div class="alert cb-alert">
+	<img class="al-chico" src="/public/images/monster/cute2.png"/>
+	<div>
+		<h3>Zhang Xiaopeng</h3>
+		<p><span>+1 due to Helpping others</span></p>
+	</div>
+	<img class="al-ico" src="/public/images/heart.png"/>
+</div>	
+#{extends "main.html"/}
+#{set user: user /}
+
+<div class="dash-container">
+	#{subheader user:user, clz:clz, as:"dash"/}
+	<div class="dash-content">
+		<div class="left-menu">
+			<div class="list-group">
+			  <a href="#" class="list-group-item active">Daily report</a>
+			  <a href="#" class="list-group-item">Class schedule</a>
+			  <a href="@{ClassLifeController.showmenubyweek(clz?.id)}" class="list-group-item">Food menu</a>
+			  <a href="#" class="list-group-item">Class photo</a>
+			  <a href="@{ClassLifeController.markGrid(clz?.id)}" class="list-group-item">Baby behavior</a>
+			  <a href="@{ClassLifeController.moodGrid(clz?.id)}" class="list-group-item">Baby mood</a>
+			  <a href="#" class="list-group-item">Class statistics</a>
+			</div>
+		</div>
+		<div class="right-detail">
+			<div class="chgrid-wraper">
+				#{if clz?.children?.size() > 0}
+					#{list items: clz?.children, as:'child'}
+						%{
+							String imgUrl = models.Mood.defaultIconUrl;
+							if(child.moods != null && child.moods.size() > 0){
+								imgUrl = child.moods.get(0).iconURL;
+							}
+						}%
+						<div id="ch-${child?.id}" class="col-xs-12 col-sm-6 col-md-4 col-lg-2 round-item">
+							<a class="round-item-txt round-item-link mood-link" data-toggle="modal" data-target="#bemood-model">
+								<img src="${imgUrl}"/>
+							</a>
+							<div class="round-item-avatar">
+								<a>
+									<img src="../../${child.avatarURL}"/>
+								</a>
+							</div>
+						</div>
+					#{/list}
+				#{/if}
+				#{else}
+					<div id="nonch-wraper">
+						<div class="clz-add-wraper">
+						   	<a class="cre-clz-plus" href="@{RosterController.classRoster(clz?.id)}"></a>
+						   	<h3 class="add-clz-btn">There is no child in this class<br>Click on \"Plus\" button to add child !</h3>
+						   	<img src="http://www.ck12.org/media/dashboard/images/groups-img.png">
+						</div>
+					</div>
+				#{/else}
+			</div>
+			
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="bemood-model" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-center">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>MARK Mood</h3>
+      </div>
+      <div class="modal-body mood-items-wrap">
+      	<ul class="pop-list">
+   			<li class="mood-item">
+       			<a><img src="/public/images/moods/mood_smile.png"></a>
+       			<span>Smile</span>
+       			<input type="hidden" value="0" name="mood">
+       		</li>
+       		<li class="mood-item">
+       			<a><img src="/public/images/moods/mood_laugh.png"></a>
+       			<span>Laugh</span>
+       			<input type="hidden" value="1" name="mood">
+       		</li>
+       		<li class="mood-item">
+       			<a><img src="/public/images/moods/mood_cool.png"></a>
+       			<span>Cool</span>
+       			<input type="hidden" value="2" name="mood">
+       		</li>
+       		<li class="mood-item">
+       			<a><img src="/public/images/moods/mood_cheeky.png"></a>
+       			<span>Cheeky</span>
+       			<input type="hidden" value="3" name="mood">
+       		</li>
+       		<li class="mood-item">
+       			<a><img src="/public/images/moods/mood_devil.png"></a>
+       			<span>Devil</span>
+       			<input type="hidden" value="4" name="mood">
+       		</li>
+       		<li class="mood-item">
+       			<a><img src="/public/images/moods/mood_sad.png"></a>
+       			<span>Sad</span>
+       			<input type="hidden" value="5" name="mood">
+       		</li>
+ 			<li class="mood-item">
+       			<a><img src="/public/images/moods/mood_angry.png"></a>
+       			<span>Angry</span>
+       			<input type="hidden" value="6" name="mood">
+       		</li>
+      		<li class="mood-item">
+       			<a><img src="/public/images/moods/mood_cry.png"></a>
+       			<span>Cry</span>
+       			<input type="hidden" value="7" name="mood">
+       		</li>
+      	</ul>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+	$(document).ready(function(){
+		
+		$('.round-item').on('click', function(){
+			$('.mood-selected').removeClass('mood-selected');
+			$(this).addClass('mood-selected');
+		});
+		
+		
+		$('.mood-item').on('click', function(){
+			$.ajax({
+				url: "/classlifecontroller/moodchildbyid",
+                type: "POST",
+                data: {
+                	childId: $('.round-item.mood-selected').attr('id').replace('ch-', ''),
+					moodValue: $(this).find('input').val()
+                },
+                success: function(response, status){
+                	if(status == "success"){
+                		var mood = jQuery.parseJSON(JSON.stringify(response));
+                		$('.mood-selected').find('a.mood-link > img').attr('src', mood.iconURL);
+                		$('#bemood-model').modal('hide');
+                	}
+                }
+			});
+		});
+	});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,204 @@
+#{extends 'main.html'/}
+#{set user: user /}
+<link href="@{'/public/stylesheets/classroster.css'}" rel="stylesheet" media="screen">
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		
+		$('.date').datepicker({
+        	format: "yyyy-mm-dd"
+        });
+		
+		$("#add-roster-form").validate({
+	        rules: {
+	        	firstName:{
+	                minlength: 3,
+	                maxlength: 20,
+	                required: true
+	            },
+				lastName: {
+					minlength: 3,
+	                maxlength: 20,
+	                required: true
+				}
+	        },
+	        highlight: function (element) {
+	            $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+	        },
+	        unhighlight: function (element) {
+	            $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+	        },
+	        errorPlacement: function(error, element) {
+	            error.appendTo('#add-roster-form');
+          	},
+          	submitHandler: function(form) {
+	            $.ajax({
+	                url: "/rostercontroller/createchild",
+	                type: "POST",
+	                data : $(form).serialize() + "&clzId=" + ${clz?.id},
+	                success: function(response, status) {
+	                	if(status == "success"){
+	                		var child = jQuery.parseJSON(JSON.stringify(response));
+	                		var childCount = $("#ch-table tr").length + 1;
+	                		var date = new Date(child.birth);
+	                		
+	                		var ISODate = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+	                		
+							var html = "<tr id=\"roster-row" + childCount + "\">";
+							html += "<td>" + childCount + "</td>";
+	                		html += "<td class=\"td-fn\"><input type=\"text\" name=\"firstName\" value=\"" + child.firstName + "\"></td>";
+	                		html += "<td class=\"td-ln\"><input type=\"text\" name=\"lastName\" value=\"" + child.lastName + "\"></td>";
+							html += "<td class=\"td-bd\"><input type=\"text\" name=\"birth\" value=\"" + ISODate + "\"></td>";
+							html += "<td class=\"td-pr\"><input type=\"text\" name=\"parent\" value=\"" + "" + "\" readonly=\"readonly\"></td>";
+							html += "<td class=\"td-action\"><input class=\"btn btn-warning edit-roster\" type=\"submit\" value=\"Edit\"></td>";
+	                		html += "</tr>";
+	                		
+	                		$("tbody#ch-table").append(html);
+	                		$("#roster-addch > td").first().text(childCount + 1);
+	                		$('#add-roster-form input').each(function(){
+	                			if(typeof $(this).attr('placeholder') !== "undefined"){
+	                				$(this).val("");
+	                			}
+	                		});
+	                		$("table.roster-table").trigger('repaginate');
+	                		updateClzInfo();
+	                		showMsg("success");
+	                	}else{
+	                		showMsg("error");
+	                	}
+	                }
+                });
+	         }
+	    });
+		
+		
+		$('.edit-roster').on('click', function(){
+			var rowId = $(this).parent().parent().attr('id');
+			var childId = rowId.substring(10, rowId.length);
+			$.ajax({
+                url: "/rostercontroller/editchild",
+                type: "POST",
+                data : {
+                	childId: childId,
+                	firstName: $(this).parent().parent().find('.td-fn > input').val(),
+                	lastName: $(this).parent().parent().find('.td-ln > input').val(),
+                	birth: $(this).parent().parent().find('.td-bd > input').val()
+                },
+                success: function(response, status) {
+                	if(status == "success"){
+                		var child = jQuery.parseJSON(JSON.stringify(response));
+                		showMsg("success");
+                	}else{
+                		showMsg("fail");
+                	}
+                },
+                error: function(error){
+                	showMsg("fail");
+                }
+            });
+		});
+		
+		
+		$('table#page_container').each(function() {
+		    var currentPage = 0;
+		    var numPerPage = 10;
+		    var $table = $(this);
+		    var $form = $('#add-roster-form');
+		    $table.bind('repaginate', function() {
+		        $table.find('tbody tr').hide().slice(currentPage * numPerPage, (currentPage + 1) * numPerPage).show();
+		    });
+		    $table.trigger('repaginate');
+		    var numRows = $table.find('tbody tr').length;
+		    var numPages = Math.ceil(numRows / numPerPage);
+		    var $pager = $('<div class="pager"></div>');
+		    for (var page = 0; page < numPages; page++) {
+		        $('<span class="page-number"></span>').text(page + 1).bind('click', {
+		            newPage: page
+		        }, function(event) {
+		            currentPage = event.data['newPage'];
+		            $table.trigger('repaginate');
+		            $(this).addClass('active').siblings().removeClass('active');
+		        }).appendTo($pager).addClass('clickable');
+		    }
+		    $pager.insertAfter($form).find('span.page-number:first').addClass('active');
+		});
+	});
+	
+	function updateClzInfo(){
+		if(typeof(Storage) !== "undefined"){
+			var count = $("#ch-table tr").length;
+			sessionStorage.setItem("has_to_update", "yes");
+			sessionStorage.setItem("clz-" + ${clz?.id}, count + " children");
+		}
+	}
+	
+	function showMsg(status){
+		if(status === "success"){
+			$(".alert").addClass("alert-success");
+			$(".alert").text("Add a new child successfully !");
+		}else{
+			$('.alert').addClass('alert-danger');
+			$(".alert").text("Failed to add a new child !");
+		}
+		
+		setTimeout ( function(){
+			$(".alert.alert-success").removeClass('alert-success');
+			$(".alert.alert-danger").removeClass('alert-danger');
+        }, 3000);
+	}
+</script>
+
+<div class="dash-container">
+	#{subheader user:user, clz:clz, as:"dash"/}
+	<div class="dash-content">
+		<div class="left-menu">
+			<div class="list-group">
+			  <a href="#" class="list-group-item active">Children list</a>
+			  <a href="#" class="list-group-item">Term conclusion</a>
+			</div>
+		</div>
+		<div class="right-detail">
+			<div class="alert"></div>
+			<table id="page_container" class="roster-table">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th class="td-fn">First Name</th>
+						<th class="td-ln">Last Name</th>
+						<th class="td-bd">Birthday</th>
+						<th class="td-pr">Parent</th>
+						<th class="td-">Action</th>
+					</tr>
+				</thead>
+				<tbody id="ch-table" class="page_navigation">
+					%{
+						int i = 1;
+					}%
+					#{list items:clz?.children, as: 'child'}
+						<tr id="roster-row${child.id}">
+							<td>${i}</td>
+							<td class="td-fn"><input type="text" name="firstName" value="${child.firstName}"></td>
+							<td class="td-ln"><input type="text" name="lastName" value="${child.lastName}"></td>
+							<td class="td-bd"><input class="date" type="text" name="birth" value="${child?.birth}"></td>
+							<td class="td-pr"><input type="text" name="parent" value="${child?.parent?.firstName} ${child?.parent?.lastName}" readonly="readonly"></td>
+							<td class="td-action"><input class="edit-roster btn btn-warning" type="submit" value="Edit"></td>
+						</tr>
+						%{i++}%
+					#{/list}
+				</tbody>
+			</table>
+			<form id="add-roster-form">
+				<table class="roster-table addch-tb-form">
+					<tr id="roster-addch">
+						<td>${clz?.children?.size() + 1}</td>
+						<td class="td-fn"><input type="text" name="firstName" placeholder="Click to Add"></td>
+						<td class="td-ln"><input type="text" name="lastName" placeholder="Click to Add"></td>
+						<td class="td-bd"><input type="text" class="date" name="birth" placeholder="Click to Add"></td>
+						<td class="td-pr"><input type="text" name="parent" readonly="readonly"></td>
+						<td class="td-action"><input class="btn btn-success add-roster" type="submit" value="Add"></td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+</div>

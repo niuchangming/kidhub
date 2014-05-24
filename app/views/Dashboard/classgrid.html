@@ -1,0 +1,152 @@
+#{extends "main.html"/}
+#{set user: user /}
+<link href="@{'/public/stylesheets/classgrid.css'}" rel="stylesheet" media="screen" />
+
+#{subheader user:user, as:"clz-list" /}
+
+<div class="clz-role">
+	<h2>My Class Board</h2>
+	<div class="cb-group">
+		<label class="checkbox checked" for="checkbox_teacher">
+		    <span class="icons">
+			   	<span class="first-icon fui-checkbox-unchecked"></span>
+			   	<span class="second-icon fui-checkbox-checked"></span>
+	   		</span>
+	   		<input type="checkbox" value="" id="checkbox_teacher" data-toggle="checkbox">I am a teacher
+		</label>
+		<label class="checkbox unchecked" for="checkbox_teacher">
+		  <span class="icons">
+		  	<span class="first-icon fui-checkbox-unchecked"></span>
+			  	<span class="second-icon fui-checkbox-checked"></span>
+			</span>
+			<input type="checkbox" value="" id="checkbox_teacher" data-toggle="checkbox">I am a babysitter
+		</label>
+	</div>
+</div>
+
+<div class="class-container">
+	#{if user.classes?.size() > 0}
+		#{list items : user.classes, as:'clz'}
+			<div class="col-md-4">
+				<div class="class-item">
+		        	<div class="class-info">
+		        		<a><img class="author-avatar" src="${clz.logoURL}"/></a>
+		       			<div>
+		       				<h3>${clz.className}</h3>
+		       				<span>Level ${clz.classLevel}</span>
+		       				<span class="badge badge-primary">${clz?.children.size()} children</span>
+		       			</div>
+		       		</div>
+		       		<hr>
+		       		<div class="class-act">
+		       			<h3>Last Activity</h3>
+		       			<p>created by ${user.username} at 2-Feb-2014</p>
+		       			<div class="act-content">
+		       				<img class="author-avatar" src="@{'/public/images/04.png'}"/>
+		       				Create a new lesson Create a new lesson Create a new lesson
+		       			</div>
+		       			<a id="clz-${clz.id}" href="@{Dashboard.teacherBoard(clz.id)}" class="btn btn-success class-btn">Start the class !</a>
+		       		</div>
+			    </div>
+			</div>
+		#{/list}
+	#{/if}
+</div>
+
+<script type="text/javascript">
+	
+	$(document).ready(function () {
+		
+		refreshPage();
+		
+        $('.date').datepicker({
+        	format: "yyyy-mm-dd"
+        });
+        
+        $("ul#clz-logos").on("click", ".clz-logo-item", function(){
+			$("li.clz-logo-item.selected").removeClass("selected");
+			$(this).addClass("selected");
+			var url = $(this).find("img").attr('src');
+			$("#clz-lgurl").attr("value", url);
+		});
+        
+        $.validator.addMethod(
+        	    "date",
+        	    function ( value, element ) {
+        	        return value.match(/^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$/);
+        	    },
+        	    "Please enter a date in the format dd-mm-yyyy"
+        );
+        
+        $.validator.addMethod(
+        		"daterange", 
+                function(value, element) {
+                  	if( $("#clz-start").val() != "" &&  $("#clz-end").val() != ""){
+                   	 	return Date.parse($("#clz-start").val()) < Date.parse($("#clz-end").val());
+        			}else{
+						return true;        				
+        			}
+                }, 
+                "End date error"
+         );
+        
+        $("form.cteclz-form").validate({
+	        rules: {
+	        	"clz.className":{
+	        		minlength: 3,
+	                maxlength: 20,
+	                required: true
+	            },
+	            "clz.startDate": {
+	            	required: true,
+	            	date: true,
+	            	daterange: true
+	            },
+	            "clz.endDate":{
+	            	required: true,
+	            	date:true,
+	            	daterange: true
+	            }
+	        },
+	        highlight: function (element) {
+	            $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+	        },
+	        unhighlight: function (element) {
+	            $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+	        },
+	        submitHandler: function(form) {
+	        	if($("#clz-level").val() != 0){
+	        		$.ajax({
+		                url: "/dashboard/createClass",
+		                type: "POST",
+		                data: $(form).serialize(),
+		                success: function(response, status) {
+		                	if($.trim(status) == "success"){
+		                		window.location.reload(true);
+		                	}else{
+		                		$('.clz-name').before("<label class=\"error\">Unknown error.</label>");
+		                	}
+		                }
+	                });
+	        	}else{
+	        		$('.clz-name').before("<label class=\"error\">Your session expired, please logout and login again.</label>");
+	        	}
+	        }
+	    });
+    });
+	
+	function refreshPage(){
+		if(sessionStorage.getItem("has_to_update") == "yes"){
+			$('.class-btn').each(function(){
+				var v = sessionStorage.getItem($(this).attr('id'));
+				$(this).parent().parent().find('span.badge').text(v);
+			});
+		}else{
+			$('.class-btn').each(function(){
+				sessionStorage.setItem($(this).attr('id'), $(this).parent().parent().find('span.badge').text());
+			});
+		}
+		sessionStorage.setItem("has_to_update", "no");
+	}
+	
+</script>

@@ -1,0 +1,159 @@
+.color-late {
+	background-color: #F1C40F;
+}
+.color-absent {
+	background-color: #FF4444;
+}
+.color-present {
+	background-color: #2ECC71;
+}
+.color-mc {
+	background-color: #E67E22;
+}
+
+.color-late-txt {
+	color: #F1C40F;
+}
+.color-absent-txt {
+	color: #FF4444;
+}
+.color-present-txt {
+	color: #2ECC71;
+}
+
+.color-mc-txt {
+	color: #E67E22;
+}
+
+.ch-att-avatar img:hover{
+	-moz-box-shadow: inset 0 0 5px 2px #3498DB;
+	-webkit-box-shadow: inset 0 0 5px 2px #3498DB;
+	box-shadow: inset 0 0 5px 2px #3498DB;
+}
+
+#avr-edit-model h3{
+	color: #2a6496;
+	z-index: 999;	
+}
+
+#avr-edit-model img{
+	width: 100%;
+	height: auto;
+}
+
+#avatar-upload{
+	position: absolute;
+	height: 33px;
+	margin: 0;
+	padding: 0;
+	top: 20px;
+	left: 20px;
+	font-size: 20px;
+	cursor: pointer;
+	opacity: 0;
+}
+
+#avr-btn-wrap{
+	padding: 6px 12px;
+	overflow: hidden;
+}
+
+#upload-fn{
+	padding:0;
+	margin-bottom: 0;
+	height:33px;
+	line-height: 33px;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	display: inline-block;
+}
+
+#fn-text{
+	height:100%;
+	padding: 6px 12px;
+	line-height:15px;
+	font-size: 15px;
+	color: #666;
+	border: 1px solid #D8D8D8;
+	font-family: inherit;
+	border-radius: 4px;
+}
+
+.jcrop-holder, .cropper{
+	margin-top: 20px;
+}
+
+#avr-submit{
+	padding:6px 12px;
+	float: right;
+}
+
+.jcrop-keymgr{
+	opacity:0;
+}
+
+.attend-list{
+	width: 100%;
+	height:auto;
+	text-align: center;
+	padding-left: 5px;
+	table-layout: fixed;
+}
+
+.attend-list > li{
+	display: inline-block;
+	margin: 15px;
+	list-style-type:none;
+}
+
+.attend-list > li span:hover{
+	-webkit-box-shadow: inset 0 0 10px 2px rgb(255, 255, 255, 0.1);
+	box-shadow: inset 0 0 10px 2px rgba(255, 255, 255, 0.1);
+	opacity : 0.8;
+}
+
+.attend-list span{
+	width: 96px;
+	height: 96px;
+	line-height:96px;
+	border-radius: 48px;
+	text-align:center;
+	font-size: 4.5em;
+	font-weight: 700;
+	color: white;
+	display: inline-block;
+	text-align:center;
+	box-shadow: 1px 1px 5px #888888;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+}
+
+.attend-list p{
+	height: 24px;
+	padding: 0;
+	margin: 10px 0;
+	line-height:24px;
+	text-align: center;
+	overflow:hidden;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

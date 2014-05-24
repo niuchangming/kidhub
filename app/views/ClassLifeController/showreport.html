@@ -1,0 +1,11 @@
+#{extends 'main.html'/}
+#{set user: user /}
+
+<link href="@{'/public/stylesheets/reportshow.css'}" rel="stylesheet" media="screen">
+
+<div class="dash-container">
+	#{subheader user:user, as:"report_show"/}
+	#{if report}
+		<div class="rpt-content">${report.htmlContent.raw()}</div>
+	#{/if}
+</div>

@@ -1,0 +1,120 @@
+<div class="dash-header">
+	<div id="dash-lg-msg">
+		<img src="http://img1.ck12.org/media/build-20140228154247/common/images/logo_ck12_large.png"/>
+		#{if _user}
+			<a id="alert-link" href="#" data-toggle="popover" data-placement="bottom">
+				<img src="/public/images/alert.png"/>
+				<span>${_user.alerts?.size()}</span>
+			</a>
+			#{if _user.alerts?.size() > 0}
+				<div class="popper-content hide">
+					<ul id="alert-list">
+						#{list items:_user.alerts, as: 'alert'}
+							<li id="alert-${alert.id}">
+								<a href="#">
+									<span class="alert-title">${alert.title}</span>
+									<span class="alert-content">${alert.content}</span>
+								</a>
+								<span class="alert-cross">
+									<i class="second-icon fui-cross" onclick="deleteAlert(${alert.id});"></i>
+								</span>
+							</li>
+						#{/list}
+					</ul>
+				</div>
+			#{/if}
+		#{/if}
+	</div>
+	
+	
+	#{if _as == "dash"}
+		<nav id="dash-navbar" class="navbar">
+			<div class="collapse navbar-collapse navbar-ex1-collapse">
+				<ul class="nav navbar-nav">
+					<li><a href="#">Announcement</a></li>
+					<li><a href="@{AttendanceController.classAttendance(_clz?.id)}">Attendance</a></li>
+					<li><a href="@{ClassLifeController.classReport(_clz?.id)}">Class Life</a></li>
+					<li><a href="#">e-Interaction</a></li>
+					<li><a href="@{RosterController.classRoster(_clz?.id)}">Class roster</a></li>
+					<li><a href="#">Lesson resource</a></li>
+					<li><a href="#">Message</a></li>
+				</ul>
+			</div>
+		</nav>
+	#{/if}
+	
+	#{elseif _as == "clz-list"}
+		<div class="btn-container">
+			<button type="button" class="btn btn-success" data-toggle="modal" data-target="#cre-clz-model">Create a class !</button>
+			<button type="button" class="btn btn-info">Join a class !</button>
+		</div>
+		#{createclzmodel /}
+	#{/elseif}
+	
+	#{elseif _as == "home"}
+		<div class="btn-container">
+			<span>Login in with</span>
+			<ul class="social-sigin">
+				<li id="fb-in"><a><img src="/public/images/facebook.png"/></a></li>
+				<li id="gp-in"><a><img src="/public/images/google_plus.png"/></a></li>
+				<li id="tw-in"><a><img src="/public/images/twitter.png"/></a></li>
+			</ul>
+		</div>
+	#{/elseif}
+	
+	#{elseif _as == "teacher"}
+		<div class="btn-container">
+			<button type="button" class="btn btn-success" data-toggle="modal" data-target="#cre-clz-model">Create a class !</button>
+			<button type="button" class="btn btn-info">Join a class !</button>
+		</div>
+	#{/elseif}
+	
+	#{elseif _as == "report_show"}
+		<div class="btn-container">
+			<button type="button" class="btn btn-success back_btn" onclick="history.back();">Back to previous page!</button>
+		</div>
+	#{/elseif}
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#alert-link').popover({ 
+			  container: 'body',
+			  html : true,
+			  content: function(){
+				  return $(this).next('.popper-content').html();
+			  }
+		  });
+		  
+		  $('ul.navbar-nav > li').on('click', function(){
+				$('ul.navbar-nav > li.active').removeClass('active');
+				$(this).addClass('active');
+		  });
+	
+	});
+
+	function deleteAlert(value){
+		var items = $('#alert-list').children();
+		var count = $('#alert-link > span');
+		if(items.length == 1){
+			$('#alert-link').popover('hide');
+			$('.popover').remove();
+			$('.popover').remove();
+		}else{
+			$('#alert-' + value).remove();
+			$('#alert-' + value).remove();
+		}
+		
+		count.text(items.length - 1);
+		
+		$.ajax({
+            url: "/alertcontroller/deletebyid",
+            type: "POST",
+            data: {
+            	id: value
+            }
+        });
+	}
+	
+</script>
+

@@ -1,0 +1,163 @@
+#{extends 'main.html'/}
+#{set user: user /}
+<link href="@{'/public/stylesheets/classreport.css'}" rel="stylesheet">
+<link href="@{'/public/stylesheets/elementtransitions/elementTransitions.css'}" rel="stylesheet">
+<link href="@{'/public/stylesheets/trevor/sir-trevor-icons.css'}" rel="stylesheet">
+<link href="@{'/public/stylesheets/trevor/sir-trevor.css'}" rel="stylesheet">
+<script src="@{'/public/javascripts/elementtransitions/elementTransitions.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+<script src="@{'/public/javascripts/trevor/underscore.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+<script src="@{'/public/javascripts/trevor/eventable.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+<script src="@{'/public/javascripts/trevor/sir-trevor.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+<script>
+	$(function(){
+	    SirTrevor.DEBUG = true;
+	    SirTrevor.LANGUAGE = "en";
+	
+	    window.editor = new SirTrevor.Editor({
+		      el: $('.sir-trevor'),
+		      blockTypes: [
+		        "Heading",
+		        "Text",
+		        "List",
+		        "Image",
+		        "Video"
+		      ],
+		      required: [
+		        "Text"
+		      ],
+		      blockTypeLimits: {
+		    	"Image": 3,
+		    	"Video": 1
+		      }
+	    });
+		
+	    SirTrevor.setDefaults({
+	    	  uploadUrl: "/classlifecontroller/uploadimage"
+	    });
+	    
+	    jQuery("abbr.rpt-info").timeago();
+	   
+	    var isMax = false;
+	    $('.report-show').bind("scroll", function() {
+	        if ($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
+	        	var loading = "<img class=\"loading-bar\" src=\"/public/images/loading_icon.gif\">";
+	        	var offset = $('.report-item').length - 1;
+	        	
+	        	if($('.loading-bar').length == 0 && !isMax){
+	        		$('.right-detail').append(loading);
+	        		
+	        		$.ajax({
+		                url: "/classlifecontroller/reportsbyrange",
+		                type: "POST",
+		                data: {
+		                	clzId: ${clz.id},
+		                	offset: offset,
+		                	max: 20
+		                },
+		                success: function(response, status) {
+		                	if(status == "success"){
+		                		var reports = jQuery.parseJSON(JSON.stringify(response));
+		                		if(reports.length < 20){
+		                			isMax = true;
+		                		}
+		                		$.each(reports, function(index) {
+		                			var html = "<div class=\"col-xs-12 col-sm-6 col-md-4 col-lg-3 report-item\">";
+	                				if(reports[index].thumnail){
+	                					html += "<img src=../../\"" + reports[index].thumnail + "\"/>";
+	                				}else{
+	                					if(reports[index].title){
+	                						html += "<h3>" + reports[index].title + "</h3>";
+	                					}
+	                					html += "<p class=\"rpt-desc\">" + reports[index].shortDesc + "</p>";
+	                				}
+	                				html += "<div class=\"rpt-info-wrap\">";
+	                				html += "<abbr class=\"rpt-info\" title=\""+ reports[index].createdDate + "\">" + jQuery.timeago(reports[index].createdDate) + "</abbr>";
+	                				html += "</div></div>";
+		                			$('.report-show').append(html);
+		                        });
+		                	}
+		                	$('.loading-bar').remove();
+		                }
+	                });
+	        	}           
+	        }
+	    });
+	    
+	    $('#back-rpt').click(function(e){
+	    	e.preventDefault();
+	    	
+	    });
+	    
+	});
+	
+	function showReport(reportId){
+		$.post( "/ReportShowController/showreport", { reportId: reportId } );
+	}
+</script>
+<div class="dash-container">
+	#{subheader user:user, clz:clz, as:"dash"/}
+	<div class="dash-content">
+		<div class="left-menu">
+			<div class="list-group">
+			  <a href="#" class="list-group-item active">Daily report</a>
+			  <a href="#" class="list-group-item">Class schedule</a>
+			  <a href="@{ClassLifeController.showmenubyweek(clz?.id)}" class="list-group-item">Food menu</a>
+			  <a href="#" class="list-group-item">Class photo</a>
+			  <a href="@{ClassLifeController.markGrid(clz?.id)}" class="list-group-item">Baby behavior</a>
+			  <a href="@{ClassLifeController.moodGrid(clz?.id)}" class="list-group-item">Baby mood</a>
+			  <a href="#" class="list-group-item">Class statistics</a>
+			</div>
+		</div>
+		<div class="right-detail et-wrapper">
+			<div class="et-page report-show">
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 report-item">
+					<button id="add-rep-btn" class="fui-plus et-rotate" et-in="moveFromLeft" et-out="moveToRightEasing ontop"></button>
+				</div>
+				#{list items:reports, as:'report'}
+					<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 report-item" onclick="showReport(${report.id});">
+						<a href="@{ReportShowController.showReport(report.id)}" class="rpt-thm_wrap">
+							#{if report.thumnail}
+								<img src="../../${report?.thumnail}"/>
+							#{/if}
+							#{else}
+								#{if report.title}
+									<h3>${report.title}</h3>
+								#{/if}
+								<p class="rpt-desc">
+									${report.shortDesc.raw()}
+								</p>
+							#{/else}
+						</a>
+						<div class="rpt-info-wrap">
+							<abbr class="rpt-info" title="${report.createdDate}"></abbr>
+						</div>
+					</div>
+				#{/list}
+			</div>
+			<div class="et-page report-edit">
+				<form id="report-form">
+					<button id="submit-report" type="submit" class="btn btn-success">Submit your report !</button>
+					<button id="back-rpt" class="btn btn-info et-rotate" et-in="moveFromRight" et-out="moveToLeftEasing ontop">Back to report dashboard !</button>
+					<input type="hidden" name="clzId" value="${clz?.id}">
+					<textarea class="sir-trevor"  name="reportByJson" style="display: none;">
+						{
+							"data":
+							[
+								{
+									"type":"text",
+									"data":
+									{
+										"text":"Write today's report here. "
+									}
+								}
+							]
+						}
+					</textarea>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+

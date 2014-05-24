@@ -1,0 +1,230 @@
+<script type="text/javascript">
+	$(document).ready(function(){
+	    $(".signup-form").validate({
+	        rules: {
+	        	username:{
+	                minlength: 3,
+	                maxlength: 20,
+	                required: true,
+	                remote: {
+	                    url: "/signcontroller/isUsernameAvailable",
+	                    type: 'get',
+	                    data: {
+	                        'username': function() {
+	                            return $( "#signup_username" ).val();
+	                        }
+	                    },
+	                }
+	            },
+	            password:{
+	            	minlength: 6,
+	                maxlength: 20,
+	            	required:true
+	            },
+	            confirmpassword:{	
+	            	minlength: 6,
+	                maxlength: 20,
+	            	equalTo: "#signup_pwd",
+            		required:true
+	            },
+	            email:{
+	                email:true
+	            }
+	        },
+	        messages: {
+	        	username:{
+               		remote:"User name already exists."
+               }
+            },
+	        highlight: function (element) {
+	            $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+	        },
+	        unhighlight: function (element) {
+	            $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+	        },
+	        submitHandler: function(form) {
+	            $.ajax({
+	                url: "/signcontroller/signup",
+	                type: "POST",
+	                data: $(form).serialize(),
+	                success: function(response, status) {
+	                	if(status == "success" && response == "success"){
+	                		window.location.reload(true);
+	                	}else{
+	                		$('.username_lbl').before("<label class=\"error\">Unknown error.</label>");
+	                	}
+	                }
+                });
+	         }
+	    });
+	    
+	    $(".signin-form").validate({
+	        rules: {
+	        	username:{
+	                minlength: 3,
+	                maxlength: 20,
+	                required: true
+	            },
+	            password:{
+	            	minlength: 6,
+	                maxlength: 20,
+	            	required:true
+	            }
+	        },
+	        highlight: function (element) {
+	            $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+	        },
+	        unhighlight: function (element) {
+	            $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+	        },
+	        submitHandler: function(form) {
+	            $.ajax({
+	                url: "/signcontroller/signin",
+	                type: "POST",
+	                data: $(form).serialize(),
+	                success: function(response, status) {
+	                	if(status == "success" && response == "success"){
+	                		window.location.reload(true);
+	                	}else{
+	                		$('.username_lbl').before("<label class=\"error\">" + response + "</label>");
+	                	}
+	                }
+                });
+	         }
+	    });
+	    
+	    $('.dropdown').bind('click', function(event) {
+			var dropdown = $('.dropdown');
+			if(dropdown.hasClass( "open" )){
+				dropdown.removeClass( "open" );
+			}else{
+				dropdown.addClass( "open" );
+			}
+		});
+	    
+	    $('#signup-link').bind('click', function(event){
+	    	$.ajax({
+                url: "/signcontroller/signout",
+                type: "GET",
+                success: function(response) {
+                	if(response == "success"){
+                		window.location.href="/"
+                	}else{
+                		alert("Unknown error.");
+                	}
+                }
+            });
+	    });
+	});
+	
+</script>
+
+<div class="header-jag">
+	<div class="header-wraper">
+		<div class="jag-left">
+			<nav class="menu menu-tb">
+				<a href="/" class="home-btn menu-btn"><span class="hover-anim" data-hover="HOME">HOME</span></a>
+				<a href="#" class="product-btn menu-btn"><span class="hover-anim" data-hover="PRODUCT">PRODUCT</span></a>
+				<a href="#" class="tool-btn menu-btn"><span class="hover-anim" data-hover="TOOL">TOOL</span></a>
+				<a href="#" class="mobile-btn menu-btn"><span class="hover-anim" data-hover="MOBILE">MOBILE</span></a>
+				<a href="#" class="contact-btn menu-btn"><span class="hover-anim" data-hover="CONTACT US">CONTACT US</span></a>
+			</nav>
+		</div>
+		<div class="jag-right">
+			<nav class="menu user-info">
+				#{if user}
+					#{if user.avatarURL}
+						<img src="${user.avatarURL}"/>
+					#{/if}
+					#{else}
+						<img src="@{'/public/images/default_avatar.png'}"/>
+					#{/else}
+					<div class="dropdown">
+	                  <a href="#" class="dropdown-toggle menu-btn" data-toggle="dropdown">
+	                  	<span >${user.username}</span> <b class="caret"></b>
+	                  </a>
+	                  <span class="dropdown-arrow"></span>
+	                  <ul class="dropdown-menu">
+	                    <li><a id="setting-link" href="@{UserSetting.index()}">User setting</a></li>
+	                    <li><a id="signup-link" href="#">Sign out</a></li>
+	                  </ul>
+	                </div>
+				#{/if}
+				#{else}
+					<a href="#" class="signin-btn menu-btn" data-toggle="modal" data-target="#signin-model"><span class="hover-anim" data-hover="SIGN IN">SIGN IN</span></a>
+					<a href="#" class="singup-btn menu-btn" data-toggle="modal" data-target="#signup-model"><span class="hover-anim" data-hover="SIGN UP">SIGN UP</span></a>
+				#{/else}
+			</nav>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="signin-model" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-center">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>SIGN IN</h3>
+      </div>
+      <div class="modal-body">
+        <form class="signin-form">
+			<div class="form-group">
+				<label for="signin_username" class="username_lbl">User name</label>
+				<input type="text" name="username" class="form-control" id="signin_username" placeholder="User name">
+			</div>
+			<div class="form-group">
+				<label for="signin_pwd">Password</label>
+				<input type="password" name="password" class="form-control" id="signin_pwd" placeholder="Password">
+			</div>
+			<div class="form-popup">
+				<input class="form-submit signin-submit" type="submit" value="Sign in"/>
+			</div>
+		</form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="signup-model" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-center">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>SIGN UP</h3>
+      </div>
+      <div class="modal-body">
+        <form class="signup-form">
+			<div class="form-group">
+				<label for="signup_username" class="username_lbl">User name</label>
+				<input type="text" name="username" class="form-control" id="signup_username" placeholder="User name">
+			</div>
+			<div class="form-group">
+				<label for="signup_pwd">Password</label>
+				<input type="password" name="password" class="form-control" id="signup_pwd" placeholder="Password">
+			</div>
+			<div class="form-group">
+				<label for="signup_con_pwd">Confirm Password</label>
+				<input type="password" name="confirmpassword" class="form-control" id="signup_con_pwd" placeholder="Password">
+			</div>
+			<div class="form-group">
+				<label for="signup_email">Email address</label>
+				<input type="email" name="email"class="form-control" id="signup_email" placeholder="Enter email">
+			</div>
+			<div class="form-popup">
+				<span class="custom-dropdown custom-dropdown--white">
+					I am a 
+				    <select name="role" id="signup_role" class="custom-dropdown__select custom-dropdown__select--white">
+				        <option value="parent">Parent</option>
+				        <option value="teacher">Teacher</option>
+				        <option value="manager">School Manager</option>
+				    </select>
+				</span>
+				<input class="form-submit signup-submit" type="submit" />
+			</div>
+		</form>
+      </div>
+    </div>
+  </div>
+</div>
+
+	

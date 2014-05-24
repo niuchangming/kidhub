@@ -1,0 +1,592 @@
+html, body{
+	width: 100%;
+	height: 100%;
+	margin: 0px auto;
+	padding: 0;
+	font-size: 14px;
+	line-height: inherit;
+	background-image:url('/public/images/billie_holiday.png');
+}
+
+/******************************************* Start Header *******************************************/
+
+.header-jag{
+	width: 100%;
+	line-height: 50px;
+	margin: 0;
+	background-color: #3da8e3;
+	box-shadow: 1px 1px 5px #888888;
+	display: block;
+	position: fixed;
+	text-align: center;
+	z-index: 9999;
+}
+
+.header-wraper {
+	width: 72%;
+	margin: auto;
+}
+
+.header-jag div {
+	height: 50px;
+}
+.jag-left{
+	float: left;
+}
+
+.jag-right{
+	float:right;
+}
+
+.form-group > label{
+	line-height:1;
+}
+
+.menu{
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.menu a {
+	position: relative;
+	display: inline-block;
+	padding: 0px 15px;
+	outline: none;
+	color: #fff;
+	text-decoration: none;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	font-weight: 300;
+	text-shadow: 0 0 1px rgba(255,255,255,0.3);
+	font-size: 1.05em;
+	overflow: hidden;
+}
+
+.current-menu-item{
+	font-weight: 700;
+}
+
+.hover-anim {
+	position: relative;
+	display: inline-block;
+	-webkit-transition: -webkit-transform 0.3s;
+	-moz-transition: -moz-transform 0.3s;
+	transition: transform 0.3s;
+}
+
+.hover-anim:before {
+	position: absolute;
+	top: 100%;
+	content: attr(data-hover);
+	font-weight: 700;
+}
+
+.menu a:hover span,
+.menu a:focus span {
+	-webkit-transform: translateY(-100%);
+	-moz-transform: translateY(-100%);
+	transform: translateY(-100%);
+}
+
+.jag-right > img{
+	display: inline;
+}
+
+.user-info {
+	display: inline-block;
+}
+
+.user-info > img{
+	margin-bottom:4px;
+	vertical-align: baseline;
+}
+
+/** Dropdown menu **/
+.caret {
+  border-width: 8px 6px;
+  border-bottom-style: none;
+}
+
+.dropdown-menu li a:hover {
+	background-color: #fff;
+	color: #444;	
+}
+
+.dropdown {
+	display: inline-block;
+}
+
+.dropdown-menu {
+  background-color: #34495e;
+  border: none;
+  display: block;
+  margin-top: 8px;
+  padding: 0;
+  -webkit-box-shadow: 1px 1px 1px #888888;
+  box-shadow: 1px 1px 1px #888888;
+  list-style: none;
+}
+
+.open > .dropdown-menu {
+  margin-top: 16px !important;
+}
+
+.dropdown-menu li > a{
+	font-size: 0.8em;
+	color: white;	
+}
+
+.dropdown-menu li:first-child > a {
+  border-radius: 4px 4px 0 0;
+  padding-top: 8px;
+}
+.dropdown-menu li:last-child > a {
+  border-radius: 0 0 4px 4px;
+  padding-bottom: 10px;
+}
+
+.dropdown-menu li > a {
+  padding: 6px 15px 8px;
+}
+
+.open > .dropdown-arrow {
+  margin-top: 9px;
+  border-top-color: #34495e;
+  border-bottom-color: #34495e;
+}
+
+/******************************************* End Header *******************************************/
+
+#main-content{
+	width: 72%;	
+	height: 100%;
+	min-height:100%;
+	padding-top: 50px;
+	margin: auto;
+	background-color: white;
+	box-shadow: 1px 1px 5px #888888;
+	overflow: auto;
+}
+
+.modal-center{
+	margin-top: 124px;
+}
+
+.logo{
+	margin-left:15px;	
+}
+
+.form-popup{
+	text-align:right;
+}
+
+.form-popup > input{
+	border: none;
+	padding: 0.6em 1.2em;
+	background: #1b71a0;
+	color: #fff;
+	font-family: 'Lato', Calibri, Arial, sans-serif;
+	font-size: 1em;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	cursor: pointer;
+	display: inline-block;
+	margin: 3px 2px;
+	border-radius: 2px;
+}
+
+.custom-dropdown{
+	float:left;
+}
+
+.custom-dropdown__select{
+    font-size: inherit; /* inherit size from .custom-dropdown */
+    padding: .5em; /* add some space*/
+    margin: 0; /* remove default margins */
+    border: 2px solid #bdc3c7;
+    border-radius: 4px;
+}
+
+.custom-dropdown__select--white {
+    background-color: #fff;
+    color: #444;    
+}
+
+.error{
+    color: #ffffff;
+    background-color: rgba(236, 94, 90,0.6);
+    border-color: rgba(238, 77, 99,1);
+    padding: 4px;
+    width: 100%;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+}
+
+.article-grid {
+	width:100%;
+	height: auto;
+}
+
+.article-content, .article-title{
+	color:#444;
+}
+
+.tile {
+	margin: 15px auto;
+	padding: 0 10px;
+	overflow: hidden;
+	background-position: center;
+	background-size: 100%;
+	background-repeat: no-repeat;
+	height: 196px;
+	background-color:transparent;
+}
+
+.article-title {
+	width:100%;
+	height: 24px;
+	line-height:24px;
+	text-align: center;
+	margin: 0;
+	display:block;
+	overflow:hidden;
+}
+
+.article-content {
+	line-height: 21px;
+	text-align: justify;
+}
+
+.centered-block {
+	margin: 0 auto;
+	float: none;
+	display: block;
+}
+
+#region-nav{
+	margin:20px auto;
+}
+
+.headline {
+	font-size: 1.65em;
+	font-weight: normal;
+	width:440px;
+	color: #444;
+	margin: 20px auto;
+	display: block;
+	text-align: center;
+	letter-spacing:1px;
+	font-family: Georgia, serif;
+	font-style: italic;
+}
+
+.dash-container{
+	width:100%;
+	height:100%;
+}
+
+.loading-bar{
+	position: absolute;
+	left: 50%;
+	bottom:0;
+	z-index:9999;
+}
+
+/****************************************************** Start Invite ******************************************************/
+.clz-add-wraper{
+	text-align: center;
+	width: 100%;
+	height:auto;
+	margin: auto;
+	padding: 96px 0;
+}
+
+.cre-clz-plus, .add-nch {
+	display: block;
+	background: url("http://st3.ck12.org/media/build-20140306144255/dashboard/images/dashboard-sprite.png") no-repeat scroll 22px -268px #d8d4cb;
+	border-radius: 36px;
+	height: 75px;
+	width: 75px;
+	cursor: pointer;
+	font-size: 16px;
+	margin: auto;
+}
+
+.add-clz-btn {
+	color:#d8d4cb;
+}
+
+.clz-add-wraper:hover .cre-clz-plus{
+	background-color:#58d68d;
+}
+
+.clz-add-wraper:hover .add-clz-btn{
+	color:#58d68d;
+}
+
+/****************************************************** End Invite ******************************************************/
+
+.l-nav{
+	width: 20%;
+	margin-top:124px;
+}
+
+table td {
+	padding: 0px 5px;
+}
+
+input[type=radio].css-checkbox + label.css-label.cb5 {
+	padding-left: 26px;
+	height: 21px;
+	display: inline-block;
+	line-height: 21px;
+	background-repeat: no-repeat;
+	background-position: 0 0;
+	font-size: 15px;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+label.css-label.cb5 {
+	background-image: url(http://csscheckbox.com/checkboxes/u/csscheckbox_cab8789c237fd23dd15dad536a525160.png);
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+input[type=radio].css-checkbox:checked + label.css-label.cb5 {
+	background-position: 0 -21px;
+}
+
+input[type=radio].css-checkbox {
+	display: none;
+}
+
+.invite-option{
+	top:10px;
+	width:50%;
+	float:left;
+}
+
+
+/****************************************************** Start DashHeader **************************************************/
+
+.dash-header {
+	padding: 20px 0;
+	width:100%;
+	height:90px;
+	line-height:50px;
+	font-size: 16px;
+}
+
+#dash-navbar {
+	width:80%;
+	float: right;
+	display: inline-block;
+	margin:0;
+}
+
+#dash-lg-msg{
+	width: 20%;
+	display: inline-block;
+	padding-left:15px;
+	float:left;
+}
+
+.navbar-nav {
+	float: right;
+}
+
+.navbar-nav > li > a{
+	color: #3da8e3;
+	font-weight: 300;
+	padding: 15px;
+}
+
+.navbar-nav > li.active > a{
+	color: #E74C3C;
+}
+
+#alert-link {
+	display:inline-block;
+	float: right;
+}
+
+#alert-link > span{
+	color:#E74C3C;
+	font-size: 16px;
+	font-weight:700;
+}
+
+.btn-container{
+	width:80%;
+	height:100%;
+	padding-right: 5px;
+	display:table-cell;
+	vertical-align: middle;
+	float:right;
+	text-align: right;
+}
+
+.btn-container > button{
+	display: line-block;
+	margin: auto 10px;
+}
+
+.social-sigin{
+	display:inline-block;
+}
+
+.social-sigin > li{
+	display:inline-block;
+	margin: 0 10px;
+}
+
+.btn-container > span{
+	line-height: 20px;
+	color:#444;
+	font-family: Georgia, serif;
+	font-style: italic;
+	font-size: 2.15em;
+	vertical-align:middle;
+	display:inline-block;
+}
+
+#alert-list{
+	list-style-type: none;
+	padding:0;
+	margin: 10px 0;
+}
+
+#alert-list > li{
+	height: 61px;
+	margin:5px 0;
+	display: inline-block;;
+	vertical-align: middle;
+}
+
+#alert-list > li > a{
+	width: 212px;
+	display: inline-block;
+	float:left;
+	margin-right:8px;
+}
+
+.alert-cross{
+	width: 24px;
+	height: 24px;
+	font-size: 14px;
+	background-color:#BDC3C7;
+	text-align:center;
+	border-radius: 12px;
+	float:right;
+	margin-top:8px;
+}
+
+.alert-cross > i{
+	color: white;
+	line-height: 24px;
+	text-align:center;
+}
+
+#alert-list span{
+	color:#444;
+	letter-spacing: 1px;
+	display:block;
+}
+
+.alert-title{
+	font-size: 14px;
+	line-height: 14px;
+	font-weight: 700; 
+	overflow: hidden;
+}
+
+.alert-content{
+	font-size: 12px;
+	max-height: 42px;
+	line-height: 14px;
+	margin-top: 5px;
+	overflow: hidden;
+}
+
+/****************************************************** End DashHeader **************************************************/
+
+/****************************************************** Start Common For DashBoard **************************************************/
+.dash-content {
+	width:100%;
+	height: calc(100% - 90px);
+}
+
+.left-menu{
+	width:20%;
+	height:100%;
+	float:left;
+}
+
+.right-detail{
+	width:80%;
+	height: 100%;
+	float:right;
+	padding: 0 20px;
+}
+/****************************************************** End Common For DashBoard **************************************************/
+
+/****************************************************** Start Round Item (Attendance, mark, Mood) **************************************************/
+
+.round-item{
+	padding: 0px 15px 30px 15px;
+}
+
+.round-item-txt{
+	width:112px;
+	height: 112px;
+	line-height: 112px;
+	font-size: 4.2em;
+	font-weight: 500;
+	display:block;
+	color:white;
+	margin:auto;
+	text-align:center;
+	border-radius: 56px;
+	box-shadow: 1px 1px 5px #888888;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+}
+
+.round-item-avatar {
+	width: 64px;
+	height: 64px;
+	position: absolute;
+	display: block;
+	top: -8px;
+	right: -112px;
+	left: 0;
+	margin-left: auto;
+	margin-right: auto;
+	background-size: cover;
+	text-align: center;
+	border-radius: 32px;
+	background-position: center center;
+	background-repeat: no-repeat;
+	padding: 5px;
+	background-color: white;
+}
+
+.round-item-avatar img {
+	width: 100%;
+	height: 100%;
+	border-radius: 32px;
+	background-color: #F7F7F7;
+	padding:5px;
+	box-shadow: 1px 1px 5px #888888;
+}
+
+/****************************************************** End Round Item (Attendance, mark, Mood) **************************************************/
+::-webkit-scrollbar { 
+    display: none; 
+}

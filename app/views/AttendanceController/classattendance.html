@@ -1,0 +1,244 @@
+#{extends 'main.html'/}
+#{set user: user /}
+
+<link href="@{'/public/stylesheets/classattendance.css'}" rel="stylesheet" media="screen">
+<link href="@{'/public/stylesheets/jcrop/jquery.Jcrop.min.css'}" rel="stylesheet" media="screen">
+<script src="@{'/public/javascripts/jcrop/jquery.Jcrop.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		
+		$('.avr-edit').on('click', function(){
+			var childId = $(this).attr('id');
+				childId = childId.substring(4, childId.length);
+			$('#crop-child').val(childId);
+		});
+		
+		$('.ch-att-content').on('click', function(){
+			$('.ch-att-sel').removeClass('ch-att-sel');
+			$(this).parent().addClass('ch-att-sel');
+			$('#attend-edit-model').modal('show');
+		});
+		
+		$("#avatar-upload").on("change", function(e){
+			for (var i = 0; i < e.originalEvent.srcElement.files.length; i++) {
+		        var file = e.originalEvent.srcElement.files[i];
+
+		        $('.jcrop-holder').remove();
+
+		        var img = document.createElement("img");
+		        img.setAttribute("class", "cropper");
+		        var reader = new FileReader();
+		        reader.onloadend = function() {
+		             img.src = reader.result;
+		        }
+		        reader.readAsDataURL(file);
+		        $("#upload-fn").after(img);
+				
+		        var ratio;
+		        img.onload = function(){
+		        	ratio = img.width / img.naturalWidth;
+		        	$('#crop-ratio').val(ratio);
+		        	$('.cropper').Jcrop({
+		        		aspectRatio: 1,
+		        		onChange: showCoords,
+		        		onSelect: showCoords,
+		        		bgColor: 'black',
+		                bgOpacity: .6,
+		                setSelect: [ ($('.cropper').width() / 2) - 100, 
+		                             ($('.cropper').height() / 2) - 100, 
+		                             ($('.cropper').width() / 2) + 100, 
+		                             ($('.cropper').height() / 2) + 100 
+		                           ]
+		        	});
+		        }
+		    }
+		});
+
+		$('#avatar-upload').change(function(){
+			  $('#fn-text').val($(this).val());
+		});
+		
+		$('#ch-avatar-form').submit(function(event){
+			event.preventDefault();
+			
+			var file = document.getElementById("avatar-upload");
+			var data = new FormData();
+				data.append('childId', $('#crop-child').val());
+				data.append('x', $('#crop-x').val());
+				data.append('y', $('#crop-y').val());
+				data.append('width', $('#crop-width').val());
+				data.append('height', $('#crop-height').val());
+				data.append('ratio', $('#crop-ratio').val());
+				data.append('image', file.files[0]);
+			
+			$.ajax({
+                url: "/attendancecontroller/saveavatarbychildid",
+                type: "POST",
+                data : data,
+                contentType: false,
+                processData: false,
+                success: function(response, status) {
+                	if(status == "success"){
+                		var child = jQuery.parseJSON(JSON.stringify(response));
+                		$('#avr-' + child.id).find('img').attr('src', "../../" + child.avatarURL);
+                		$('#avr-edit-model').modal('hide');
+                	}
+                },
+                error: function (error) {
+                    alert(error);
+                } 
+            });
+		});
+		
+		$('ul.attend-list li').click(function(e) {
+			var childId = $('.ch-att-sel').attr('id');
+				childId = childId.substring(7, childId.length);
+			$.ajax({
+                url: "/attendancecontroller/markAttendToChildByChildId",
+                type: "POST",
+                data : {
+                	childId: childId,
+                	status: $(this).find('input').val()
+                },
+                success: function(response, status) {
+                	if(status == "success"){
+                		var attendance = jQuery.parseJSON(JSON.stringify(response));
+						var ele = $('.ch-att-sel').find('.ch-att-content');
+							ele.removeAttr('class');
+                		if(attendance.status === "PRESENT"){
+                			ele.addClass('round-item-txt ch-att-content color-present');
+                			ele.text('P');
+                		}else if(attendance.status === "LATE"){
+                			ele.addClass('round-item-txt ch-att-content color-late');
+                			ele.text('L');
+                		}else if(attendance.status === "ABSENT"){
+                			ele.addClass('round-item-txt ch-att-content color-absent');
+                			ele.text('A');
+                		}else if(attendance.status === "MC"){
+                			ele.addClass('round-item-txt ch-att-content color-mc');
+                			ele.text('M');
+                		}
+                	}
+                	$('#attend-edit-model').modal('hide');
+                },
+                error: function (error) {
+                    alert(error);
+                } 
+            });
+	    });
+
+	});
+
+	function showCoords(obj){
+		$('#crop-x').val(obj.x);
+		$('#crop-y').val(obj.y);
+		$('#crop-width').val(obj.w);
+		$('#crop-height').val(obj.h);
+	}
+</script>
+<div class="dash-container">
+	#{subheader user:user, clz:clz, as:"dash"/}
+
+	#{list items:clz?.children, as: "child"}
+		%{
+			String attStatus = "P";
+			String r = "present";
+			enums.AttendanceStatus status = enums.AttendanceStatus.PRESENT;
+			if(child.attendances != null && child.attendances.size() > 0){
+				status = child.attendances.get(0).status;
+			}
+			switch(status){
+			case enums.AttendanceStatus.PRESENT:
+				attStatus = "P";
+				attr = "present";
+				break;
+			case enums.AttendanceStatus.LATE:
+				attStatus = "L";
+				attr = "late";
+				break;
+			case enums.AttendanceStatus.ABSENT:
+				attStatus = "A";
+				attr = "absent";
+				break;
+			case enums.AttendanceStatus.MC:
+				attStatus = "M";
+				attr = "mc";
+				break;
+			}
+		}%
+		<div id="ch-att-${child?.id}" class="col-xs-12 col-sm-6 col-md-4 col-lg-2 ch-att-item round-item">
+			<div class="round-item-txt ch-att-content color-${attr}">
+				${attStatus}
+			</div>
+			<div class="round-item-avatar">
+				<a id="avr-${child?.id}" class="avr-edit" data-toggle="modal" data-target="#avr-edit-model">
+					<img src="../../${child.avatarURL}"/>
+				</a>
+			</div>
+		</div>
+	#{/list}
+</div>
+
+<div class="modal fade" id="avr-edit-model" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-center">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>EDIT AVATAR</h3>
+      </div>
+      <div class="modal-body">
+      	<form id="ch-avatar-form">
+      		<div id="avr-btn-wrap" class="btn btn-info">
+      			<span>Upload</span>
+      			<input id="avatar-upload" class="upload" type="file" name="image">
+      		</div>
+      		<input id="avr-submit" type="submit" class="btn btn-success"/>
+      		<p id="upload-fn">
+      			<input id="fn-text" disabled="disabled" placeholder="Choose File">
+      		</p>
+      		<input type="hidden" id="crop-child" name="childId">
+      		<input type="hidden" id="crop-x" name="x">
+      		<input type="hidden" id="crop-y" name="y">
+      		<input type="hidden" id="crop-width" name="width">
+      		<input type="hidden" id="crop-height" name="height">
+      		<input type="hidden" id="crop-ratio" name="ratio">
+      	</form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="attend-edit-model" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-center">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>MARK ATTENDANCE</h3>
+      </div>
+      <div class="modal-body">
+      	<ul class="attend-list">
+       		<li id="attend-p" class="attend-item">
+       			<span class="color-present">P</span>
+       			<p class="color-present-txt">Present</p>
+       			<input type="hidden" name="status" value="0">
+       		</li>
+       		<li id="attend-l" class="attend-item">
+       			<span class="color-late">L</span>
+       			<p class="color-late-txt">Late</p>
+       			<input type="hidden" name="status" value="1">
+       		</li>
+       		<li id="attend-a" class="attend-item">
+       			<span class="color-absent">A</span>
+       			<p class="color-absent-txt">Absent</p>
+       			<input type="hidden" name="status" value="2">
+       		</li>
+       		<li id="attend-m" class="attend-item">
+       			<span class="color-mc">M</span>
+       			<p class="color-mc-txt">Medical check</p>
+       			<input type="hidden" name="status" value="3">	
+       		</li>
+       	</ul>
+      </div>
+    </div>
+  </div>
+</div>

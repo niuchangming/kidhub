@@ -1,0 +1,361 @@
+#{extends 'main.html'/}
+#{set user: user /}
+
+<link href="@{'/public/stylesheets/showmenu.css'}" rel="stylesheet">
+<script type="text/javascript">
+	$(function(){
+		menuHoverAction();
+		
+		showTodayMenu();
+		
+		$('#food-img').change(function(){
+			  $('#fn-text').val($(this).val());
+		});
+		
+		$("form.addfood-form").validate({
+	        rules: {
+	        	"food.name":{
+	                minlength: 3,
+	                maxlength: 20,
+	                required: true,
+	                remote: {
+	                    url: "/classlifecontroller/isfoodavailable",
+	                    type: 'get',
+	                    data: {
+	                        "name": function() {
+	                            return $('#food-name').val();
+	                        }
+	                    },
+	                }
+	            },
+	            "food.description":{
+	            	minlength: 6,
+	            	required:true
+	            }
+	        },
+	        messages: {
+	        	"food.name":{
+               		remote:"Food name already exists."
+               }
+            },
+	        highlight: function (element) {
+	            $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+	        },
+	        unhighlight: function (element) {
+	            $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+	        },
+	        submitHandler: function(form) {
+	        	var file = document.getElementById("food-img");
+	      		var data = new FormData();
+					data.append('food.name', $('#food-name').val());
+					data.append('food.description', $('#food-desc').val());
+					data.append('food.type', $('#food-type').val());
+					data.append('food.image', file.files[0]);
+	        	$.ajax({
+	                url: "/classlifecontroller/createfood",
+	                type: "POST",
+	                contentType: false,
+	                processData: false,
+	                data : data,
+	                success: function(response, status) {
+	                	if(status == "success"){
+	                		showMsg("success");
+	                	}else{
+	                		showMsg("fail");
+	                	}
+	                	$('#addfood-model').modal('hide');
+	                },
+	                error: function(error){
+	                	showMsg("fail");
+	                	$('#addfood-model').modal('hide');
+	                }
+	            });
+	         }
+	    });
+		
+		$('#addmenu-model').on('shown.bs.modal', function (e) {
+			$.ajax({
+                url: "/classlifecontroller/getclassfood",
+                type: "POST",
+                data : {clzId: ${clz.id}},
+                success: function(response, status) {
+                	if(status == "success"){
+                		var food = jQuery.parseJSON(JSON.stringify(response));
+                		
+                	}else{
+                		
+                	}
+                },
+                error: function(error){
+                	
+                }
+            });
+		});
+		
+	});
+	
+	function menuHoverAction(){
+		$('.menu-wrap > a').on('mouseenter', function(){
+			$('.hovered').removeClass('hovered');
+			$(this).find('.menu-content').addClass('hovered');
+			$(this).find('.dropdown-arrow').addClass('hovered');
+		});
+	}
+	
+	function showTodayMenu(){
+		var weekday = new Array(7);
+			weekday[0]=  "sun";
+			weekday[1] = "mon";
+			weekday[2] = "tue";
+			weekday[3] = "wed";
+			weekday[4] = "thu";
+			weekday[5] = "fri";
+			weekday[6] = "sat";
+		var day = weekday[new Date().getDay()];
+		$('li#' + day).find('.menu-content').addClass('hovered');
+		$('li#' + day).find('.dropdown-arrow').addClass('hovered');
+	}
+	
+	function showMsg(status){
+		if(status === "success"){
+			$(".alert").addClass("alert-success");
+			$(".alert").text("Add a new child successfully !");
+		}else{
+			$('.alert').addClass('alert-danger');
+			$(".alert").text("Failed to add a new child !");
+		}
+		
+		setTimeout ( function(){
+			$(".alert.alert-success").removeClass('alert-success');
+			$(".alert.alert-danger").removeClass('alert-danger');
+        }, 3000);
+	}
+</script>
+<div class="dash-container">
+	#{subheader user:user, clz:clz, as:"dash"/}
+	<div class="dash-content">
+		<div class="left-menu">
+			<div class="list-group">
+			  <a href="#" class="list-group-item active">Daily report</a>
+			  <a href="#" class="list-group-item">Class schedule</a>
+			  <a href="@{ClassLifeController.showmenubyweek(clz?.id)}" class="list-group-item">Food menu</a>
+			  <a href="#" class="list-group-item">Class photo</a>
+			  <a href="@{ClassLifeController.markGrid(clz?.id)}" class="list-group-item">Baby behavior</a>
+			  <a href="@{ClassLifeController.moodGrid(clz?.id)}" class="list-group-item">Baby mood</a>
+			  <a href="#" class="list-group-item">Class statistics</a>
+			</div>
+		</div>
+		<div class="right-detail">
+		<div class="alert"></div>
+			<ul id="date-list">
+				<li id="sun">
+					<div class="menu-wrap">
+						<a class="weekend">
+							<span class="week-head">Sun</span>
+							23
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+								<button id="edit-menu-btn" class="btn btn-success">Edit a menu !</button>
+								No food today,<br>
+								Please choose today's menu.<br>
+								or create a menu.
+							</div>
+						</a>
+					</div>
+				</li>
+				<li id="mon">
+					<div class="menu-wrap">
+						<a>
+							<span class="week-head">Mon</span>
+							23
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+								<table>
+									<tr>
+									  <th>Time</th>
+									  <th>Food</th> 
+									</tr>
+									<tr>
+									  <td>Eve</td>
+									  <td class="food-col">
+									  	<a data-toggle="modal" data-target="#addmenu-model">Add new food !</a>
+									  </td>
+									</tr>
+								</table>
+							</div>
+						</a>
+					</div>
+				</li>
+				<li id="tue">
+					<div class="menu-wrap">
+						<a>
+							<span class="week-head">Tue</span>
+							23
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+							</div>
+						</a>
+					</div>
+				</li>
+				<li id="web">
+					<div class="menu-wrap">
+						<a>
+							<span class="week-head">Web</span>
+							23
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+							</div>
+						</a>
+					</div>
+				</li>
+				<li id="thu">
+					<div class="menu-wrap">
+						<a>
+							<span class="week-head">Thu</span>
+							23
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+							</div>
+						</a>
+					</div>
+				</li>
+				<li id="fri">
+					<div class="menu-wrap">
+						<a>
+							<span class="week-head">Fri</span>
+							23
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+							</div>
+						</a>
+					</div>
+				</li>
+				<li id="sat" class="weekend">
+					<div class="menu-wrap">
+						<a class="weekend">
+							<span class="week-head">Sat</span>
+							23
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+							</div>
+						</a>
+					</div>
+				</li>
+			</ul>
+			<div id="food-menu-add-wrap">
+				<a class="add-plus" data-toggle="modal" data-target="#addfood-model"></a>
+			   	<h3>Add your Food !</h3>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="addfood-model" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-center">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>ADD NEW FOOD</h3>
+      </div>
+      <div class="modal-body">
+        <form class="addfood-form">
+			<div class="form-group food-nm">
+				<label for="food-name" class="username_lbl">Food name</label>
+				<input type="text" name="food.name" class="form-control" id="food-name" placeholder="Food name" >
+			</div>
+			
+			<div class="form-popup food-type-list">
+				<label for="food-type" class="food-type-lbl">Food type</label>
+				<div class="custom-dropdown custom-dropdown--white">
+				    <select name="food.type" id="food-type" class="custom-dropdown__select custom-dropdown__select--white">
+				        <option value="BREAKFAST">Breakfast</option>
+				        <option value="MORNING_TEA">Morning tea</option>
+				        <option value="LAUNCH">Launch</option>
+				        <option value="AFTERNOON_TEA">Afternoon tea</option>
+				        <option value="DINNER">Dinner</option>
+				    </select>
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="food-desc">Food description</label>
+				<textarea id="food-desc" class="form-control" name="food.description" rows="3" placeholder="Description"></textarea>
+			</div>
+			
+			<div id="food-img-btn-wrap" class="btn btn-info">
+    			<span>Upload</span>
+    			<input id="food-img" class="upload" type="file" name="food.image" >
+    		</div>
+    		<p id="upload-fn">
+      			<input id="fn-text" disabled="disabled" placeholder="Choose File" >
+      		</p>
+			<input class="form-submit addfood-submit" type="submit" value="Create" >
+		</form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="addmenu-model" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-center">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>ADD FOOD</h3>
+      </div>
+      <div class="modal-body">
+      	<section class="ac-container">
+		    <div>
+		        <input id="ac-1" name="accordion-1" type="checkbox" />
+		        <label id="lb-1" for="ac-1">Breakfast</label>
+		        <article class="ac-small">
+		       		<a class="food-opt" href="">
+		       			<span>Chicken</span>
+		            </a>
+		       		<a class="food-opt" href="">
+		            	<span>Chicken</span>
+		            </a>
+		       		<a class="food-opt" href="">
+		            	<span>Chicken</span>
+		            </a>
+		       		<a class="food-opt" href="">
+		            	<span>Chicken</span>
+		            </a>
+		       		<a class="food-opt" href="">
+		            	<span>Chicken</span>
+		            </a>
+		        </article>
+		    </div>
+		    <div>
+		        <input id="ac-2" name="accordion-1" type="checkbox" />
+		        <label id="lb-2" for="ac-2">Morning tea</label>
+		        <article class="ac-small">
+		            <p>Some content... </p>
+		        </article>
+		    </div>
+		    <div>
+		        <input id="ac-3" name="accordion-1" type="checkbox" />
+		        <label id="lb-3" for="ac-3">Lunch</label>
+		        <article class="ac-small">
+		            <p>Some content... </p>
+		        </article>
+		    </div>
+		    <div>
+		        <input id="ac-4" name="accordion-1" type="checkbox" />
+		        <label id="lb-4" for="ac-4">Afternoon tea</label>
+		        <article class="ac-small">
+		            <p>Some content... </p>
+		        </article>
+		    </div>
+		    <div>
+		        <input id="ac-5" name="accordion-1" type="checkbox" />
+		        <label id="lb-5" for="ac-5">Dinner</label>
+		        <article class="ac-small">
+		            <p>Some content... </p>
+		        </article>
+		    </div>
+		</section>
+      </div>
+    </div>
+  </div>
+</div>

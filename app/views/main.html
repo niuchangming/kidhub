@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>#{get 'title' /}</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" type="image/png" href="@{'/public/images/favicon.png'}">
+      	<link href="@{'/public/stylesheets/bootstrap/bootstrap.min.css'}" rel="stylesheet" media="screen">
+        <link href="@{'/public/stylesheets/flatui/flat-ui.css'}" rel="stylesheet" media="screen" />
+        <link href="@{'/public/stylesheets/main.css'}" rel="stylesheet" media="screen">
+        <link href="@{'/public/stylesheets/bootstrap/datepicker.css'}" rel="stylesheet" media="screen">
+        
+        <script src="@{'/public/javascripts/bootstrap/jquery.min.js'}"></script>
+        <script src="@{'/public/javascripts/bootstrap/bootstrap.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+        <script src="@{'/public/javascripts/bootstrap/bootstrap.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+        <script src="@{'/public/javascripts/bootstrap/bootstrap-datepicker.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+        <script src="@{'/public/javascripts/timeago/timeago.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+        <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+    </head>
+    <body>
+    	#{header /}
+    	
+    	<div id="main-content">
+            #{doLayout /} 
+        </div>
+    </body>
+</html>
