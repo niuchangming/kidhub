@@ -307,9 +307,13 @@ a.weekend{
     text-shadow: 1px 1px 1px rgba(255,255,255,0.8);
 }
 
-.ac-container input:checked ~ article.ac-small{
+.ac-container input:checked ~ article.ac-food{
     height: 240px;
     overflow: auto;
+}
+
+a.food-opt > .fui-eye{
+	float: right;
 }
 
 
@@ -355,7 +359,6 @@ a.weekend{
 
 
 /*************************************************** Food Expandable Menu End ***************************************************/
-
 
 
 

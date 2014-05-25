@@ -5,7 +5,6 @@
 <script type="text/javascript">
 	$(function(){
 		menuHoverAction();
-		
 		showTodayMenu();
 		
 		$('#food-img').change(function(){
@@ -73,7 +72,12 @@
 	         }
 	    });
 		
-		$('#addmenu-model').on('shown.bs.modal', function (e) {
+		/* $('#addmenu-model').on('shown.bs.modal', function (e) {
+			$('#breakfast > article').empty();
+			$('#morning-tea > article').empty();
+			$('#lunch > article').empty();
+			$('#afternoon-tea > article').empty();
+			$('#dinner > article').empty();
 			$.ajax({
                 url: "/classlifecontroller/getclassfood",
                 type: "POST",
@@ -81,7 +85,23 @@
                 success: function(response, status) {
                 	if(status == "success"){
                 		var food = jQuery.parseJSON(JSON.stringify(response));
-                		
+                		$.each(food, function(index, value){
+                			var html = "<a class=\"food-opt\">";
+	                			html += "<span>" + value.name + "</span>";
+	            				html += "<span class=\"fui-eye\"></span>";
+	            				html += "</a>";
+                			if(value.type === "BREAKFAST"){
+                				$('#breakfast > article').append(html);
+                			}else if(value.type === "MORNING_TEA"){
+                				$('#morning-tea > article').append(html);
+                			}else if(value.type === "LAUNCH"){
+                				$('#lunch > article').append(html);
+                			}else if(value.type === "AFTERNOON_TEA"){
+                				$('#afternoon-tea article').append(html);
+                			}else if(value.type === "DINNER"){
+                				$('#dinner > article').append(html);
+                			}
+                		});
                 	}else{
                 		
                 	}
@@ -90,8 +110,7 @@
                 	
                 }
             });
-		});
-		
+		}); */
 	});
 	
 	function menuHoverAction(){
@@ -305,53 +324,39 @@
       </div>
       <div class="modal-body">
       	<section class="ac-container">
-		    <div>
+		    <div id="breakfast">
 		        <input id="ac-1" name="accordion-1" type="checkbox" />
 		        <label id="lb-1" for="ac-1">Breakfast</label>
-		        <article class="ac-small">
-		       		<a class="food-opt" href="">
-		       			<span>Chicken</span>
-		            </a>
-		       		<a class="food-opt" href="">
-		            	<span>Chicken</span>
-		            </a>
-		       		<a class="food-opt" href="">
-		            	<span>Chicken</span>
-		            </a>
-		       		<a class="food-opt" href="">
-		            	<span>Chicken</span>
-		            </a>
-		       		<a class="food-opt" href="">
-		            	<span>Chicken</span>
+		        <article class="ac-food">
+			        <a class="food-opt">
+			            <span>Chicken</span>
+			            <span class="fui-eye"></span>
+			            <img class="food-img" src="../public/images/facebook.png"/>
 		            </a>
 		        </article>
 		    </div>
-		    <div>
+		    <div id="morning-tea">
 		        <input id="ac-2" name="accordion-1" type="checkbox" />
 		        <label id="lb-2" for="ac-2">Morning tea</label>
-		        <article class="ac-small">
-		            <p>Some content... </p>
+		        <article class="ac-food">
 		        </article>
 		    </div>
-		    <div>
+		    <div id="lunch">
 		        <input id="ac-3" name="accordion-1" type="checkbox" />
 		        <label id="lb-3" for="ac-3">Lunch</label>
-		        <article class="ac-small">
-		            <p>Some content... </p>
+		        <article class="ac-food">
 		        </article>
 		    </div>
-		    <div>
+		    <div id="afternoon-tea">
 		        <input id="ac-4" name="accordion-1" type="checkbox" />
 		        <label id="lb-4" for="ac-4">Afternoon tea</label>
-		        <article class="ac-small">
-		            <p>Some content... </p>
+		        <article class="ac-food">
 		        </article>
 		    </div>
-		    <div>
+		    <div id="dinner">
 		        <input id="ac-5" name="accordion-1" type="checkbox" />
 		        <label id="lb-5" for="ac-5">Dinner</label>
-		        <article class="ac-small">
-		            <p>Some content... </p>
+		        <article class="ac-food">
 		        </article>
 		    </div>
 		</section>
