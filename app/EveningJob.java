@@ -11,7 +11,7 @@ import play.jobs.Job;
 import play.jobs.On;
 import utils.CommonUtils;
 
-@On("0 54 10 * * ?")
+@On("0 05 12 * * ?")
 public class EveningJob extends Job{
 
 	@Override

@@ -280,14 +280,10 @@ a.weekend{
 
 .ac-container article{
     background: rgba(255, 255, 255, 0.5);
-    margin-top: -1px;
     overflow: hidden;
     height: 0px;
     position: relative;
-    z-index: 10;
-    transition: 
-        height 0.3s ease-in-out, 
-        box-shadow 0.6s linear;
+    transition: height 0.3s ease-in-out, box-shadow 0.6s linear;
 }
 
 .ac-container input:checked ~ article{
@@ -297,13 +293,13 @@ a.weekend{
     box-shadow: 0px 0px 0px 1px rgba(155,155,155,0.3);
 }
 
-.ac-container article a{
+.ac-container article > div{
 	color: #34495e;
 	line-height: 1.2em;
     font-size: 1.2em;
-    display: block;
+    position: relative;
     padding: 20px;
-     border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
     text-shadow: 1px 1px 1px rgba(255,255,255,0.8);
 }
 
@@ -312,7 +308,7 @@ a.weekend{
     overflow: auto;
 }
 
-a.food-opt > .fui-eye{
+.fui-eye{
 	float: right;
 }
 
@@ -357,8 +353,113 @@ a.food-opt > .fui-eye{
 	background: linear-gradient(bottom, #50c0e9 1%,#33b5e5 100%);
 }
 
+.food-img-view{
+	z-index: 9999;
+}
 
+.food-img-view:hover + .tooltip{
+	display: block;
+	opacity: 1;
+} 
+
+.tooltip {
+    position: absolute;
+    width: 248px;
+    height: 200px;
+    right: 8px;
+    display:none;
+    top: 48px;
+}
+             
+.tooltip-content {
+	width: 100%;
+    height: 100%;
+	text-align: center;
+    background: #fff;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 1);
+    border-radius: 5px;
+    padding: 10px;
+    position: relative;
+    z-index: 10;
+}
+             
+.tooltip:before, .tooltip:after{
+    content: '';       
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+    position: absolute;
+    top: -5px;
+    right: 16px;
+    margin-left: -5px;
+    z-index: 11;
+}
+             
+.tooltip:after{
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 1);
+    z-index: 9;
+}
+
+.food-img {
+	width: 84px;
+	height: 84px;
+	border-radius: 42px;
+	background-color: #F7F7F7;
+	padding: 5px;
+	box-shadow: 1px 1px 5px #888888;
+}
+
+.nofood-wrap {
+	text-align: center;
+	left:0;
+	right: 0;
+	top:38px;
+	position: absolute;
+}
+
+.nofood-wrap > img{
+	margin-bottom: 5px;
+}
+
+.nofood-wrap > p{
+	line-height: 1.2em;
+	font-font: 1.6em;
+	color: #95a5a6;
+	font-weight: 500;
+}
 /*************************************************** Food Expandable Menu End ***************************************************/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -72,7 +72,7 @@
 	         }
 	    });
 		
-		/* $('#addmenu-model').on('shown.bs.modal', function (e) {
+		$('#addmenu-model').on('shown.bs.modal', function (e) {
 			$('#breakfast > article').empty();
 			$('#morning-tea > article').empty();
 			$('#lunch > article').empty();
@@ -86,10 +86,15 @@
                 	if(status == "success"){
                 		var food = jQuery.parseJSON(JSON.stringify(response));
                 		$.each(food, function(index, value){
-                			var html = "<a class=\"food-opt\">";
+                			var html = "<div class=\"food-opt\">";
 	                			html += "<span>" + value.name + "</span>";
-	            				html += "<span class=\"fui-eye\"></span>";
-	            				html += "</a>";
+	            				html += "<span class=\"fui-eye food-img-view\"></span>";
+	            				html += "<div class=\"tooltip\">";
+	            				html += "<div class=\"tooltip-content\">";
+	            				html += "<img class=\"food-img\" src=../../\"" + value.thumbnail + "\"/>";
+	            				html += "<div class=\"food-content\">";
+	            				html += value.description;
+	            				html += "</div></div></div></div>";
                 			if(value.type === "BREAKFAST"){
                 				$('#breakfast > article').append(html);
                 			}else if(value.type === "MORNING_TEA"){
@@ -102,15 +107,23 @@
                 				$('#dinner > article').append(html);
                 			}
                 		});
-                	}else{
+                		
+                		var nohtml = "<div class=\"nofood-wrap\">";
+	                		nohtml += "<img src=\"../../public/images/moods/mood_cry.png\">";
+	                		nohtml += "<p>Sorry, there is no food !</p>";
+	                		nohtml += "<p>Click to add an new food !</p>";
+	                		nohtml += "</div>";
+        				
+                		$('article.ac-food').each(function(){
+                			if($(this).children().length == 0){
+                				$(this).append(nohtml);
+                			}
+                		});
                 		
                 	}
-                },
-                error: function(error){
-                	
                 }
             });
-		}); */
+		});
 	});
 	
 	function menuHoverAction(){
@@ -328,11 +341,11 @@
 		        <input id="ac-1" name="accordion-1" type="checkbox" />
 		        <label id="lb-1" for="ac-1">Breakfast</label>
 		        <article class="ac-food">
-			        <a class="food-opt">
-			            <span>Chicken</span>
-			            <span class="fui-eye"></span>
-			            <img class="food-img" src="../public/images/facebook.png"/>
-		            </a>
+		        	<a class="nofood-link">
+		        		<img src="../../public/images/moods/mood_cry.png">
+		        		<p>Sorry, there is no food !</p>
+		        		<p>Click to add an new food !</p>
+	        		<a>
 		        </article>
 		    </div>
 		    <div id="morning-tea">
