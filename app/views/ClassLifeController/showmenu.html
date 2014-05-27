@@ -3,12 +3,12 @@
 
 <link href="@{'/public/stylesheets/showmenu.css'}" rel="stylesheet">
 <script type="text/javascript">
-	$(function(){
+	$(document).ready(function(){
 		menuHoverAction();
 		showTodayMenu();
 		
 		$('#food-img').change(function(){
-			  $('#fn-text').val($(this).val());
+			$('#fn-text').val($(this).val());
 		});
 		
 		$("form.addfood-form").validate({
@@ -86,15 +86,14 @@
                 	if(status == "success"){
                 		var food = jQuery.parseJSON(JSON.stringify(response));
                 		$.each(food, function(index, value){
-                			var html = "<div class=\"food-opt\">";
+                			var html = "<div class=\"food-opt\" onclick=\"foodClicked(this);\">";
 	                			html += "<span>" + value.name + "</span>";
 	            				html += "<span class=\"fui-eye food-img-view\"></span>";
 	            				html += "<div class=\"tooltip\">";
 	            				html += "<div class=\"tooltip-content\">";
-	            				html += "<img class=\"food-img\" src=../../\"" + value.thumbnail + "\"/>";
-	            				html += "<div class=\"food-content\">";
-	            				html += value.description;
-	            				html += "</div></div></div></div>";
+	            				html += "<img src=\"" + "../../" + value.thumbnail + "\"/>";
+	            				html += "<p>" + value.description + "</p>";
+	            				html += "</div></div></div>";
                 			if(value.type === "BREAKFAST"){
                 				$('#breakfast > article').append(html);
                 			}else if(value.type === "MORNING_TEA"){
@@ -124,6 +123,7 @@
                 }
             });
 		});
+		
 	});
 	
 	function menuHoverAction(){
@@ -162,6 +162,12 @@
 			$(".alert.alert-danger").removeClass('alert-danger');
         }, 3000);
 	}
+	
+	function foodClicked(e){
+		var foodDiv = $(e);
+		foodDiv.toggleClass('selected');
+	}
+	
 </script>
 <div class="dash-container">
 	#{subheader user:user, clz:clz, as:"dash"/}
@@ -341,11 +347,6 @@
 		        <input id="ac-1" name="accordion-1" type="checkbox" />
 		        <label id="lb-1" for="ac-1">Breakfast</label>
 		        <article class="ac-food">
-		        	<a class="nofood-link">
-		        		<img src="../../public/images/moods/mood_cry.png">
-		        		<p>Sorry, there is no food !</p>
-		        		<p>Click to add an new food !</p>
-	        		<a>
 		        </article>
 		    </div>
 		    <div id="morning-tea">
@@ -373,6 +374,9 @@
 		        </article>
 		    </div>
 		</section>
+		<div class="form-group menu-submit">
+			<input class="form-submit btn btn-success" type="submit" value="Submit">
+		</div>
       </div>
     </div>
   </div>

@@ -358,8 +358,8 @@ a.weekend{
 }
 
 .food-img-view:hover + .tooltip{
-	display: block;
 	opacity: 1;
+	display: block;
 } 
 
 .tooltip {
@@ -367,20 +367,22 @@ a.weekend{
     width: 248px;
     height: 200px;
     right: 8px;
-    display:none;
     top: 48px;
+    display: none;
 }
              
 .tooltip-content {
 	width: 100%;
-    height: 100%;
-	text-align: center;
+	height:auto;
+    max-height: 176px;
+	text-align: justify;
     background: #fff;
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 1);
     border-radius: 5px;
     padding: 10px;
     position: relative;
     z-index: 10;
+    overflow:hidden;
 }
              
 .tooltip:before, .tooltip:after{
@@ -405,13 +407,21 @@ a.weekend{
     z-index: 9;
 }
 
-.food-img {
+.tooltip-content > img {
 	width: 84px;
 	height: 84px;
+	float:left;
+	margin: 0 10px 0 0;
+	padding: 3px 3px 0px 3px;
 	border-radius: 42px;
 	background-color: #F7F7F7;
 	padding: 5px;
 	box-shadow: 1px 1px 5px #888888;
+}
+
+.tooltip-content > p{
+	max-height: 166px;
+	line-heigh: 17px;
 }
 
 .nofood-wrap {
@@ -432,6 +442,19 @@ a.weekend{
 	color: #95a5a6;
 	font-weight: 500;
 }
+
+.food-opt.selected {
+	-moz-box-shadow: inset 0 0 5px 2px #3498DB;
+	-webkit-box-shadow: inset 0 0 5px 2px #3498DB;
+	box-shadow: inset 0 0 5px 2px #3498DB;
+	background: #d8f6ff!important;
+	border-radius: 4px;
+}
+
+.menu-submit{
+	text-align: right;
+}
+
 /*************************************************** Food Expandable Menu End ***************************************************/
 
 

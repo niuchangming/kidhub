@@ -17,7 +17,7 @@ GET     /public/                                staticDir:/public
 GET     /data/attachments/                      staticDir:/data/attachments
 GET     /data/thumnails/                        staticDir:/data/thumnails
 GET     /data/avatars/                        	staticDir:/data/avatars
-GET     /data/avatars/                        	staticDir:/data/food_thumnails
+GET     /data/food_thumnails/                   staticDir:/data/food_thumnails
 
 # Catch all
 *       /{controller}/{action}                  {controller}.{action}
