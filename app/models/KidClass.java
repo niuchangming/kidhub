@@ -91,4 +91,12 @@ public class KidClass extends Model{
 		this.reports.add(report);
 		this.save();
 	}
+	
+	public void addMenu(Menu menu){
+		if(this.menus == null){
+			this.menus = new ArrayList<Menu>();
+		}
+		this.menus.add(menu);
+		this.save();
+	}
 }

@@ -58,4 +58,5 @@ public class Food extends Model{
 		Images.resize(file, newFile, 240, -1);
 		thumbnail = THUMNAIL_BASE + image.getUUID();
 	}
+	
 }

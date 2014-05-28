@@ -126,6 +126,13 @@ public class ClassLifeController extends Controller{
 		renderJSON(food);
 	}
 	
+	public static void createMenuByClzId(long clzId, long[] foodIds){
+		Menu menu = new Menu();
+		menu.createMenuByFoodIds(foodIds);
+		KidClass clz = KidClass.findById(clzId);
+		clz.addMenu(menu);
+		renderJSON(menu);
+	}
 }
 
 

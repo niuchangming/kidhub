@@ -87,7 +87,8 @@
                 		var food = jQuery.parseJSON(JSON.stringify(response));
                 		$.each(food, function(index, value){
                 			var html = "<div class=\"food-opt\" onclick=\"foodClicked(this);\">";
-	                			html += "<span>" + value.name + "</span>";
+	                			html += "<input name=\"food\" value=\"" + value.id + "\" type=\"hidden\">";
+                				html += "<span>" + value.name + "</span>";
 	            				html += "<span class=\"fui-eye food-img-view\"></span>";
 	            				html += "<div class=\"tooltip\">";
 	            				html += "<div class=\"tooltip-content\">";
@@ -122,6 +123,29 @@
                 	}
                 }
             });
+		});
+		
+		$('#menu-submit').click(function(){
+			var foodIds = [];
+			$('.food-opt.selected > input').each(function(index){
+				foodIds[index] = $(this).val();
+			});
+			
+			$.ajax({
+                url: "/classlifecontroller/createmenubyclzId",
+                type: "POST",
+                dataType: 'json',
+                data : {
+                	clzId: ${clz.id},
+                	foodIds: foodIds
+				},
+                success: function(response, status) {
+                	if(status == "success"){
+                		var menu = jQuery.parseJSON(JSON.stringify(response));
+                	}
+                }
+            });
+			
 		});
 		
 	});
@@ -235,7 +259,7 @@
 						</a>
 					</div>
 				</li>
-				<li id="web">
+				<li id="wed">
 					<div class="menu-wrap">
 						<a>
 							<span class="week-head">Web</span>
@@ -374,8 +398,8 @@
 		        </article>
 		    </div>
 		</section>
-		<div class="form-group menu-submit">
-			<input class="form-submit btn btn-success" type="submit" value="Submit">
+		<div class="form-group menu-submit-wrap">
+			<button id="menu-submit" class="btn btn-success">Submit the menu !</button>
 		</div>
       </div>
     </div>

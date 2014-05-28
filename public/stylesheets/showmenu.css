@@ -230,7 +230,7 @@ a.weekend{
 
 .ac-container{
     width: 100%;
-    margin: 10px auto 30px auto;
+    margin: 0px auto 20px auto;
 }
 
 .ac-container label{
@@ -451,8 +451,10 @@ a.weekend{
 	border-radius: 4px;
 }
 
-.menu-submit{
+.menu-submit-wrap{
 	text-align: right;
+	margin: 0;
+	padding: 0;
 }
 
 /*************************************************** Food Expandable Menu End ***************************************************/

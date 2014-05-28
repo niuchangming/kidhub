@@ -1,5 +1,6 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -47,6 +48,21 @@ public class Menu extends Model{
 		c.add(Calendar.DAY_OF_MONTH, 6);
 		Date weekEnd = c.getTime();
 		return "date between " + CommonUtils.getDateString(weekStart, null) + " and "  + CommonUtils.getDateString(weekEnd, null);
+	}
+	
+	public void createMenuByFoodIds(long[] foodIds){
+		List<Food> food = Food.find(getQueryByFoodIds(foodIds)).fetch();
+		this.food = food;
+		this.isTemplate = false;
+		this.save();
+	}
+	
+	private String getQueryByFoodIds(long[] foodIds){
+		StringBuilder query = new StringBuilder();
+		for(long foodId : foodIds){
+			query.append("id = " + foodId + " or ");
+		}
+		return query.substring(0, query.length() - 4);
 	}
 	 
 }
