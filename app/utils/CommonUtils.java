@@ -19,6 +19,8 @@ import models.User;
 import com.google.gson.GsonBuilder;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.Pattern;
 
+import flexjson.JSONSerializer;
+
 public class CommonUtils {
 	
 	public static String md5(final String input) {
@@ -100,6 +102,11 @@ public class CommonUtils {
 	        if (file.isDirectory()) clearDirectory(file);
 	        file.delete();
 	    }
+	}
+	
+	public static String getObjectAsJsonStr(Object obj){
+		JSONSerializer serializer = new JSONSerializer();
+		return serializer.deepSerialize(obj);
 	}
 	
 }

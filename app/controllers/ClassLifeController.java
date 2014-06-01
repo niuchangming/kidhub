@@ -15,6 +15,8 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import com.google.gson.Gson;
 import com.sun.xml.internal.ws.api.message.Attachment;
 
+import flexjson.JSONSerializer;
+
 import models.Child;
 import models.Food;
 import models.KidClass;
@@ -116,22 +118,19 @@ public class ClassLifeController extends Controller{
 	}
 	
 	public static void getClassFood(long clzId){
-		List<Food> food = new ArrayList<Food>();
-		
 		KidClass clz = KidClass.findById(clzId);
-		List<Teacher> teachers = clz.teachers;
-		for(Teacher teacher : teachers){
-			food.addAll(teacher.food);
-		}
-		renderJSON(food);
+		List<Food> food = clz.getFood();
+		renderJSON(CommonUtils.getObjectAsJsonStr(food));
 	}
 	
 	public static void createMenuByClzId(long clzId, long[] foodIds){
 		Menu menu = new Menu();
 		menu.createMenuByFoodIds(foodIds);
+			
 		KidClass clz = KidClass.findById(clzId);
 		clz.addMenu(menu);
-		renderJSON(menu);
+		
+		renderJSON(CommonUtils.getObjectAsJsonStr(menu));
 	}
 }
 

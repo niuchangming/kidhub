@@ -75,6 +75,8 @@ public class KidClass extends Model{
 		this.endDate = endDate;
 		this.logoURL = logoURL;
 		this.classDesc = classDesc;
+		this.reports = new ArrayList<Report>();
+		this.menus = new ArrayList<Menu>();
 	}
 
 	public KidClass createClass(String className, String classLevel, String startDate, 
@@ -85,18 +87,22 @@ public class KidClass extends Model{
 	}
 	
 	public void addReport(Report report){
-		if(this.reports == null){
-			this.reports = new ArrayList<Report>();
-		}
 		this.reports.add(report);
 		this.save();
 	}
 	
 	public void addMenu(Menu menu){
-		if(this.menus == null){
-			this.menus = new ArrayList<Menu>();
-		}
 		this.menus.add(menu);
 		this.save();
 	}
+	
+	public List<Food> getFood(){
+		List<Teacher> teachers = this.teachers;
+		List<Food> food = new ArrayList<Food>();
+		for(Teacher teacher : teachers){
+			food.addAll(teacher.food);
+		}
+		return food;
+	}
+	
 }

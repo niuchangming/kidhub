@@ -13,27 +13,41 @@ import javax.persistence.EnumType;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.MapKeyEnumerated;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import com.google.gson.annotations.Expose;
 
 import enums.FoodType;
+import play.db.jpa.JPA;
 import play.db.jpa.Model;
 import utils.CommonUtils;
 
 @Entity
 @Table(name="menu")
 public class Menu extends Model{
-	
-	@OneToMany(cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
+	@Expose
+	@ManyToMany(fetch=FetchType.LAZY)
+	@JoinTable(name="menu_food", joinColumns={@JoinColumn(name="menu_id")}, inverseJoinColumns={@JoinColumn(name="food_id")})
 	public List<Food> food;
 	
+	@Temporal(TemporalType.DATE)
 	public Date date;
 	
 	@Column(name="is_template")
 	public boolean isTemplate;
-	
+
+	public Menu() {
+		this.food = new ArrayList<Food>();
+		isTemplate = false;
+		date = new Date();
+	}
+
 	public static List<Menu> getMenusByWeek(Date curDate){
 		List<Menu> menus = Menu.find(getWeekQuery(curDate)).fetch();
 		return menus;
@@ -51,9 +65,8 @@ public class Menu extends Model{
 	}
 	
 	public void createMenuByFoodIds(long[] foodIds){
-		List<Food> food = Food.find(getQueryByFoodIds(foodIds)).fetch();
-		this.food = food;
-		this.isTemplate = false;
+		List<Food> foodArr = Food.find(getQueryByFoodIds(foodIds)).fetch();
+		this.food.addAll(foodArr);
 		this.save();
 	}
 	

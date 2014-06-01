@@ -2,14 +2,24 @@ package models;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.Transient;
 
+import com.google.gson.annotations.Expose;
+
 import enums.FoodType;
+import flexjson.JSON;
 import play.db.jpa.Blob;
 import play.db.jpa.Model;
 import play.libs.Images;
@@ -33,6 +43,30 @@ public class Food extends Model{
 	public String description;
 	
 	public FoodType type = FoodType.BREAKFAST;
+	
+	@JSON(include=false)
+	public static String getDefaultthumbnailurl() {
+		return defaultThumbnailUrl;
+	}
+	
+	@JSON(include=false)
+	public Blob getImage() {
+		return image;
+	}
+	
+	@JSON(include=false)
+	public List<Menu> getMenus() {
+		return menus;
+	}
+
+	@JSON(include=false)
+	public String getTHUMNAIL_BASE() {
+		return THUMNAIL_BASE;
+	}
+
+	@Expose
+	@ManyToMany(mappedBy="food", cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
+	public List<Menu> menus;
 	
 	public void createFoodByTeacher(long teacherId){
 		this.save();
