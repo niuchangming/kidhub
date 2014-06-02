@@ -123,10 +123,10 @@ public class ClassLifeController extends Controller{
 		renderJSON(CommonUtils.getObjectAsJsonStr(food));
 	}
 	
-	public static void createMenuByClzId(long clzId, long[] foodIds){
+	public static void createMenuByClzId(long clzId, long[] foodIds, boolean isTemplate){
 		Menu menu = new Menu();
-		menu.createMenuByFoodIds(foodIds);
-			
+		menu.createMenuByFoodIds(foodIds, isTemplate);
+		
 		KidClass clz = KidClass.findById(clzId);
 		clz.addMenu(menu);
 		

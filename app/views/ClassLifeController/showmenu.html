@@ -6,6 +6,7 @@
 	$(document).ready(function(){
 		menuHoverAction();
 		showTodayMenu();
+		intiTemplateCheckBox();
 		
 		$('#food-img').change(function(){
 			$('#fn-text').val($(this).val());
@@ -137,7 +138,8 @@
                 dataType: 'json',
                 data : {
                 	clzId: ${clz.id},
-                	foodIds: foodIds
+                	foodIds: foodIds,
+                	isTemplate: $('#is_menu_template').val()
 				},
                 success: function(response, status) {
                 	if(status == "success"){
@@ -192,7 +194,20 @@
 		foodDiv.toggleClass('selected');
 	}
 	
+	function intiTemplateCheckBox(){
+		$('.checkbox-icon').click(function(){
+			var checkLbl = $(this).parent();
+			checkLbl.toggleClass('checked');
+			if(checkLbl.hasClass('checked')){
+				checkLbl.find('input').val('true');
+			}else{
+				checkLbl.find('input').val('false');
+			}
+		});
+	}
+	
 </script>
+
 <div class="dash-container">
 	#{subheader user:user, clz:clz, as:"dash"/}
 	<div class="dash-content">
@@ -400,6 +415,13 @@
 		</section>
 		<div class="form-group menu-submit-wrap">
 			<button id="menu-submit" class="btn btn-success">Submit the menu !</button>
+			<label id="menu_tem_cb" class="checkbox" for="is_menu_template">
+			    <span class="checkbox-icon icons">
+				   	<span class="first-icon fui-checkbox-unchecked"></span>
+				   	<span class="second-icon fui-checkbox-checked"></span>
+		   		</span>
+		   		<input type="checkbox" value="false" id="is_menu_template" data-toggle="checkbox">Set as a template ?
+			</label>
 		</div>
       </div>
     </div>

@@ -2,7 +2,9 @@ package models;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -10,10 +12,15 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.MapKeyJoinColumn;
+import javax.persistence.MapKeyTemporal;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.google.gson.annotations.Expose;
@@ -62,8 +69,10 @@ public class KidClass extends Model{
 	public List<Report> reports;
 	
 	@OneToMany(cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
-	@JoinColumn(name="clz_id")
-	public List<Menu> menus;
+	@JoinTable(name = "date_menu", joinColumns = {@JoinColumn(name="clz_id")}, inverseJoinColumns={@JoinColumn(name="menu_id")})
+	@MapKeyColumn(name="date_key", nullable=false, unique=true)
+	@MapKeyTemporal(TemporalType.DATE)
+	public Map<Date, Menu> menus;
 	
 	public boolean active = true;
 	
@@ -76,7 +85,7 @@ public class KidClass extends Model{
 		this.logoURL = logoURL;
 		this.classDesc = classDesc;
 		this.reports = new ArrayList<Report>();
-		this.menus = new ArrayList<Menu>();
+		this.menus = new HashMap<Date, Menu>();
 	}
 
 	public KidClass createClass(String className, String classLevel, String startDate, 
@@ -92,7 +101,7 @@ public class KidClass extends Model{
 	}
 	
 	public void addMenu(Menu menu){
-		this.menus.add(menu);
+		this.menus.put(new Date(), menu);
 		this.save();
 	}
 	
@@ -105,4 +114,7 @@ public class KidClass extends Model{
 		return food;
 	}
 	
+	public static void getMenuByWeek(Date date){
+		
+	}
 }

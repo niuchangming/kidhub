@@ -64,9 +64,10 @@ public class Menu extends Model{
 		return "date between " + CommonUtils.getDateString(weekStart, null) + " and "  + CommonUtils.getDateString(weekEnd, null);
 	}
 	
-	public void createMenuByFoodIds(long[] foodIds){
+	public void createMenuByFoodIds(long[] foodIds, boolean isTemplate){
 		List<Food> foodArr = Food.find(getQueryByFoodIds(foodIds)).fetch();
 		this.food.addAll(foodArr);
+		this.isTemplate = isTemplate;
 		this.save();
 	}
 	

@@ -457,6 +457,13 @@ a.weekend{
 	padding: 0;
 }
 
+#menu_tem_cb {
+	float: left;
+	width: 50%;
+	line-height: 20px;
+	text-align: left;
+}
+
 /*************************************************** Food Expandable Menu End ***************************************************/
 
 
