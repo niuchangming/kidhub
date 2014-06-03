@@ -4,9 +4,8 @@ a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.acti
 }
 
 #date-list{
-	width: 72%;
-	height: auto;
-	padding-left: 5px;
+	display: inline-block;
+	padding: 0;
 	table-layout: fixed;
 }
 
@@ -16,7 +15,6 @@ a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.acti
 	text-align:center;
 	list-style-type: none;
 }
-
 
 .menu-wrap > a{
 	width:48px;
@@ -98,7 +96,6 @@ a.weekend{
 }
 
 #food-menu-add-wrap {
-	width: 28%;
 	float: right;
 }
 
@@ -225,6 +222,13 @@ a.weekend{
 .alert-success, .alert-danger{
 	opacity:1;
 }
+
+#week-pre, #week-next{
+	font-size: 1.8em;
+	text-align: center;
+	line-height: 48px;
+}
+
 
 /*************************************************** Food Expandable Menu Start ***************************************************/
 

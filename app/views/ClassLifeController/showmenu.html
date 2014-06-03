@@ -6,7 +6,7 @@
 	$(document).ready(function(){
 		menuHoverAction();
 		showTodayMenu();
-		intiTemplateCheckBox();
+		initTemplateCheckBox();
 		
 		$('#food-img').change(function(){
 			$('#fn-text').val($(this).val());
@@ -147,10 +147,59 @@
                 	}
                 }
             });
-			
 		});
 		
+		$('a#week-pre').on('click', function(){
+			alert('adasd');
+		});
+		
+		updateDate(new Date().getWeek());
+		
 	});
+	
+	function updateDate(week){
+		var startDate = new Date('${clz.startDate}');
+		var endDate = new Date('${clz.endDate}');
+		if(startDate.getWeek() <= week && endDate.getWeek() >= week){
+			var date = getDateOfWeek(week, startDate.getFullYear());
+			var daysOfWeek = te.getStartAndEnd();
+			$('li#sun p').text(daysOfWeek[0].getDate());
+			$('li#mon p').text(daysOfWeek[1].getDate());
+			$('li#tue p').text(daysOfWeek[2].getDate());
+			$('li#wed p').text(daysOfWeek[3].getDate());
+			$('li#thu p').text(daysOfWeek[4].getDate());
+			$('li#fri p').text(daysOfWeek[5].getDate());
+			$('li#sat p').text(daysOfWeek[6].getDate());
+		}
+	}
+	
+	function getDateOfWeek(w, y) {
+	    var d = (1 + w * 7);
+	    return new Date(y, 0, d);
+	}
+	
+	Date.prototype.getWeek = function() {
+		  var onejan = new Date(this.getFullYear(), 0, 1);
+		  var today = new Date(this.getFullYear(), this.getMonth(), this.getDate());
+		  var dayOfYear = ((today - onejan + 86400000)/86400000);
+		  return Math.ceil(dayOfYear/7);
+	};
+	
+	Date.prototype.getStartAndEnd = function(start){
+	    start = start || 0;
+	    var today = new Date(this.setHours(0, 0, 0, 0));
+	    var day = today.getDay() - start;
+	    var date = today.getDate() - day;
+
+	    var startDate = new Date(today.setDate(date));
+	   	var dayOne = new Date(today.setDate(date + 1));
+	   	var dayTwo = new Date(today.setDate(date + 2));
+	   	var dayThree = new Date(today.setDate(date + 3));
+	   	var dayFour = new Date(today.setDate(date + 4));
+	   	var dayFive = new Date(today.setDate(date + 5));
+	    var endDate = new Date(today.setDate(date + 6));
+	    return [startDate, dayOne, dayTwo, dayThree, dayFour, dayFive, endDate];
+	}
 	
 	function menuHoverAction(){
 		$('.menu-wrap > a').on('mouseenter', function(){
@@ -183,7 +232,7 @@
 			$(".alert").text("Failed to add a new child !");
 		}
 		
-		setTimeout ( function(){
+		setTimeout (function(){
 			$(".alert.alert-success").removeClass('alert-success');
 			$(".alert.alert-danger").removeClass('alert-danger');
         }, 3000);
@@ -194,7 +243,7 @@
 		foodDiv.toggleClass('selected');
 	}
 	
-	function intiTemplateCheckBox(){
+	function initTemplateCheckBox(){
 		$('.checkbox-icon').click(function(){
 			var checkLbl = $(this).parent();
 			checkLbl.toggleClass('checked');
@@ -205,7 +254,6 @@
 			}
 		});
 	}
-	
 </script>
 
 <div class="dash-container">
@@ -223,102 +271,106 @@
 			</div>
 		</div>
 		<div class="right-detail">
-		<div class="alert"></div>
-			<ul id="date-list">
-				<li id="sun">
-					<div class="menu-wrap">
-						<a class="weekend">
-							<span class="week-head">Sun</span>
-							23
-							<span class="dropdown-arrow"></span>
-							<div class="menu-content">
-								<button id="edit-menu-btn" class="btn btn-success">Edit a menu !</button>
-								No food today,<br>
-								Please choose today's menu.<br>
-								or create a menu.
-							</div>
-						</a>
-					</div>
-				</li>
-				<li id="mon">
-					<div class="menu-wrap">
-						<a>
-							<span class="week-head">Mon</span>
-							23
-							<span class="dropdown-arrow"></span>
-							<div class="menu-content">
-								<table>
-									<tr>
-									  <th>Time</th>
-									  <th>Food</th> 
-									</tr>
-									<tr>
-									  <td>Eve</td>
-									  <td class="food-col">
-									  	<a data-toggle="modal" data-target="#addmenu-model">Add new food !</a>
-									  </td>
-									</tr>
-								</table>
-							</div>
-						</a>
-					</div>
-				</li>
-				<li id="tue">
-					<div class="menu-wrap">
-						<a>
-							<span class="week-head">Tue</span>
-							23
-							<span class="dropdown-arrow"></span>
-							<div class="menu-content">
-							</div>
-						</a>
-					</div>
-				</li>
-				<li id="wed">
-					<div class="menu-wrap">
-						<a>
-							<span class="week-head">Web</span>
-							23
-							<span class="dropdown-arrow"></span>
-							<div class="menu-content">
-							</div>
-						</a>
-					</div>
-				</li>
-				<li id="thu">
-					<div class="menu-wrap">
-						<a>
-							<span class="week-head">Thu</span>
-							23
-							<span class="dropdown-arrow"></span>
-							<div class="menu-content">
-							</div>
-						</a>
-					</div>
-				</li>
-				<li id="fri">
-					<div class="menu-wrap">
-						<a>
-							<span class="week-head">Fri</span>
-							23
-							<span class="dropdown-arrow"></span>
-							<div class="menu-content">
-							</div>
-						</a>
-					</div>
-				</li>
-				<li id="sat" class="weekend">
-					<div class="menu-wrap">
-						<a class="weekend">
-							<span class="week-head">Sat</span>
-							23
-							<span class="dropdown-arrow"></span>
-							<div class="menu-content">
-							</div>
-						</a>
-					</div>
-				</li>
-			</ul>
+			<div class="alert"></div>
+			<div>
+				<a id="week-pre" class="fui-arrow-left"></a>
+				<ul id="date-list">
+					<li id="sun">
+						<div class="menu-wrap">
+							<a class="weekend">
+								<span class="week-head">Sun</span>
+								<p>23</p>
+								<span class="dropdown-arrow"></span>
+								<div class="menu-content">
+									<button id="edit-menu-btn" class="btn btn-success">Edit a menu !</button>
+									No food today,<br>
+									Please choose today's menu.<br>
+									or create a menu.
+								</div>
+							</a>
+						</div>
+					</li>
+					<li id="mon">
+						<div class="menu-wrap">
+							<a>
+								<span class="week-head">Mon</span>
+								<p>23</p>
+								<span class="dropdown-arrow"></span>
+								<div class="menu-content">
+									<table>
+										<tr>
+										  <th>Time</th>
+										  <th>Food</th> 
+										</tr>
+										<tr>
+										  <td>Eve</td>
+										  <td class="food-col">
+										  	<a data-toggle="modal" data-target="#addmenu-model">Add new food !</a>
+										  </td>
+										</tr>
+									</table>
+								</div>
+							</a>
+						</div>
+					</li>
+					<li id="tue">
+						<div class="menu-wrap">
+							<a>
+								<span class="week-head">Tue</span>
+								<p>23</p>
+								<span class="dropdown-arrow"></span>
+								<div class="menu-content">
+								</div>
+							</a>
+						</div>
+					</li>
+					<li id="wed">
+						<div class="menu-wrap">
+							<a>
+								<span class="week-head">Web</span>
+								<p>23</p>
+								<span class="dropdown-arrow"></span>
+								<div class="menu-content">
+								</div>
+							</a>
+						</div>
+					</li>
+					<li id="thu">
+						<div class="menu-wrap">
+							<a>
+								<span class="week-head">Thu</span>
+								<p>23</p>
+								<span class="dropdown-arrow"></span>
+								<div class="menu-content">
+								</div>
+							</a>
+						</div>
+					</li>
+					<li id="fri">
+						<div class="menu-wrap">
+							<a>
+								<span class="week-head">Fri</span>
+								<p>23</p>
+								<span class="dropdown-arrow"></span>
+								<div class="menu-content">
+								</div>
+							</a>
+						</div>
+					</li>
+					<li id="sat" class="weekend">
+						<div class="menu-wrap">
+							<a class="weekend">
+								<span class="week-head">Sat</span>
+								<p>23</p>
+								<span class="dropdown-arrow"></span>
+								<div class="menu-content">
+								</div>
+							</a>
+						</div>
+					</li>
+				</ul>
+				<a id="week-next" class="fui-arrow-right"></a>
+			</div>
 			<div id="food-menu-add-wrap">
 				<a class="add-plus" data-toggle="modal" data-target="#addfood-model"></a>
 			   	<h3>Add your Food !</h3>
@@ -427,3 +479,20 @@
     </div>
   </div>
 </div>
+
+
+
+<!-- 
+	var todayDate = new Date();
+		var getWeekDate = function (year, weekNumber, dayNumber) {
+
+			var date = new Date(year, 0, 10, 0, 0, 0),
+			    day = new Date(year, 0, 4, 0, 0, 0),
+			    month = day.getTime() - date.getDay() * 86400000,
+			    ans = new Date(month + ((weekNumber) * 7 + dayNumber) * 86400000);
+			if (weekNumber === 1 && ans.getMonth() !== 0) {
+			    // We're still in last year... handle appropriately
+			}
+			return ans;
+	};
+ -->
