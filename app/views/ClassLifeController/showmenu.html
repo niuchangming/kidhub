@@ -4,6 +4,7 @@
 <link href="@{'/public/stylesheets/showmenu.css'}" rel="stylesheet">
 <script type="text/javascript">
 	$(document).ready(function(){
+		init();
 		menuHoverAction();
 		showTodayMenu();
 		initTemplateCheckBox();
@@ -148,21 +149,28 @@
                 }
             });
 		});
-		
-		$('a#week-pre').on('click', function(){
-			alert('adasd');
-		});
-		
-		updateDate(new Date().getWeek());
-		
 	});
 	
-	function updateDate(week){
+	function init(){
+		$('a#week-pre').on('click', function(){
+			var preDate = new Date(parseInt($('#tool-bar > input').val()) - 604800000);
+			updateDate(preDate);
+		});
+		
+		$('a#week-next').on('click', function(){
+			var nextDate = new Date(parseInt($('#tool-bar > input').val()) + 604800000);
+			updateDate(nextDate);
+		});
+		
+		updateDate(new Date());
+	}
+	
+	function updateDate(date){
 		var startDate = new Date('${clz.startDate}');
 		var endDate = new Date('${clz.endDate}');
-		if(startDate.getWeek() <= week && endDate.getWeek() >= week){
-			var date = getDateOfWeek(week, startDate.getFullYear());
-			var daysOfWeek = te.getStartAndEnd();
+		if(updateToolbarUI(startDate, date, endDate)){
+			var date = getDateOfWeek(date.getWeek(), date.getFullYear());
+			var daysOfWeek = date.getStartAndEnd();
 			$('li#sun p').text(daysOfWeek[0].getDate());
 			$('li#mon p').text(daysOfWeek[1].getDate());
 			$('li#tue p').text(daysOfWeek[2].getDate());
@@ -173,16 +181,43 @@
 		}
 	}
 	
+	function updateToolbarUI(startDate, date, endDate){
+		var weekCount = Math.floor((endDate.getTime() - startDate.getTime()) / 604800000) + 1;
+		var curWeek = Math.floor((date.getTime() - startDate.getTime()) / 604800000) + 1
+		if(curWeek > 0 && curWeek <= weekCount){
+			$('#tool-bar > label').text('Week ' + curWeek + ', ' + date.getFullYear() + '-' + parseInt(date.getMonth() + 1));
+			$('#tool-bar > input').val(date.getTime());
+			return true;
+		}
+		return false;
+	}
+	
 	function getDateOfWeek(w, y) {
-	    var d = (1 + w * 7);
+	    var d = (1 + (w - 1) * 7);
 	    return new Date(y, 0, d);
 	}
 	
-	Date.prototype.getWeek = function() {
-		  var onejan = new Date(this.getFullYear(), 0, 1);
-		  var today = new Date(this.getFullYear(), this.getMonth(), this.getDate());
-		  var dayOfYear = ((today - onejan + 86400000)/86400000);
-		  return Math.ceil(dayOfYear/7);
+	Date.prototype.getWeek = function (dowOffset) {
+			dowOffset = typeof(dowOffset) == 'int' ? dowOffset : 0;
+			var newYear = new Date(this.getFullYear(),0,1);
+			var day = newYear.getDay() - dowOffset; 
+			day = (day >= 0 ? day : day + 7);
+			var daynum = Math.floor((this.getTime() - newYear.getTime() - 
+			(this.getTimezoneOffset()-newYear.getTimezoneOffset())*60000)/86400000) + 1;
+			var weeknum;
+			if(day < 4) {
+				weeknum = Math.floor((daynum+day-1)/7) + 1;
+				if(weeknum > 52) {
+					nYear = new Date(this.getFullYear() + 1,0,1);
+					nday = nYear.getDay() - dowOffset;
+					nday = nday >= 0 ? nday : nday + 7;
+					weeknum = nday < 4 ? 1 : 53;
+				}
+			}
+			else {
+				weeknum = Math.floor((daynum+day-1)/7);
+			}
+			return weeknum;
 	};
 	
 	Date.prototype.getStartAndEnd = function(start){
@@ -272,6 +307,10 @@
 		</div>
 		<div class="right-detail">
 			<div class="alert"></div>
+			<div id="tool-bar">
+				<label for="week-num">Week 1</label>
+				<input id="week-num" type="hidden"/>
+			</div>
 			<div>
 				<a id="week-pre" class="fui-arrow-left"></a>
 				<ul id="date-list">
@@ -479,20 +518,3 @@
     </div>
   </div>
 </div>
-
-
-
-<!-- 
-	var todayDate = new Date();
-		var getWeekDate = function (year, weekNumber, dayNumber) {
-
-			var date = new Date(year, 0, 10, 0, 0, 0),
-			    day = new Date(year, 0, 4, 0, 0, 0),
-			    month = day.getTime() - date.getDay() * 86400000,
-			    ans = new Date(month + ((weekNumber) * 7 + dayNumber) * 86400000);
-			if (weekNumber === 1 && ans.getMonth() !== 0) {
-			    // We're still in last year... handle appropriately
-			}
-			return ans;
-	};
- -->

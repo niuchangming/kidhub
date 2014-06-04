@@ -4,6 +4,7 @@ a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.acti
 }
 
 #date-list{
+	margin-top: 20px;
 	display: inline-block;
 	padding: 0;
 	table-layout: fixed;
@@ -225,10 +226,23 @@ a.weekend{
 
 #week-pre, #week-next{
 	font-size: 1.8em;
+	color: #3da8e3;
 	text-align: center;
 	line-height: 48px;
 }
 
+#tool-bar {
+	padding: 0 15px;
+	border-top-right-radius: 4px;
+	border-top-left-radius: 4px;
+	background-color: #3da8e3;
+}
+
+#tool-bar > label{
+	line-height: 38px;
+	color: white;
+	margin:0;
+}
 
 /*************************************************** Food Expandable Menu Start ***************************************************/
 
