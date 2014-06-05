@@ -99,9 +99,8 @@ public class ClassLifeController extends Controller{
 	}
 	
 	public static void showMenuByWeek(long classId, Date date){
-		List<Menu> menus = Menu.getMenusByWeek(date);
 		KidClass clz = KidClass.findById(classId);
-		renderTemplate("/ClassLifeController/showmenu.html", clz, menus);
+		renderTemplate("/ClassLifeController/showmenu.html", clz);
 	}
 	
 	public static void createFood(Food food){

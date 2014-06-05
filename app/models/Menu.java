@@ -47,22 +47,6 @@ public class Menu extends Model{
 		isTemplate = false;
 		date = new Date();
 	}
-
-	public static List<Menu> getMenusByWeek(Date curDate){
-		List<Menu> menus = Menu.find(getWeekQuery(curDate)).fetch();
-		return menus;
-	}
-	
-	private static String getWeekQuery(Date curDate){
-		Calendar c = Calendar.getInstance();
-		c.setTime(curDate == null ? new Date() : curDate);
-		int dayOfWeek = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
-		c.add(Calendar.DAY_OF_MONTH, - dayOfWeek);
-		Date weekStart = c.getTime();
-		c.add(Calendar.DAY_OF_MONTH, 6);
-		Date weekEnd = c.getTime();
-		return "date between " + CommonUtils.getDateString(weekStart, null) + " and "  + CommonUtils.getDateString(weekEnd, null);
-	}
 	
 	public void createMenuByFoodIds(long[] foodIds, boolean isTemplate){
 		List<Food> foodArr = Food.find(getQueryByFoodIds(foodIds)).fetch();

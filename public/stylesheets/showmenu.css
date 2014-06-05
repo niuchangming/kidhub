@@ -17,7 +17,7 @@ a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.acti
 	list-style-type: none;
 }
 
-.menu-wrap > a{
+.menu-wrap{
 	width:48px;
 	height: 48px;
 	line-height: 48px;
@@ -33,7 +33,7 @@ a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.acti
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 }
 
-a.weekend{
+div.weekend{
 	background-color: #FF4444;
 }
 
@@ -442,7 +442,7 @@ a.weekend{
 	line-heigh: 17px;
 }
 
-.nofood-wrap {
+.nomenu-wrap, .nofood-wrap {
 	text-align: center;
 	left:0;
 	right: 0;
@@ -454,7 +454,7 @@ a.weekend{
 	margin-bottom: 5px;
 }
 
-.nofood-wrap > p{
+.nofood-wrap > p, .nomenu-wrap > p{
 	line-height: 1.2em;
 	font-font: 1.6em;
 	color: #95a5a6;
@@ -486,8 +486,24 @@ a.weekend{
 
 
 
+/*************************************************** Menu Table Start ***************************************************/
+
+.menu-tb td{
+	line-height: 32px;
+}
+
+td.food-col{
+	display: block;
+}
+
+td.food-col a{
+	display: inline-block;
+	padding: 2px 8px;
+	font-size: 1.s0em;
+}
 
 
+/**************************************************** Menu Table End ****************************************************/
 
 
 

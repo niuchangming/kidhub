@@ -1,6 +1,7 @@
 package models;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import javax.persistence.Transient;
 
 import com.google.gson.annotations.Expose;
 
+import play.db.jpa.JPA;
 import play.db.jpa.Model;
 import utils.CommonUtils;
 
@@ -114,7 +116,14 @@ public class KidClass extends Model{
 		return food;
 	}
 	
-	public static void getMenuByWeek(Date date){
-		
+	private String getWeekQuery(Date curDate){
+		Calendar c = Calendar.getInstance();
+		c.setTime(curDate == null ? new Date() : curDate);
+		int dayOfWeek = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
+		c.add(Calendar.DAY_OF_MONTH, - dayOfWeek);
+		Date weekStart = c.getTime();
+		c.add(Calendar.DAY_OF_MONTH, 6);
+		Date weekEnd = c.getTime();
+		return "date between " + CommonUtils.getDateString(weekStart, null) + " and "  + CommonUtils.getDateString(weekEnd, null);
 	}
 }

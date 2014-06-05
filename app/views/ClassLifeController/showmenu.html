@@ -165,19 +165,20 @@
 		updateDate(new Date());
 	}
 	
+	
 	function updateDate(date){
 		var startDate = new Date('${clz.startDate}');
 		var endDate = new Date('${clz.endDate}');
 		if(updateToolbarUI(startDate, date, endDate)){
 			var date = getDateOfWeek(date.getWeek(), date.getFullYear());
 			var daysOfWeek = date.getStartAndEnd();
-			$('li#sun p').text(daysOfWeek[0].getDate());
-			$('li#mon p').text(daysOfWeek[1].getDate());
-			$('li#tue p').text(daysOfWeek[2].getDate());
-			$('li#wed p').text(daysOfWeek[3].getDate());
-			$('li#thu p').text(daysOfWeek[4].getDate());
-			$('li#fri p').text(daysOfWeek[5].getDate());
-			$('li#sat p').text(daysOfWeek[6].getDate());
+			$('li#sunday p.date-num').text(daysOfWeek[0].getDate());
+			$('li#monday p.date-num').text(daysOfWeek[1].getDate());
+			$('li#tuesday p.date-num').text(daysOfWeek[2].getDate());
+			$('li#wednesday p.date-num').text(daysOfWeek[3].getDate());
+			$('li#thursday p.date-num').text(daysOfWeek[4].getDate());
+			$('li#friday p.date-num').text(daysOfWeek[5].getDate());
+			$('li#saturday p.date-num').text(daysOfWeek[6].getDate());
 		}
 	}
 	
@@ -237,7 +238,7 @@
 	}
 	
 	function menuHoverAction(){
-		$('.menu-wrap > a').on('mouseenter', function(){
+		$('.menu-wrap').on('mouseenter', function(){
 			$('.hovered').removeClass('hovered');
 			$(this).find('.menu-content').addClass('hovered');
 			$(this).find('.dropdown-arrow').addClass('hovered');
@@ -246,13 +247,13 @@
 	
 	function showTodayMenu(){
 		var weekday = new Array(7);
-			weekday[0]=  "sun";
-			weekday[1] = "mon";
-			weekday[2] = "tue";
-			weekday[3] = "wed";
-			weekday[4] = "thu";
-			weekday[5] = "fri";
-			weekday[6] = "sat";
+			weekday[0]=  "sunday";
+			weekday[1] = "monday";
+			weekday[2] = "tuesday";
+			weekday[3] = "wednesday";
+			weekday[4] = "thursday";
+			weekday[5] = "friday";
+			weekday[6] = "saturday";
 		var day = weekday[new Date().getDay()];
 		$('li#' + day).find('.menu-content').addClass('hovered');
 		$('li#' + day).find('.dropdown-arrow').addClass('hovered');
@@ -314,97 +315,134 @@
 			<div>
 				<a id="week-pre" class="fui-arrow-left"></a>
 				<ul id="date-list">
-					<li id="sun">
-						<div class="menu-wrap">
-							<a class="weekend">
-								<span class="week-head">Sun</span>
-								<p>23</p>
-								<span class="dropdown-arrow"></span>
-								<div class="menu-content">
-									<button id="edit-menu-btn" class="btn btn-success">Edit a menu !</button>
-									No food today,<br>
-									Please choose today's menu.<br>
-									or create a menu.
-								</div>
-							</a>
+					<li id="sunday">
+						<div class="menu-wrap weekend">
+							<span class="week-head">Sun</span>
+							<p class="date-num">23</p>
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+									%{
+										Calendar now = Calendar.getInstance();
+										java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+										java.text.SimpleDateFormat weekFormat = new java.text.SimpleDateFormat("EEEE");
+							
+									    int delta = -now.get(GregorianCalendar.DAY_OF_WEEK) + 1;
+									    now.add(Calendar.DAY_OF_MONTH, delta );
+									    for (int i = 0; i < 7; i++){
+									    	models.Menu menu = clz.menus.get(dateFormat.parse(dateFormat.format(now.getTime())));
+									    	if(menu != null){
+									    		for(models.Food food : menu.food){
+														    			
+									    		}
+									    	}
+									        now.add(Calendar.DAY_OF_MONTH, 1);
+									    }
+									}%
+									
+									 <!-- <table class="menu-tb">
+										<thead>
+											<tr>
+												<th>Time</th>
+												<th>Food</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr class="breakfast">
+												<td>Testing</td>
+												<td class="food-col">
+													<a>Hello World !</a>
+													<a>Hello World !</a>
+														<a>Hello World !</a>
+														<a>Hello World !</a>
+													</td>
+												</tr>
+											</tbody>
+										</table> --> 
+							</div>
 						</div>
 					</li>
-					<li id="mon">
+					<li id="monday">
 						<div class="menu-wrap">
-							<a>
-								<span class="week-head">Mon</span>
-								<p>23</p>
-								<span class="dropdown-arrow"></span>
-								<div class="menu-content">
-									<table>
-										<tr>
-										  <th>Time</th>
-										  <th>Food</th> 
-										</tr>
-										<tr>
-										  <td>Eve</td>
-										  <td class="food-col">
-										  	<a data-toggle="modal" data-target="#addmenu-model">Add new food !</a>
-										  </td>
-										</tr>
-									</table>
+							<span class="week-head">Mon</span>
+							<p class="date-num">23</p>
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+								<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
+									<img src="../../public/images/moods/mood_cry.png" />
+									<p>Sorry, The menu is empty !</p>
+									<p>Click to create a menu !</p>
 								</div>
-							</a>
+							</div>
 						</div>
 					</li>
-					<li id="tue">
+					<li id="tuesday">
 						<div class="menu-wrap">
-							<a>
-								<span class="week-head">Tue</span>
-								<p>23</p>
-								<span class="dropdown-arrow"></span>
-								<div class="menu-content">
+							<span class="week-head">Tue</span>
+							<p class="date-num">23</p>
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+								<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
+									<img src="../../public/images/moods/mood_cry.png" />
+									<p>Sorry, The menu is empty !</p>
+									<p>Click to create a menu !</p>
 								</div>
-							</a>
+							</div>
 						</div>
 					</li>
-					<li id="wed">
+					<li id="wednesday">
 						<div class="menu-wrap">
-							<a>
-								<span class="week-head">Web</span>
-								<p>23</p>
-								<span class="dropdown-arrow"></span>
-								<div class="menu-content">
+							<span class="week-head">Web</span>
+							<p class="date-num">23</p>
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+								<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
+									<img src="../../public/images/moods/mood_cry.png" />
+									<p>Sorry, The menu is empty !</p>
+									<p>Click to create a menu !</p>
 								</div>
-							</a>
+							</div>
 						</div>
 					</li>
-					<li id="thu">
+					<li id="thursday">
 						<div class="menu-wrap">
-							<a>
-								<span class="week-head">Thu</span>
-								<p>23</p>
-								<span class="dropdown-arrow"></span>
-								<div class="menu-content">
+							<span class="week-head">Thu</span>
+							<p class="date-num">23</p>
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+								<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
+									<img src="../../public/images/moods/mood_cry.png" />
+									<p>Sorry, The menu is empty !</p>
+									<p>Click to create a menu !</p>
 								</div>
-							</a>
+							</div>
 						</div>
 					</li>
-					<li id="fri">
+					<li id="friday">
 						<div class="menu-wrap">
-							<a>
-								<span class="week-head">Fri</span>
-								<p>23</p>
-								<span class="dropdown-arrow"></span>
-								<div class="menu-content">
+							<span class="week-head">Fri</span>
+							<p class="date-num">23</p>
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+								<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
+									<img src="../../public/images/moods/mood_cry.png" />
+									<p>Sorry, The menu is empty !</p>
+									<p>Click to create a menu !</p>
 								</div>
-							</a>
+							</div>
 						</div>
 					</li>
-					<li id="sat" class="weekend">
-						<div class="menu-wrap">
-							<a class="weekend">
-								<span class="week-head">Sat</span>
-								<p>23</p>
-								<span class="dropdown-arrow"></span>
-								<div class="menu-content">
+					<li id="saturday" class="weekend">
+						<div class="menu-wrap weekend">
+							<span class="week-head">Sat</span>
+							<p class="date-num">23</p>
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+								<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
+									<img src="../../public/images/moods/mood_cry.png" />
+									<p>Sorry, The menu is empty !</p>
+									<p>Click to create a menu !</p>
 								</div>
-							</a>
+							</div>
 						</div>
 					</li>
 				</ul>
