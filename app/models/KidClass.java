@@ -73,8 +73,7 @@ public class KidClass extends Model{
 	@OneToMany(cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
 	@JoinTable(name = "date_menu", joinColumns = {@JoinColumn(name="clz_id")}, inverseJoinColumns={@JoinColumn(name="menu_id")})
 	@MapKeyColumn(name="date_key", nullable=false, unique=true)
-	@MapKeyTemporal(TemporalType.DATE)
-	public Map<Date, Menu> menus;
+	public Map<String, Menu> menus;
 	
 	public boolean active = true;
 	
@@ -87,7 +86,7 @@ public class KidClass extends Model{
 		this.logoURL = logoURL;
 		this.classDesc = classDesc;
 		this.reports = new ArrayList<Report>();
-		this.menus = new HashMap<Date, Menu>();
+		this.menus = new HashMap<String, Menu>();
 	}
 
 	public KidClass createClass(String className, String classLevel, String startDate, 
@@ -103,7 +102,7 @@ public class KidClass extends Model{
 	}
 	
 	public void addMenu(Menu menu){
-		this.menus.put(new Date(), menu);
+		this.menus.put(CommonUtils.getDateString(new Date(), null), menu);
 		this.save();
 	}
 	

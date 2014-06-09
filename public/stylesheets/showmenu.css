@@ -55,7 +55,7 @@ div.weekend{
 	margin-top: 8px;
 	margin-left: 6px;
 	opacity: 1;
-	border-color: transparent transparent #F7F7F7 transparent;
+	border-color: transparent transparent #3da8e3 transparent;
 }
 
 .menu-content{
@@ -63,9 +63,8 @@ div.weekend{
 	height: 480px;
 	position: absolute;
 	margin-top: 25px;
-	color: #34495e;
 	display:none;
-	background-color: #F7F7F7;
+	background-color: #3da8e3;
 	border-radius: 4px;
 	box-shadow: 1px 1px 5px #888888;
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
@@ -76,6 +75,7 @@ div.weekend{
 }
 
 .menu-content > table th{
+	color: #34495e;
 	text-align: center;
 }
 
@@ -446,7 +446,7 @@ div.weekend{
 	text-align: center;
 	left:0;
 	right: 0;
-	top:38px;
+	top:38PX;
 	position: absolute;
 }
 
@@ -488,10 +488,6 @@ div.weekend{
 
 /*************************************************** Menu Table Start ***************************************************/
 
-.menu-tb td{
-	line-height: 32px;
-}
-
 td.food-col{
 	display: block;
 }
@@ -499,7 +495,7 @@ td.food-col{
 td.food-col a{
 	display: inline-block;
 	padding: 2px 8px;
-	font-size: 1.s0em;
+	color: white;
 }
 
 

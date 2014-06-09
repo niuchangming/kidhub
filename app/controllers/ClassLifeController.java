@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,6 +33,7 @@ import play.data.Upload;
 import play.mvc.Controller;
 import play.mvc.With;
 import play.utils.HTML;
+import utils.CommonException;
 import utils.CommonUtils;
 import vo.ReportVO;
 
@@ -123,12 +125,13 @@ public class ClassLifeController extends Controller{
 	}
 	
 	public static void createMenuByClzId(long clzId, long[] foodIds, boolean isTemplate){
-		Menu menu = new Menu();
-		menu.createMenuByFoodIds(foodIds, isTemplate);
-		
+		Menu menu = null;
 		KidClass clz = KidClass.findById(clzId);
-		clz.addMenu(menu);
-		
+		if(!clz.menus.containsKey(CommonUtils.getDateString(new Date(), null))){
+			menu = new Menu();
+			menu.createMenuByFoodIds(foodIds, isTemplate);
+			clz.addMenu(menu);
+		}
 		renderJSON(CommonUtils.getObjectAsJsonStr(menu));
 	}
 }

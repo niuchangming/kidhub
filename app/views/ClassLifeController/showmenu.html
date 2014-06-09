@@ -149,7 +149,7 @@
                 }
             });
 		});
-		
+		initMenuContent();
 	});
 	
 	function init(){
@@ -164,58 +164,7 @@
 		});
 		
 		updateDate(new Date());
-		
-		%{
-			Calendar now = Calendar.getInstance();
-			java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
-			java.text.SimpleDateFormat weekFormat = new java.text.SimpleDateFormat("EEEE");
-
-		    int delta = -now.get(GregorianCalendar.DAY_OF_WEEK) + 1;
-		    now.add(Calendar.DAY_OF_MONTH, delta );
-		    
-		    java.util.Map<Integer, java.util.Map<enums.FoodType, java.util.List<models.Food>>> menuMap = 
-		    	new java.util.HashMap<Integer, java.util.Map<enums.FoodType, java.util.List<models.Food>>>();
-		    for (int i = 0; i < 7; i++){
-		    	models.Menu menu = clz.menus.get(dateFormat.parse(dateFormat.format(now.getTime())));
-		    	if(menu != null){
-		    		java.util.List<models.Food> breakfastList = new java.util.ArrayList<models.Food>();
-		    		java.util.List<models.Food> morningTeaList = new java.util.ArrayList<models.Food>();
-		    		java.util.List<models.Food> lunchList = new java.util.ArrayList<models.Food>();
-		    		java.util.List<models.Food> afternoonTeaList = new java.util.ArrayList<models.Food>();
-		    		java.util.List<models.Food> dinnerList = new java.util.ArrayList<models.Food>();
-		    		for(models.Food food : menu.food){
-		    			switch(food.type){
-		    			case enums.FoodType.BREAKFAST:
-		    				breakfastList.add(food);
-		    				break;
-		    			case enums.FoodType.MORNING_TEA:
-		    				morningTeaList.add(food);
-		    				break;
-		    			case enums.FoodType.LAUNCH:
-		    				lunchList.add(food);
-		    				break;
-		    			case enums.FoodType.AFTERNOON_TEA:
-		    				afternoonTeaList.add(food);
-		    				break;
-		    			case enums.FoodType.DINNER:
-		    				dinnerList.add(food);
-		    				break;
-		    			}
-		    		}
-		    		java.util.Map<enums.FoodType, java.util.List<models.Food>> foodTypeMap = new java.util.HashMap<enums.FoodType, java.util.List<models.Food>>();
-		    		foodTypeMap.put(enums.FoodType.BREAKFAST, breakfastList);
-		    		foodTypeMap.put(enums.FoodType.MORNING_TEA, morningTeaList);
-		    		foodTypeMap.put(enums.FoodType.LAUNCH, lunchList);
-		    		foodTypeMap.put(enums.FoodType.AFTERNOON_TEA, afternoonTeaList);
-		    		foodTypeMap.put(enums.FoodType.DINNER, dinnerList);
-		    		
-		    		menuMap.put(now.get(Calendar.DAY_OF_WEEK), foodTypeMap);
-		    	}
-		        now.add(Calendar.DAY_OF_MONTH, 1);
-		    }
-		}%
 	}
-	
 	
 	function updateDate(date){
 		var startDate = new Date('${clz.startDate}');
@@ -231,6 +180,126 @@
 			$('li#friday p.date-num').text(daysOfWeek[5].getDate());
 			$('li#saturday p.date-num').text(daysOfWeek[6].getDate());
 		}
+		
+		%{
+			Calendar now = Calendar.getInstance();
+			java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+			java.text.SimpleDateFormat weekFormat = new java.text.SimpleDateFormat("EEEE");
+
+		    int delta = -now.get(GregorianCalendar.DAY_OF_WEEK) + 1;
+		    now.add(Calendar.DAY_OF_MONTH, delta);
+			
+		    int weekNum = 0;
+		    for (int i = 0; i < 7; i++){
+		    	}%
+			    	var menuItem;
+	    			switch("${weekNum}") {
+			    	    case "0":
+			    	    	menuItem = $('#sunday');
+			    	        break;
+			    	    case "1":
+			    	    	menuItem = $('#monday');
+			    	        break;
+			    	    case "2":
+			    	    	menuItem = $('#tuesday');
+			    	        break;
+			    	    case "3":
+			    	    	menuItem = $('#wednesday');
+			    	        break;
+			    	    case "4":
+			    	    	menuItem = $('#thursday');
+			    	        break;
+			    	    case "5":
+			    	    	menuItem = $('#friday');
+			    	        break;
+			    	    case "6":
+			    	    	menuItem = $('#saturday');
+			    	        break;
+		    		}
+	    			var menuContent = menuItem.find('div.menu-content');
+		    	%{
+		    	String dateStr = dateFormat.format(now.getTime());
+		    	models.Menu menu = clz.menus.get(dateStr);
+		    	if(menu != null){
+		    		}%
+						var breakfastHtml="", brunchHtml="", lunchHtml="", highTeaHtml="", dinnerHtml="";
+						
+		    			var html = "<table class=\"menu-tb\">";
+		    				html += "<thead><tr><th>Time</th><th>Food</th></tr></thead>";
+		    				html += "<tbody>";
+		    				
+		    				%{
+		    					for(models.Food food : menu.food){
+			    					}%
+				    					switch("${food.type}") {
+								    	    case "BREAKFAST":
+								    	    	breakfastHtml += "<a>${food.name}</a>";
+								    	        break;
+								    	    case "MORNING_TEA":
+								    	    	brunchHtml += "<a>${food.name}</a>";
+								    	        break;
+								    	    case "LAUNCH":
+								    	    	lunchHtml += "<a>${food.name}</a>";
+								    	        break;
+								    	    case "AFTERNOON_TEA":
+								    	    	highTeaHtml += "<a>${food.name}</a>";
+								    	        break;
+								    	    case "DINNER":
+								    	    	dinnerHtml += "<a>${food.name}</a>";
+								    	        break;
+					    		}
+			    					%{
+		    					}
+		    				}%
+		    				
+		    				html += "<tr class=\"breakfast\">";
+		    				html += "<td>Breakfast</td>";
+		    				html += "<td class=\"food-col\">";
+		    				html += breakfastHtml;
+		    				html += "</td></tr>";
+		    				
+		    				html += "<tr class=\"morning-tea\">";
+		    				html += "<td>Morning tea</td>";
+		    				html += "<td class=\"food-col\">";
+		    				html += brunchHtml;
+		    				html += "</td></tr>";
+		    				
+		    				html += "<tr class=\"lunch\">";
+		    				html += "<td>Lunch</td>";
+		    				html += "<td class=\"food-col\">";
+		    				html += lunchHtml;
+		    				html += "</td></tr>";
+		    				
+		    				html += "<tr class=\"afternoon-tea\">";
+		    				html += "<td>Afternoon tea</td>";
+		    				html += "<td class=\"food-col\">";
+		    				html += highTeaHtml;
+		    				html += "</td></tr>";
+		    				
+		    				html += "<tr class=\"dinner-tea\">";
+		    				html += "<td>Dinner</td>";
+		    				html += "<td class=\"food-col\">";
+		    				html += dinnerHtml;
+		    				html += "</td></tr>";
+		    				
+		    				html += "</tbody></table>";
+		    				
+		    				menuContent.append(html);
+		    				
+		    		%{
+		    	}else{
+		    		}%
+			    		var html = "<div class=\"nomenu-wrap\" data-toggle=\"modal\" data-target=\"#addmenu-model\">";
+			    			html += "<img src=\"../../public/images/moods/mood_cry.png\" />";
+			    			html += "<p>Sorry, The menu is empty !</p><p>Click to create a menu !</p></div>";
+			    			menuContent.append(html);
+		    		%{
+		    	}
+		        now.add(Calendar.DAY_OF_MONTH, 1);
+		        weekNum ++;
+		    }
+		}%
+		
 	}
 	
 	function updateToolbarUI(startDate, date, endDate){
@@ -372,65 +441,6 @@
 							<p class="date-num">23</p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
-								#{if menuMap.get(1)}
-									<table class="menu-tb">
-										<thead>
-											<tr>
-												<th>Time</th>
-												<th>Food</th>
-											</tr>
-										</thead>
-										<tbody>
-										 	<tr class="breakfast">
-												<td>Breakfast</td>
-												<td class="food-col">
-													#{list items:menuMap.get(1).get(enums.FoodType.BREAKFAST), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="morning-tea">
-												<td>Morning Tea</td>
-												<td class="food-col">
-													#{list items:menuMap.get(1).get(enums.FoodType.MORNING_TEA), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="lunch">
-												<td>Lunch</td>
-												<td class="food-col">
-													#{list items:menuMap.get(1).get(enums.FoodType.LAUNCH), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="afternoon-tea">
-												<td>Afternoon tea</td>
-												<td class="food-col">
-													#{list items:menuMap.get(1).get(enums.FoodType.AFTERNOON_TEA), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="dinner">
-												<td>Dinner</td>
-												<td class="food-col">
-													#{list items:menuMap.get(1).get(enums.FoodType.DINNER), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								#{/if}
-								#{else}
-									<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
-										<img src="../../public/images/moods/mood_cry.png" />
-										<p>Sorry, The menu is empty !</p>
-										<p>Click to create a menu !</p>
-									</div>
-								#{/else}
 							</div>
 						</div>
 					</li>
@@ -440,65 +450,6 @@
 							<p class="date-num">23</p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
-								#{if menuMap.get(2)}
-									<table class="menu-tb">
-										<thead>
-											<tr>
-												<th>Time</th>
-												<th>Food</th>
-											</tr>
-										</thead>
-										<tbody>
-										 	<tr class="breakfast">
-												<td>Breakfast</td>
-												<td class="food-col">
-													#{list items:menuMap.get(2).get(enums.FoodType.BREAKFAST), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="morning-tea">
-												<td>Morning Tea</td>
-												<td class="food-col">
-													#{list items:menuMap.get(2).get(enums.FoodType.MORNING_TEA), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="lunch">
-												<td>Lunch</td>
-												<td class="food-col">
-													#{list items:menuMap.get(2).get(enums.FoodType.LAUNCH), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="afternoon-tea">
-												<td>Afternoon tea</td>
-												<td class="food-col">
-													#{list items:menuMap.get(2).get(enums.FoodType.AFTERNOON_TEA), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="dinner">
-												<td>Dinner</td>
-												<td class="food-col">
-													#{list items:menuMap.get(2).get(enums.FoodType.DINNER), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								#{/if}
-								#{else}
-									<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
-										<img src="../../public/images/moods/mood_cry.png" />
-										<p>Sorry, The menu is empty !</p>
-										<p>Click to create a menu !</p>
-									</div>
-								#{/else}
 							</div>
 						</div>
 					</li>
@@ -508,65 +459,6 @@
 							<p class="date-num">23</p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
-								#{if menuMap.get(3)}
-									<table class="menu-tb">
-										<thead>
-											<tr>
-												<th>Time</th>
-												<th>Food</th>
-											</tr>
-										</thead>
-										<tbody>
-										 	<tr class="breakfast">
-												<td>Breakfast</td>
-												<td class="food-col">
-													#{list items:menuMap.get(3).get(enums.FoodType.BREAKFAST), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="morning-tea">
-												<td>Morning Tea</td>
-												<td class="food-col">
-													#{list items:menuMap.get(3).get(enums.FoodType.MORNING_TEA), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="lunch">
-												<td>Lunch</td>
-												<td class="food-col">
-													#{list items:menuMap.get(3).get(enums.FoodType.LAUNCH), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="afternoon-tea">
-												<td>Afternoon tea</td>
-												<td class="food-col">
-													#{list items:menuMap.get(3).get(enums.FoodType.AFTERNOON_TEA), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="dinner">
-												<td>Dinner</td>
-												<td class="food-col">
-													#{list items:menuMap.get(3).get(enums.FoodType.DINNER), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								#{/if}
-								#{else}
-									<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
-										<img src="../../public/images/moods/mood_cry.png" />
-										<p>Sorry, The menu is empty !</p>
-										<p>Click to create a menu !</p>
-									</div>
-								#{/else}
 							</div>
 						</div>
 					</li>
@@ -576,65 +468,6 @@
 							<p class="date-num">23</p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
-								#{if menuMap.get(4)}
-									<table class="menu-tb">
-										<thead>
-											<tr>
-												<th>Time</th>
-												<th>Food</th>
-											</tr>
-										</thead>
-										<tbody>
-										 	<tr class="breakfast">
-												<td>Breakfast</td>
-												<td class="food-col">
-													#{list items:menuMap.get(4).get(enums.FoodType.BREAKFAST), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="morning-tea">
-												<td>Morning Tea</td>
-												<td class="food-col">
-													#{list items:menuMap.get(4).get(enums.FoodType.MORNING_TEA), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="lunch">
-												<td>Lunch</td>
-												<td class="food-col">
-													#{list items:menuMap.get(4).get(enums.FoodType.LAUNCH), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="afternoon-tea">
-												<td>Afternoon tea</td>
-												<td class="food-col">
-													#{list items:menuMap.get(4).get(enums.FoodType.AFTERNOON_TEA), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="dinner">
-												<td>Dinner</td>
-												<td class="food-col">
-													#{list items:menuMap.get(4).get(enums.FoodType.DINNER), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								#{/if}
-								#{else}
-									<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
-										<img src="../../public/images/moods/mood_cry.png" />
-										<p>Sorry, The menu is empty !</p>
-										<p>Click to create a menu !</p>
-									</div>
-								#{/else}
 							</div>
 						</div>
 					</li>
@@ -644,65 +477,6 @@
 							<p class="date-num">23</p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
-								#{if menuMap.get(5)}
-									<table class="menu-tb">
-										<thead>
-											<tr>
-												<th>Time</th>
-												<th>Food</th>
-											</tr>
-										</thead>
-										<tbody>
-										 	<tr class="breakfast">
-												<td>Breakfast</td>
-												<td class="food-col">
-													#{list items:menuMap.get(5).get(enums.FoodType.BREAKFAST), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="morning-tea">
-												<td>Morning Tea</td>
-												<td class="food-col">
-													#{list items:menuMap.get(5).get(enums.FoodType.MORNING_TEA), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="lunch">
-												<td>Lunch</td>
-												<td class="food-col">
-													#{list items:menuMap.get(5).get(enums.FoodType.LAUNCH), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="afternoon-tea">
-												<td>Afternoon tea</td>
-												<td class="food-col">
-													#{list items:menuMap.get(5).get(enums.FoodType.AFTERNOON_TEA), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="dinner">
-												<td>Dinner</td>
-												<td class="food-col">
-													#{list items:menuMap.get(5).get(enums.FoodType.DINNER), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								#{/if}
-								#{else}
-									<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
-										<img src="../../public/images/moods/mood_cry.png" />
-										<p>Sorry, The menu is empty !</p>
-										<p>Click to create a menu !</p>
-									</div>
-								#{/else}
 							</div>
 						</div>
 					</li>
@@ -712,65 +486,6 @@
 							<p class="date-num">23</p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
-								#{if menuMap.get(6)}
-									<table class="menu-tb">
-										<thead>
-											<tr>
-												<th>Time</th>
-												<th>Food</th>
-											</tr>
-										</thead>
-										<tbody>
-										 	<tr class="breakfast">
-												<td>Breakfast</td>
-												<td class="food-col">
-													#{list items:menuMap.get(6).get(enums.FoodType.BREAKFAST), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="morning-tea">
-												<td>Morning Tea</td>
-												<td class="food-col">
-													#{list items:menuMap.get(6).get(enums.FoodType.MORNING_TEA), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="lunch">
-												<td>Lunch</td>
-												<td class="food-col">
-													#{list items:menuMap.get(6).get(enums.FoodType.LAUNCH), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="afternoon-tea">
-												<td>Afternoon tea</td>
-												<td class="food-col">
-													#{list items:menuMap.get(6).get(enums.FoodType.AFTERNOON_TEA), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="dinner">
-												<td>Dinner</td>
-												<td class="food-col">
-													#{list items:menuMap.get(6).get(enums.FoodType.DINNER), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								#{/if}
-								#{else}
-									<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
-										<img src="../../public/images/moods/mood_cry.png" />
-										<p>Sorry, The menu is empty !</p>
-										<p>Click to create a menu !</p>
-									</div>
-								#{/else}
 							</div>
 						</div>
 					</li>
@@ -780,65 +495,6 @@
 							<p class="date-num">23</p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
-								#{if menuMap.get(7)}
-									<table class="menu-tb">
-										<thead>
-											<tr>
-												<th>Time</th>
-												<th>Food</th>
-											</tr>
-										</thead>
-										<tbody>
-										 	<tr class="breakfast">
-												<td>Breakfast</td>
-												<td class="food-col">
-													#{list items:menuMap.get(7).get(enums.FoodType.BREAKFAST), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="morning-tea">
-												<td>Morning Tea</td>
-												<td class="food-col">
-													#{list items:menuMap.get(7).get(enums.FoodType.MORNING_TEA), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="lunch">
-												<td>Lunch</td>
-												<td class="food-col">
-													#{list items:menuMap.get(7).get(enums.FoodType.LAUNCH), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="afternoon-tea">
-												<td>Afternoon tea</td>
-												<td class="food-col">
-													#{list items:menuMap.get(7).get(enums.FoodType.AFTERNOON_TEA), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-											<tr class="dinner">
-												<td>Dinner</td>
-												<td class="food-col">
-													#{list items:menuMap.get(7).get(enums.FoodType.DINNER), as:'food'}
-														<a>${food.name}</a>
-													#{/list}
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								#{/if}
-								#{else}
-									<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
-										<img src="../../public/images/moods/mood_cry.png" />
-										<p>Sorry, The menu is empty !</p>
-										<p>Click to create a menu !</p>
-									</div>
-								#{/else}
 							</div>
 						</div>
 					</li>
