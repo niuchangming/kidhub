@@ -80,6 +80,7 @@
 			$('#lunch > article').empty();
 			$('#afternoon-tea > article').empty();
 			$('#dinner > article').empty();
+			
 			$.ajax({
                 url: "/classlifecontroller/getclassfood",
                 type: "POST",
@@ -121,7 +122,6 @@
                 				$(this).append(nohtml);
                 			}
                 		});
-                		
                 	}
                 }
             });
@@ -140,16 +140,18 @@
                 data : {
                 	clzId: ${clz.id},
                 	foodIds: foodIds,
+                	dateStr: $('.menu-content.hovered').parents('li').find('input').val(),
                 	isTemplate: $('#is_menu_template').val()
 				},
                 success: function(response, status) {
                 	if(status == "success"){
                 		var menu = jQuery.parseJSON(JSON.stringify(response));
+                		$('#addmenu-model').modal('hide');
                 	}
                 }
             });
 		});
-		initMenuContent();
+		
 	});
 	
 	function init(){
@@ -164,24 +166,12 @@
 		});
 		
 		updateDate(new Date());
-	}
-	
-	function updateDate(date){
-		var startDate = new Date('${clz.startDate}');
-		var endDate = new Date('${clz.endDate}');
-		if(updateToolbarUI(startDate, date, endDate)){
-			var date = getDateOfWeek(date.getWeek(), date.getFullYear());
-			var daysOfWeek = date.getStartAndEnd();
-			$('li#sunday p.date-num').text(daysOfWeek[0].getDate());
-			$('li#monday p.date-num').text(daysOfWeek[1].getDate());
-			$('li#tuesday p.date-num').text(daysOfWeek[2].getDate());
-			$('li#wednesday p.date-num').text(daysOfWeek[3].getDate());
-			$('li#thursday p.date-num').text(daysOfWeek[4].getDate());
-			$('li#friday p.date-num').text(daysOfWeek[5].getDate());
-			$('li#saturday p.date-num').text(daysOfWeek[6].getDate());
-		}
 		
-		%{
+		var jsonStr = "${new flexjson.JSONSerializer().deepSerialize(clz)}";
+		var clzz = jQuery.parseJSON(jsonStr);
+		alert(clzz.className);
+		
+		%{  
 			Calendar now = Calendar.getInstance();
 			java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
 			java.text.SimpleDateFormat weekFormat = new java.text.SimpleDateFormat("EEEE");
@@ -191,115 +181,148 @@
 			
 		    int weekNum = 0;
 		    for (int i = 0; i < 7; i++){
-		    	}%
-			    	var menuItem;
-	    			switch("${weekNum}") {
-			    	    case "0":
-			    	    	menuItem = $('#sunday');
-			    	        break;
-			    	    case "1":
-			    	    	menuItem = $('#monday');
-			    	        break;
-			    	    case "2":
-			    	    	menuItem = $('#tuesday');
-			    	        break;
-			    	    case "3":
-			    	    	menuItem = $('#wednesday');
-			    	        break;
-			    	    case "4":
-			    	    	menuItem = $('#thursday');
-			    	        break;
-			    	    case "5":
-			    	    	menuItem = $('#friday');
-			    	        break;
-			    	    case "6":
-			    	    	menuItem = $('#saturday');
-			    	        break;
-		    		}
-	    			var menuContent = menuItem.find('div.menu-content');
-		    	%{
+		}%  
+		    	var menuItem;
+    			switch("${weekNum}") {
+		    	    case "0":
+		    	    	menuItem = $('#sunday');
+		    	        break;
+		    	    case "1":
+		    	    	menuItem = $('#monday');
+		    	        break;
+		    	    case "2":
+		    	    	menuItem = $('#tuesday');
+		    	        break;
+		    	    case "3":
+		    	    	menuItem = $('#wednesday');
+		    	        break;
+		    	    case "4":
+		    	    	menuItem = $('#thursday');
+		    	        break;
+		    	    case "5":
+		    	    	menuItem = $('#friday');
+		    	        break;
+		    	    case "6":
+		    	    	menuItem = $('#saturday');
+		    	        break;
+	    		}
+    			var menuContent = menuItem.find('div.menu-content');
+		%{
 		    	String dateStr = dateFormat.format(now.getTime());
-		    	models.Menu menu = clz.menus.get(dateStr);
+		    	models.Menu menu = menus.get(dateStr);
 		    	if(menu != null){
-		    		}%
-						var breakfastHtml="", brunchHtml="", lunchHtml="", highTeaHtml="", dinnerHtml="";
-						
-		    			var html = "<table class=\"menu-tb\">";
-		    				html += "<thead><tr><th>Time</th><th>Food</th></tr></thead>";
-		    				html += "<tbody>";
+		}%
+					var breakfastHtml="", brunchHtml="", lunchHtml="", highTeaHtml="", dinnerHtml="";
+					
+	    			var html = "<table class=\"menu-tb\">";
+	    				html += "<thead><tr><th>Time</th><th>Food</th></tr></thead>";
+	    				html += "<tbody>";
 		    				
-		    				%{
-		    					for(models.Food food : menu.food){
-			    					}%
-				    					switch("${food.type}") {
-								    	    case "BREAKFAST":
-								    	    	breakfastHtml += "<a>${food.name}</a>";
-								    	        break;
-								    	    case "MORNING_TEA":
-								    	    	brunchHtml += "<a>${food.name}</a>";
-								    	        break;
-								    	    case "LAUNCH":
-								    	    	lunchHtml += "<a>${food.name}</a>";
-								    	        break;
-								    	    case "AFTERNOON_TEA":
-								    	    	highTeaHtml += "<a>${food.name}</a>";
-								    	        break;
-								    	    case "DINNER":
-								    	    	dinnerHtml += "<a>${food.name}</a>";
-								    	        break;
-					    		}
-			    					%{
-		    					}
-		    				}%
+		%{
+   					for(models.Food food : menu.food){
+		}%
+    					switch("${food.type}") {
+				    	    case "BREAKFAST":
+				    	    	breakfastHtml += "<a>${food.name}</a>";
+				    	        break;
+				    	    case "MORNING_TEA":
+				    	    	brunchHtml += "<a>${food.name}</a>";
+				    	        break;
+				    	    case "LAUNCH":
+				    	    	lunchHtml += "<a>${food.name}</a>";
+				    	        break;
+				    	    case "AFTERNOON_TEA":
+				    	    	highTeaHtml += "<a>${food.name}</a>";
+				    	        break;
+				    	    case "DINNER":
+				    	    	dinnerHtml += "<a>${food.name}</a>";
+				    	        break;
+	    				}
+		%{
+					}
+		}%
 		    				
-		    				html += "<tr class=\"breakfast\">";
-		    				html += "<td>Breakfast</td>";
-		    				html += "<td class=\"food-col\">";
-		    				html += breakfastHtml;
-		    				html += "</td></tr>";
-		    				
-		    				html += "<tr class=\"morning-tea\">";
-		    				html += "<td>Morning tea</td>";
-		    				html += "<td class=\"food-col\">";
-		    				html += brunchHtml;
-		    				html += "</td></tr>";
-		    				
-		    				html += "<tr class=\"lunch\">";
-		    				html += "<td>Lunch</td>";
-		    				html += "<td class=\"food-col\">";
-		    				html += lunchHtml;
-		    				html += "</td></tr>";
-		    				
-		    				html += "<tr class=\"afternoon-tea\">";
-		    				html += "<td>Afternoon tea</td>";
-		    				html += "<td class=\"food-col\">";
-		    				html += highTeaHtml;
-		    				html += "</td></tr>";
-		    				
-		    				html += "<tr class=\"dinner-tea\">";
-		    				html += "<td>Dinner</td>";
-		    				html += "<td class=\"food-col\">";
-		    				html += dinnerHtml;
-		    				html += "</td></tr>";
-		    				
-		    				html += "</tbody></table>";
-		    				
-		    				menuContent.append(html);
-		    				
-		    		%{
+    				html += "<tr class=\"breakfast\">";
+    				html += "<td>Breakfast</td>";
+    				html += "<td class=\"food-col\">";
+    				html += breakfastHtml;
+    				html += "</td></tr>";
+    				
+    				html += "<tr class=\"morning-tea\">";
+    				html += "<td>Morning tea</td>";
+    				html += "<td class=\"food-col\">";
+    				html += brunchHtml;
+    				html += "</td></tr>";
+    				
+    				html += "<tr class=\"lunch\">";
+    				html += "<td>Lunch</td>";
+    				html += "<td class=\"food-col\">";
+    				html += lunchHtml;
+    				html += "</td></tr>";
+    				
+    				html += "<tr class=\"afternoon-tea\">";
+    				html += "<td>Afternoon tea</td>";
+    				html += "<td class=\"food-col\">";
+    				html += highTeaHtml;
+    				html += "</td></tr>";
+    				
+    				html += "<tr class=\"dinner-tea\">";
+    				html += "<td>Dinner</td>";
+    				html += "<td class=\"food-col\">";
+    				html += dinnerHtml;
+    				html += "</td></tr>";
+    				
+    				html += "</tbody></table>";
+    				
+    				menuContent.append(html);
+				    				
+		%{
 		    	}else{
-		    		}%
-			    		var html = "<div class=\"nomenu-wrap\" data-toggle=\"modal\" data-target=\"#addmenu-model\">";
-			    			html += "<img src=\"../../public/images/moods/mood_cry.png\" />";
-			    			html += "<p>Sorry, The menu is empty !</p><p>Click to create a menu !</p></div>";
-			    			menuContent.append(html);
-		    		%{
+		}%
+		    		var html = "<div class=\"nomenu-wrap\" data-toggle=\"modal\" data-target=\"#addmenu-model\">";
+		    			html += "<img src=\"../../public/images/moods/mood_cry.png\" />";
+		    			html += "<p>Sorry, The menu is empty !</p><p>Click to create a menu !</p></div>";
+		    			menuContent.append(html);
+		%{
 		    	}
 		        now.add(Calendar.DAY_OF_MONTH, 1);
 		        weekNum ++;
 		    }
 		}%
-		
+	}
+	
+	function updateDate(date){
+		var startDate = new Date('${clz.startDate}');
+		var endDate = new Date('${clz.endDate}');
+		if(updateToolbarUI(startDate, date, endDate)){
+			var date = getDateOfWeek(date.getWeek(), date.getFullYear());
+			var daysOfWeek = date.getStartAndEnd();
+			$('li#sunday p.date-num').text(daysOfWeek[0].getDate());
+			$('li#sunday input').val(formDateByFormat(daysOfWeek[0]));
+			
+			$('li#monday p.date-num').text(daysOfWeek[1].getDate());
+			$('li#monday input').val(formDateByFormat(daysOfWeek[1]));
+			
+			$('li#tuesday p.date-num').text(daysOfWeek[2].getDate());
+			$('li#tuesday input').val(formDateByFormat(daysOfWeek[2]));
+			
+			$('li#wednesday p.date-num').text(daysOfWeek[3].getDate());
+			$('li#wednesday input').val(formDateByFormat(daysOfWeek[3]));
+			
+			$('li#thursday p.date-num').text(daysOfWeek[4].getDate());
+			$('li#thursday input').val(formDateByFormat(daysOfWeek[4]));
+			
+			$('li#friday p.date-num').text(daysOfWeek[5].getDate());
+			$('li#friday input').val(formDateByFormat(daysOfWeek[5]));
+			
+			$('li#saturday p.date-num').text(daysOfWeek[6].getDate());
+			$('li#saturday input').val(formDateByFormat(daysOfWeek[6]));
+		}
+	}
+	
+	function formDateByFormat(date){
+		var year = date.getFullYear(); var month = date.getMonth() + 1; var day = date.getDate();
+		return year + "-" + (month < 10 ? '0' + month : month) + '-' + (day < 10 ? '0' + day : day);
 	}
 	
 	function updateToolbarUI(startDate, date, endDate){
@@ -436,15 +459,22 @@
 				<a id="week-pre" class="fui-arrow-left"></a>
 				<ul id="date-list">
 					<li id="sunday">
+						<input type="hidden"/>
 						<div class="menu-wrap weekend">
 							<span class="week-head">Sun</span>
 							<p class="date-num">23</p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
+								<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
+									<img src="../../public/images/moods/mood_cry.png" />
+									<p>Sorry, The menu is empty !</p>
+									<p>Click to create a menu !</p>
+								</div>
 							</div>
 						</div>
 					</li>
 					<li id="monday">
+						<input type="hidden"/>
 						<div class="menu-wrap">
 							<span class="week-head">Mon</span>
 							<p class="date-num">23</p>
@@ -454,6 +484,7 @@
 						</div>
 					</li>
 					<li id="tuesday">
+						<input type="hidden"/>
 						<div class="menu-wrap">
 							<span class="week-head">Tue</span>
 							<p class="date-num">23</p>
@@ -463,6 +494,7 @@
 						</div>
 					</li>
 					<li id="wednesday">
+						<input type="hidden"/>
 						<div class="menu-wrap">
 							<span class="week-head">Web</span>
 							<p class="date-num">23</p>
@@ -472,6 +504,7 @@
 						</div>
 					</li>
 					<li id="thursday">
+						<input type="hidden"/>
 						<div class="menu-wrap">
 							<span class="week-head">Thu</span>
 							<p class="date-num">23</p>
@@ -481,6 +514,7 @@
 						</div>
 					</li>
 					<li id="friday">
+						<input type="hidden"/>
 						<div class="menu-wrap">
 							<span class="week-head">Fri</span>
 							<p class="date-num">23</p>
@@ -490,6 +524,7 @@
 						</div>
 					</li>
 					<li id="saturday" class="weekend">
+						<input type="hidden"/>
 						<div class="menu-wrap weekend">
 							<span class="week-head">Sat</span>
 							<p class="date-num">23</p>

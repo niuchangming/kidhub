@@ -1,5 +1,6 @@
 package models;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -101,8 +102,8 @@ public class KidClass extends Model{
 		this.save();
 	}
 	
-	public void addMenu(Menu menu){
-		this.menus.put(CommonUtils.getDateString(new Date(), null), menu);
+	public void addMenu(Menu menu, String dateStr){
+		this.menus.put(dateStr, menu);
 		this.save();
 	}
 	
@@ -115,6 +116,17 @@ public class KidClass extends Model{
 		return food;
 	}
 	
+	public Map<String, Menu> getMenusByWeek(Date date){
+		Map<String, Menu> menuMap = new HashMap<String, Menu>(); 
+		List<BigInteger> menuIds = JPA.em().createNativeQuery("SELECT menu_id FROM date_menu WHERE clz_id = " 
+							+ this.id + " AND " + getWeekQuery(date)).getResultList();
+		for(BigInteger menuId : menuIds){
+			Menu menu = Menu.findById(menuId.longValue());
+			menuMap.put(CommonUtils.getDateString(menu.date, null), menu);
+		}
+		return this.menus;	
+	}
+	
 	private String getWeekQuery(Date curDate){
 		Calendar c = Calendar.getInstance();
 		c.setTime(curDate == null ? new Date() : curDate);
@@ -123,6 +135,6 @@ public class KidClass extends Model{
 		Date weekStart = c.getTime();
 		c.add(Calendar.DAY_OF_MONTH, 6);
 		Date weekEnd = c.getTime();
-		return "date between " + CommonUtils.getDateString(weekStart, null) + " and "  + CommonUtils.getDateString(weekEnd, null);
+		return "date_key between '" + CommonUtils.getDateString(weekStart, null) + "' and '"  + CommonUtils.getDateString(weekEnd, null) + "'";
 	}
 }

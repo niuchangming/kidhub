@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -17,7 +18,6 @@ import com.google.gson.Gson;
 import com.sun.xml.internal.ws.api.message.Attachment;
 
 import flexjson.JSONSerializer;
-
 import models.Child;
 import models.Food;
 import models.KidClass;
@@ -102,7 +102,13 @@ public class ClassLifeController extends Controller{
 	
 	public static void showMenuByWeek(long classId, Date date){
 		KidClass clz = KidClass.findById(classId);
-		renderTemplate("/ClassLifeController/showmenu.html", clz);
+		Map<String, Menu> menus = clz.getMenusByWeek(new Date());
+		/**
+		 *	select menus0_.clz_id, menus0_.menu_id, menus0_.date_key, 
+		 *	menu1_.id, menu1_.date, menu1_.is_template from date_menu menus0_ 
+		 *	inner join menu menu1_ on menus0_.menu_id=menu1_.id where menus0_.clz_id=?
+		 */
+		renderTemplate("/ClassLifeController/showmenu.html", clz, menus);
 	}
 	
 	public static void createFood(Food food){
@@ -124,13 +130,13 @@ public class ClassLifeController extends Controller{
 		renderJSON(CommonUtils.getObjectAsJsonStr(food));
 	}
 	
-	public static void createMenuByClzId(long clzId, long[] foodIds, boolean isTemplate){
+	public static void createMenuByClzId(long clzId, long[] foodIds, String dateStr, boolean isTemplate){
 		Menu menu = null;
 		KidClass clz = KidClass.findById(clzId);
-		if(!clz.menus.containsKey(CommonUtils.getDateString(new Date(), null))){
+		if(!clz.menus.containsKey(dateStr)){
 			menu = new Menu();
 			menu.createMenuByFoodIds(foodIds, isTemplate);
-			clz.addMenu(menu);
+			clz.addMenu(menu, dateStr);
 		}
 		renderJSON(CommonUtils.getObjectAsJsonStr(menu));
 	}
