@@ -70,30 +70,8 @@ div.weekend{
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 }
 
-.menu-content > table{
-	width: 100%;
-}
-
-.menu-content > table th{
-	color: #34495e;
-	text-align: center;
-}
-
-.menu-content > table tr{
-	font-size: 0.8em;
-}
-
-.menu-content > table td.food-col{
-	display: block;
-}
-
-.menu-content > table td > a{
-	line-height: 24px;
-	border-radius: 16px;
-}
-
 .hovered{
-	display:block;
+	display:table;
 }
 
 #food-menu-add-wrap {
@@ -446,8 +424,8 @@ div.weekend{
 	text-align: center;
 	left:0;
 	right: 0;
-	top:38PX;
-	position: absolute;
+	display: table-cell;
+	vertical-align: middle;
 }
 
 .nofood-wrap > img{
@@ -456,9 +434,9 @@ div.weekend{
 
 .nofood-wrap > p, .nomenu-wrap > p{
 	line-height: 1.2em;
-	font-font: 1.6em;
-	color: #95a5a6;
-	font-weight: 500;
+	font-size: 1.0em;
+	color: white;
+	font-weight: 700;
 }
 
 .food-opt.selected {
@@ -488,16 +466,35 @@ div.weekend{
 
 /*************************************************** Menu Table Start ***************************************************/
 
-td.food-col{
-	display: block;
+.menu-content > table{
+	width: 100%;
 }
 
-td.food-col a{
+.menu-content > table th{
+	color: #34495e;
+	text-align: center;
+}
+
+.menu-content > table tr{
+	font-size: 0.8em;
+}
+
+.time-col{
+	width: 36%;
+	display: table-cell;	
+}
+
+.food-col{
+	width: 64%;
+	display: table-cell;
+}
+
+.food-col a{
+	width: 100%;
+	line-height: 36px;
 	display: inline-block;
-	padding: 2px 8px;
 	color: white;
 }
-
 
 /**************************************************** Menu Table End ****************************************************/
 

@@ -126,6 +126,7 @@
 		});
 		
 		$('#menu-submit').click(function(){
+			var dateStr = $('.menu-content.hovered').parents('li').find('input').val();
 			var foodIds = [];
 			$('.food-opt.selected > input').each(function(index){
 				foodIds[index] = $(this).val();
@@ -144,6 +145,9 @@
                 success: function(response, status) {
                 	if(status == "success"){
                 		var menu = jQuery.parseJSON(JSON.stringify(response));
+                		menusObj[dateStr] = menu;
+                		$('.menu-content').empty();
+                		updateMenu(new Date(dateStr));
                 		$('#addmenu-model').modal('hide');
                 	}
                 }
@@ -217,9 +221,11 @@
 			var menuContent = menuItem.find('div.menu-content');
 			var menu = menusObj[formDateByFormat(daysOfWeek[index])];
 			if(menu == null){
-				var html = "<div class=\"nomenu-wrap\" data-toggle=\"modal\" data-target=\"#addmenu-model\">";
-	    			html += "<img src=\"../../public/images/moods/mood_cry.png\" />";
-	    			html += "<p>Sorry, The menu is empty !</p><p>Click to create a menu !</p></div>";
+				var html = "<div class=\"nomenu-wrap\">";
+	    			html += "<img src=\"../../public/images/moods/confused.png\" />";
+	    			html += "<p>Sorry, The menu is empty !</p><p>Click to create a menu !</p>";
+	    			html += "<button id=\"cre-menu-btn\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#addmenu-model\">&nbsp;&nbsp;&nbsp;Create an new menu&nbsp;&nbsp;&nbsp;&nbsp;</button>";
+	    			html += "<button id=\"chse-menu-btn\" class=\"btn btn-info\">Choose from existing one</button></div>";
 			}else{
 				var breakfastHtml="", brunchHtml="", lunchHtml="", highTeaHtml="", dinnerHtml="";
 				var html = "<table class=\"menu-tb\">";
@@ -245,6 +251,7 @@
 			    	        break;
 					}
 				});
+				
 				html += "<tr class=\"breakfast\">";
 				html += "<td>Breakfast</td>";
 				html += "<td class=\"food-col\">";
@@ -277,7 +284,7 @@
 				
 				html += "</tbody></table>";
 			}
-			menuContent.append(html);
+			//menuContent.append(html);
 		});
 	}
 	
@@ -418,11 +425,28 @@
 							<p class="date-num">23</p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
-								<div class="nomenu-wrap" data-toggle="modal" data-target="#addmenu-model">
-									<img src="../../public/images/moods/mood_cry.png" />
-									<p>Sorry, The menu is empty !</p>
-									<p>Click to create a menu !</p>
-								</div>
+								<table class="menu-tb">
+									<thead>
+										<tr>
+											<th class="time-col">Time</th>
+											<th class="food-col">Food</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr class="breakfast">
+											<td class="time-col">Breakfast</td>
+											<td class="food-col">
+												<a>Food 3 Food 3 Food 3 Food 3 Food 3</a>
+												<a>Food 3</a>
+												<a>Food 3</a>
+												<a>Food 3</a>
+												<a>Food 3</a>
+												<a>Food 3</a>
+												<a>Food 3</a>
+											</td>
+										</tr>
+									</tbody>
+								</table>
 							</div>
 						</div>
 					</li>
@@ -430,7 +454,7 @@
 						<input type="hidden"/>
 						<div class="menu-wrap">
 							<span class="week-head">Mon</span>
-							<p class="date-num">23</p>
+							<p class="date-num"></p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
 							</div>
@@ -440,7 +464,7 @@
 						<input type="hidden"/>
 						<div class="menu-wrap">
 							<span class="week-head">Tue</span>
-							<p class="date-num">23</p>
+							<p class="date-num"></p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
 							</div>
@@ -450,7 +474,7 @@
 						<input type="hidden"/>
 						<div class="menu-wrap">
 							<span class="week-head">Web</span>
-							<p class="date-num">23</p>
+							<p class="date-num"></p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
 							</div>
@@ -460,7 +484,7 @@
 						<input type="hidden"/>
 						<div class="menu-wrap">
 							<span class="week-head">Thu</span>
-							<p class="date-num">23</p>
+							<p class="date-num"></p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
 							</div>
@@ -470,7 +494,7 @@
 						<input type="hidden"/>
 						<div class="menu-wrap">
 							<span class="week-head">Fri</span>
-							<p class="date-num">23</p>
+							<p class="date-num"></p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
 							</div>
@@ -480,7 +504,7 @@
 						<input type="hidden"/>
 						<div class="menu-wrap weekend">
 							<span class="week-head">Sat</span>
-							<p class="date-num">23</p>
+							<p class="date-num"></p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
 							</div>
