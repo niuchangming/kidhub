@@ -5,8 +5,6 @@
 <script type="text/javascript">
 	$(document).ready(function(){
 		init();
-		menuHoverAction();
-		showTodayMenu();
 		initTemplateCheckBox();
 		
 		$('#food-img').change(function(){
@@ -155,143 +153,35 @@
 	});
 	
 	function init(){
+		jsonStr = "${new flexjson.JSONSerializer().deepSerialize(clz.menus)}".replace(/&quot;/g, '"');
+		menusObj = jQuery.parseJSON(jsonStr)
+		
+		$('.menu-wrap').on('mouseenter', function(){
+			$('.hovered').removeClass('hovered');
+			$(this).find('.menu-content').addClass('hovered');
+			$(this).find('.dropdown-arrow').addClass('hovered');
+		});
+		
 		$('a#week-pre').on('click', function(){
+			$('.menu-content').empty();
 			var preDate = new Date(parseInt($('#tool-bar > input').val()) - 604800000);
-			updateDate(preDate);
+			updateWeekBar(preDate);
+			updateMenu(preDate);
 		});
 		
 		$('a#week-next').on('click', function(){
+			$('.menu-content').empty();
 			var nextDate = new Date(parseInt($('#tool-bar > input').val()) + 604800000);
-			updateDate(nextDate);
+			updateWeekBar(nextDate);
+			updateMenu(nextDate);
 		});
 		
-		updateDate(new Date());
-		
-		var jsonStr = "${new flexjson.JSONSerializer().deepSerialize(clz)}";
-		var clzz = jQuery.parseJSON(jsonStr);
-		alert(clzz.className);
-		
-		%{  
-			Calendar now = Calendar.getInstance();
-			java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
-			java.text.SimpleDateFormat weekFormat = new java.text.SimpleDateFormat("EEEE");
-
-		    int delta = -now.get(GregorianCalendar.DAY_OF_WEEK) + 1;
-		    now.add(Calendar.DAY_OF_MONTH, delta);
-			
-		    int weekNum = 0;
-		    for (int i = 0; i < 7; i++){
-		}%  
-		    	var menuItem;
-    			switch("${weekNum}") {
-		    	    case "0":
-		    	    	menuItem = $('#sunday');
-		    	        break;
-		    	    case "1":
-		    	    	menuItem = $('#monday');
-		    	        break;
-		    	    case "2":
-		    	    	menuItem = $('#tuesday');
-		    	        break;
-		    	    case "3":
-		    	    	menuItem = $('#wednesday');
-		    	        break;
-		    	    case "4":
-		    	    	menuItem = $('#thursday');
-		    	        break;
-		    	    case "5":
-		    	    	menuItem = $('#friday');
-		    	        break;
-		    	    case "6":
-		    	    	menuItem = $('#saturday');
-		    	        break;
-	    		}
-    			var menuContent = menuItem.find('div.menu-content');
-		%{
-		    	String dateStr = dateFormat.format(now.getTime());
-		    	models.Menu menu = menus.get(dateStr);
-		    	if(menu != null){
-		}%
-					var breakfastHtml="", brunchHtml="", lunchHtml="", highTeaHtml="", dinnerHtml="";
-					
-	    			var html = "<table class=\"menu-tb\">";
-	    				html += "<thead><tr><th>Time</th><th>Food</th></tr></thead>";
-	    				html += "<tbody>";
-		    				
-		%{
-   					for(models.Food food : menu.food){
-		}%
-    					switch("${food.type}") {
-				    	    case "BREAKFAST":
-				    	    	breakfastHtml += "<a>${food.name}</a>";
-				    	        break;
-				    	    case "MORNING_TEA":
-				    	    	brunchHtml += "<a>${food.name}</a>";
-				    	        break;
-				    	    case "LAUNCH":
-				    	    	lunchHtml += "<a>${food.name}</a>";
-				    	        break;
-				    	    case "AFTERNOON_TEA":
-				    	    	highTeaHtml += "<a>${food.name}</a>";
-				    	        break;
-				    	    case "DINNER":
-				    	    	dinnerHtml += "<a>${food.name}</a>";
-				    	        break;
-	    				}
-		%{
-					}
-		}%
-		    				
-    				html += "<tr class=\"breakfast\">";
-    				html += "<td>Breakfast</td>";
-    				html += "<td class=\"food-col\">";
-    				html += breakfastHtml;
-    				html += "</td></tr>";
-    				
-    				html += "<tr class=\"morning-tea\">";
-    				html += "<td>Morning tea</td>";
-    				html += "<td class=\"food-col\">";
-    				html += brunchHtml;
-    				html += "</td></tr>";
-    				
-    				html += "<tr class=\"lunch\">";
-    				html += "<td>Lunch</td>";
-    				html += "<td class=\"food-col\">";
-    				html += lunchHtml;
-    				html += "</td></tr>";
-    				
-    				html += "<tr class=\"afternoon-tea\">";
-    				html += "<td>Afternoon tea</td>";
-    				html += "<td class=\"food-col\">";
-    				html += highTeaHtml;
-    				html += "</td></tr>";
-    				
-    				html += "<tr class=\"dinner-tea\">";
-    				html += "<td>Dinner</td>";
-    				html += "<td class=\"food-col\">";
-    				html += dinnerHtml;
-    				html += "</td></tr>";
-    				
-    				html += "</tbody></table>";
-    				
-    				menuContent.append(html);
-				    				
-		%{
-		    	}else{
-		}%
-		    		var html = "<div class=\"nomenu-wrap\" data-toggle=\"modal\" data-target=\"#addmenu-model\">";
-		    			html += "<img src=\"../../public/images/moods/mood_cry.png\" />";
-		    			html += "<p>Sorry, The menu is empty !</p><p>Click to create a menu !</p></div>";
-		    			menuContent.append(html);
-		%{
-		    	}
-		        now.add(Calendar.DAY_OF_MONTH, 1);
-		        weekNum ++;
-		    }
-		}%
+		showTodayMenu();
+		updateWeekBar(new Date());
+		updateMenu(new Date());
 	}
 	
-	function updateDate(date){
+	function updateWeekBar(date){
 		var startDate = new Date('${clz.startDate}');
 		var endDate = new Date('${clz.endDate}');
 		if(updateToolbarUI(startDate, date, endDate)){
@@ -318,6 +208,77 @@
 			$('li#saturday p.date-num').text(daysOfWeek[6].getDate());
 			$('li#saturday input').val(formDateByFormat(daysOfWeek[6]));
 		}
+	}
+	
+	function updateMenu(date){
+		var daysOfWeek = date.getStartAndEnd();
+		$.each(daysOfWeek, function(index, value){
+			var menuItem = $('li#' + weekday[index]);	
+			var menuContent = menuItem.find('div.menu-content');
+			var menu = menusObj[formDateByFormat(daysOfWeek[index])];
+			if(menu == null){
+				var html = "<div class=\"nomenu-wrap\" data-toggle=\"modal\" data-target=\"#addmenu-model\">";
+	    			html += "<img src=\"../../public/images/moods/mood_cry.png\" />";
+	    			html += "<p>Sorry, The menu is empty !</p><p>Click to create a menu !</p></div>";
+			}else{
+				var breakfastHtml="", brunchHtml="", lunchHtml="", highTeaHtml="", dinnerHtml="";
+				var html = "<table class=\"menu-tb\">";
+					html += "<thead><tr><th>Time</th><th>Food</th></tr></thead>";
+					html += "<tbody>";
+					
+				$.each(menu.food, function(index, food){
+					switch(food.type) {
+			    	    case "BREAKFAST":
+			    	    	breakfastHtml += "<a>" + food.name + "</a>";
+			    	        break;
+			    	    case "MORNING_TEA":
+			    	    	brunchHtml += "<a>" + food.name + "</a>";
+			    	        break;
+			    	    case "LAUNCH":
+			    	    	lunchHtml += "<a>" + food.name + "</a>";
+			    	        break;
+			    	    case "AFTERNOON_TEA":
+			    	    	highTeaHtml += "<a>" + food.name + "</a>";
+			    	        break;
+			    	    case "DINNER":
+			    	    	dinnerHtml += "<a>" + food.name + "</a>";
+			    	        break;
+					}
+				});
+				html += "<tr class=\"breakfast\">";
+				html += "<td>Breakfast</td>";
+				html += "<td class=\"food-col\">";
+				html += breakfastHtml;
+				html += "</td></tr>";
+				
+				html += "<tr class=\"morning-tea\">";
+				html += "<td>Morning tea</td>";
+				html += "<td class=\"food-col\">";
+				html += brunchHtml;
+				html += "</td></tr>";
+				
+				html += "<tr class=\"lunch\">";
+				html += "<td>Lunch</td>";
+				html += "<td class=\"food-col\">";
+				html += lunchHtml;
+				html += "</td></tr>";
+				
+				html += "<tr class=\"afternoon-tea\">";
+				html += "<td>Afternoon tea</td>";
+				html += "<td class=\"food-col\">";
+				html += highTeaHtml;
+				html += "</td></tr>";
+				
+				html += "<tr class=\"dinner-tea\">";
+				html += "<td>Dinner</td>";
+				html += "<td class=\"food-col\">";
+				html += dinnerHtml;
+				html += "</td></tr>";
+				
+				html += "</tbody></table>";
+			}
+			menuContent.append(html);
+		});
 	}
 	
 	function formDateByFormat(date){
@@ -380,16 +341,8 @@
 	    return [startDate, dayOne, dayTwo, dayThree, dayFour, dayFive, endDate];
 	}
 	
-	function menuHoverAction(){
-		$('.menu-wrap').on('mouseenter', function(){
-			$('.hovered').removeClass('hovered');
-			$(this).find('.menu-content').addClass('hovered');
-			$(this).find('.dropdown-arrow').addClass('hovered');
-		});
-	}
-	
 	function showTodayMenu(){
-		var weekday = new Array(7);
+			weekday = new Array(7);
 			weekday[0]=  "sunday";
 			weekday[1] = "monday";
 			weekday[2] = "tuesday";
@@ -442,7 +395,7 @@
 			<div class="list-group">
 			  <a href="#" class="list-group-item active">Daily report</a>
 			  <a href="#" class="list-group-item">Class schedule</a>
-			  <a href="@{ClassLifeController.showmenubyweek(clz?.id)}" class="list-group-item">Food menu</a>
+			  <a href="@{ClassLifeController.showmenu(clz?.id)}" class="list-group-item">Food menu</a>
 			  <a href="#" class="list-group-item">Class photo</a>
 			  <a href="@{ClassLifeController.markGrid(clz?.id)}" class="list-group-item">Baby behavior</a>
 			  <a href="@{ClassLifeController.moodGrid(clz?.id)}" class="list-group-item">Baby mood</a>

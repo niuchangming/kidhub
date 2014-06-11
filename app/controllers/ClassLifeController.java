@@ -100,15 +100,9 @@ public class ClassLifeController extends Controller{
 		renderJSON(mood);
 	}
 	
-	public static void showMenuByWeek(long classId, Date date){
-		KidClass clz = KidClass.findById(classId);
-		Map<String, Menu> menus = clz.getMenusByWeek(new Date());
-		/**
-		 *	select menus0_.clz_id, menus0_.menu_id, menus0_.date_key, 
-		 *	menu1_.id, menu1_.date, menu1_.is_template from date_menu menus0_ 
-		 *	inner join menu menu1_ on menus0_.menu_id=menu1_.id where menus0_.clz_id=?
-		 */
-		renderTemplate("/ClassLifeController/showmenu.html", clz, menus);
+	public static void showMenu(long clzId){
+		KidClass clz = KidClass.findById(clzId);
+		renderTemplate("/ClassLifeController/showmenu.html", clz);
 	}
 	
 	public static void createFood(Food food){

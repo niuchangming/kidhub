@@ -124,7 +124,7 @@ public class KidClass extends Model{
 			Menu menu = Menu.findById(menuId.longValue());
 			menuMap.put(CommonUtils.getDateString(menu.date, null), menu);
 		}
-		return this.menus;	
+		return menuMap;	
 	}
 	
 	private String getWeekQuery(Date curDate){
