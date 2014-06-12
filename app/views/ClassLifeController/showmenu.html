@@ -157,8 +157,12 @@
 	});
 	
 	function init(){
-		jsonStr = "${new flexjson.JSONSerializer().deepSerialize(clz.menus)}".replace(/&quot;/g, '"');
-		menusObj = jQuery.parseJSON(jsonStr)
+		jsonStr = "${new flexjson.JSONSerializer().deepSerialize(clz.menus).escapeJavaScript().raw()}";
+		try{
+			menusObj = jQuery.parseJSON(jsonStr);
+		}catch(err){
+			console.log(err);
+		}
 		
 		$('.menu-wrap').on('mouseenter', function(){
 			$('.hovered').removeClass('hovered');
@@ -235,56 +239,90 @@
 				$.each(menu.food, function(index, food){
 					switch(food.type) {
 			    	    case "BREAKFAST":
-			    	    	breakfastHtml += "<a>" + food.name + "</a>";
+			    	    	breakfastHtml += "<a><span>" + food.name + "</span>";
+			    	    	breakfastHtml += "<div class=\"food-info-wrap\">";
+			    	    	breakfastHtml += "<span class=\"fui-eye food-img-view\"></span>";
+			    	    	breakfastHtml += "<div class=\"tooltip\">";
+			    	    	breakfastHtml += "<div class=\"tooltip-content\">";
+			    	    	breakfastHtml += "<img src=../../" + food.thumbnail + ">";
+			    	    	breakfastHtml += "<p>" + food.description + "</p></div></div></div></a>";
 			    	        break;
 			    	    case "MORNING_TEA":
-			    	    	brunchHtml += "<a>" + food.name + "</a>";
+			    	    	brunchHtml += "<a><span>" + food.name + "</span>";
+			    	    	brunchHtml += "<div class=\"food-info-wrap\">";
+			    	    	brunchHtml += "<span class=\"fui-eye food-img-view\"></span>";
+			    	    	brunchHtml += "<div class=\"tooltip\">";
+			    	    	brunchHtml += "<div class=\"tooltip-content\">";
+			    	    	brunchHtml += "<img src=../../" + food.thumbnail + ">";
+			    	    	brunchHtml += "<p>" + food.description + "</p></div></div></div></a>";
 			    	        break;
 			    	    case "LAUNCH":
-			    	    	lunchHtml += "<a>" + food.name + "</a>";
+			    	    	lunchHtml += "<a><span>" + food.name + "</span>";
+			    	    	lunchHtml += "<div class=\"food-info-wrap\">";
+			    	    	lunchHtml += "<span class=\"fui-eye food-img-view\"></span>";
+			    	    	lunchHtml += "<div class=\"tooltip\">";
+			    	    	lunchHtml += "<div class=\"tooltip-content\">";
+			    	    	lunchHtml += "<img src=../../" + food.thumbnail + ">";
+			    	    	lunchHtml += "<p>" + food.description + "</p></div></div></div></a>";
 			    	        break;
 			    	    case "AFTERNOON_TEA":
-			    	    	highTeaHtml += "<a>" + food.name + "</a>";
+			    	    	highTeaHtml += "<a><span>" + food.name + "</span>";
+			    	    	highTeaHtml += "<div class=\"food-info-wrap\">";
+			    	    	highTeaHtml += "<span class=\"fui-eye food-img-view\"></span>";
+			    	    	highTeaHtml += "<div class=\"tooltip\">";
+			    	    	highTeaHtml += "<div class=\"tooltip-content\">";
+			    	    	highTeaHtml += "<img src=../../" + food.thumbnail + ">";
+			    	    	highTeaHtml += "<p>" + food.description + "</p></div></div></div></a>";
 			    	        break;
 			    	    case "DINNER":
-			    	    	dinnerHtml += "<a>" + food.name + "</a>";
+			    	    	dinnerHtml += "<a><span>" + food.name + "</span>";
+			    	    	dinnerHtml += "<div class=\"food-info-wrap\">";
+			    	    	dinnerHtml += "<span class=\"fui-eye food-img-view\"></span>";
+			    	    	dinnerHtml += "<div class=\"tooltip\">";
+			    	    	dinnerHtml += "<div class=\"tooltip-content\">";
+			    	    	dinnerHtml += "<img src=../../" + food.thumbnail + ">";
+			    	    	dinnerHtml += "<p>" + food.description + "</p></div></div></div></a>";
 			    	        break;
 					}
 				});
-				
-				html += "<tr class=\"breakfast\">";
-				html += "<td>Breakfast</td>";
-				html += "<td class=\"food-col\">";
-				html += breakfastHtml;
-				html += "</td></tr>";
-				
-				html += "<tr class=\"morning-tea\">";
-				html += "<td>Morning tea</td>";
-				html += "<td class=\"food-col\">";
-				html += brunchHtml;
-				html += "</td></tr>";
-				
-				html += "<tr class=\"lunch\">";
-				html += "<td>Lunch</td>";
-				html += "<td class=\"food-col\">";
-				html += lunchHtml;
-				html += "</td></tr>";
-				
-				html += "<tr class=\"afternoon-tea\">";
-				html += "<td>Afternoon tea</td>";
-				html += "<td class=\"food-col\">";
-				html += highTeaHtml;
-				html += "</td></tr>";
-				
-				html += "<tr class=\"dinner-tea\">";
-				html += "<td>Dinner</td>";
-				html += "<td class=\"food-col\">";
-				html += dinnerHtml;
-				html += "</td></tr>";
-				
+				if(breakfastHtml != ""){
+					html += "<tr class=\"breakfast\">";
+					html += "<td class=\"time-col\">Breakfast</td>";
+					html += "<td class=\"food-col\">";
+					html += breakfastHtml;
+					html += "</td></tr>";
+				}
+				if(brunchHtml != ""){
+					html += "<tr class=\"morning-tea\">";
+					html += "<td class=\"time-col\">Morning tea</td>";
+					html += "<td class=\"food-col\">";
+					html += brunchHtml;
+					html += "</td></tr>";
+				}
+				if(lunchHtml != ""){
+					html += "<tr class=\"lunch\">";
+					html += "<td class=\"time-col\">Lunch</td>";
+					html += "<td class=\"food-col\">";
+					html += lunchHtml;
+					html += "</td></tr>";
+				}
+				if(highTeaHtml != ""){
+					html += "<tr class=\"afternoon-tea\">";
+					html += "<td class=\"time-col\">Afternoon tea</td>";
+					html += "<td class=\"food-col\">";
+					html += highTeaHtml;
+					html += "</td></tr>";
+				}
+				if(dinnerHtml != ""){
+					html += "<tr class=\"dinner\">";
+					html += "<td class=\"time-col\">Dinner</td>";
+					html += "<td class=\"food-col\">";
+					html += dinnerHtml;
+					html += "</td></tr>";
+				}
 				html += "</tbody></table>";
 			}
-			//menuContent.append(html);
+			menuContent.append(html);
 		});
 	}
 	
@@ -425,28 +463,6 @@
 							<p class="date-num">23</p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
-								<table class="menu-tb">
-									<thead>
-										<tr>
-											<th class="time-col">Time</th>
-											<th class="food-col">Food</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr class="breakfast">
-											<td class="time-col">Breakfast</td>
-											<td class="food-col">
-												<a>Food 3 Food 3 Food 3 Food 3 Food 3</a>
-												<a>Food 3</a>
-												<a>Food 3</a>
-												<a>Food 3</a>
-												<a>Food 3</a>
-												<a>Food 3</a>
-												<a>Food 3</a>
-											</td>
-										</tr>
-									</tbody>
-								</table>
 							</div>
 						</div>
 					</li>
