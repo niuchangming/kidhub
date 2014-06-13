@@ -381,6 +381,8 @@ div.weekend{
 .food-col .tooltip{
 	height: auto;
 	right: -264px;
+	color: #34495e;
+	font-weight: 300;
 	top: 0;
 }
              
@@ -487,6 +489,10 @@ div.weekend{
 	text-align: left;
 }
 
+.edit-menu-submit{
+	margin: 15px 0;
+}
+
 /*************************************************** Food Expandable Menu End ***************************************************/
 
 
@@ -495,6 +501,7 @@ div.weekend{
 
 .menu-content > table{
 	width: 100%;
+	border-collapse:collapse;
 }
 
 .menu-content > table th{
@@ -538,27 +545,25 @@ div.weekend{
 	position: absolute;
 	right: -48px;	
 }
-
 tr.breakfast{
-	background-color: #99CC00;
+	background-color: #48cfad;
 }
 
 tr.morning-tea{
-	background-color: #FFBB33;
+	background-color: #99CC00;
 }
 
 tr.lunch{
-	background-color: #FF4444;
+	background-color: #f46272;
 }
 
 tr.afternoon-tea{
-	background-color: #0099CC;
+	background-color: #FFBB33;
 }
 
 tr.dinner{
-	background-color: #AA66CC;
+	background-color: #FF4444;
 }
-
 /**************************************************** Menu Table End ****************************************************/
 
 

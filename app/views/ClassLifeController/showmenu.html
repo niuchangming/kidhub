@@ -73,56 +73,54 @@
 	    });
 		
 		$('#addmenu-model').on('shown.bs.modal', function (e) {
-			$('#breakfast > article').empty();
-			$('#morning-tea > article').empty();
-			$('#lunch > article').empty();
-			$('#afternoon-tea > article').empty();
-			$('#dinner > article').empty();
-			
-			$.ajax({
-                url: "/classlifecontroller/getclassfood",
-                type: "POST",
-                data : {clzId: ${clz.id}},
-                success: function(response, status) {
-                	if(status == "success"){
-                		var food = jQuery.parseJSON(JSON.stringify(response));
-                		$.each(food, function(index, value){
-                			var html = "<div class=\"food-opt\" onclick=\"foodClicked(this);\">";
-	                			html += "<input name=\"food\" value=\"" + value.id + "\" type=\"hidden\">";
-                				html += "<span>" + value.name + "</span>";
-	            				html += "<span class=\"fui-eye food-img-view\"></span>";
-	            				html += "<div class=\"tooltip\">";
-	            				html += "<div class=\"tooltip-content\">";
-	            				html += "<img src=\"" + "../../" + value.thumbnail + "\"/>";
-	            				html += "<p>" + value.description + "</p>";
-	            				html += "</div></div></div>";
-                			if(value.type === "BREAKFAST"){
-                				$('#breakfast > article').append(html);
-                			}else if(value.type === "MORNING_TEA"){
-                				$('#morning-tea > article').append(html);
-                			}else if(value.type === "LAUNCH"){
-                				$('#lunch > article').append(html);
-                			}else if(value.type === "AFTERNOON_TEA"){
-                				$('#afternoon-tea article').append(html);
-                			}else if(value.type === "DINNER"){
-                				$('#dinner > article').append(html);
-                			}
-                		});
-                		
-                		var nohtml = "<div class=\"nofood-wrap\">";
-	                		nohtml += "<img src=\"../../public/images/moods/mood_cry.png\">";
-	                		nohtml += "<p>Sorry, there is no food !</p>";
-	                		nohtml += "<p>Click to add an new food !</p>";
-	                		nohtml += "</div>";
-        				
-                		$('article.ac-food').each(function(){
-                			if($(this).children().length == 0){
-                				$(this).append(nohtml);
-                			}
-                		});
-                	}
-                }
-            });
+			clzMenuLoaded = false;
+			if(!clzMenuLoaded){
+				$.ajax({
+	                url: "/classlifecontroller/getclassfood",
+	                type: "POST",
+	                data : {clzId: ${clz.id}},
+	                success: function(response, status) {
+	                	if(status == "success"){
+	                		clzMenuLoaded = true;
+	                		var food = jQuery.parseJSON(JSON.stringify(response));
+	                		$.each(food, function(index, value){
+	                			var html = "<div class=\"food-opt\" onclick=\"foodClicked(this);\">";
+		                			html += "<input name=\"food\" value=\"" + value.id + "\" type=\"hidden\">";
+	                				html += "<span>" + value.name + "</span>";
+		            				html += "<span class=\"fui-eye food-img-view\"></span>";
+		            				html += "<div class=\"tooltip\">";
+		            				html += "<div class=\"tooltip-content\">";
+		            				html += "<img src=\"" + "../../" + value.thumbnail + "\"/>";
+		            				html += "<p>" + value.description + "</p>";
+		            				html += "</div></div></div>";
+	                			if(value.type === "BREAKFAST"){
+	                				$('#breakfast > article').append(html);
+	                			}else if(value.type === "MORNING_TEA"){
+	                				$('#morning-tea > article').append(html);
+	                			}else if(value.type === "LAUNCH"){
+	                				$('#lunch > article').append(html);
+	                			}else if(value.type === "AFTERNOON_TEA"){
+	                				$('#afternoon-tea article').append(html);
+	                			}else if(value.type === "DINNER"){
+	                				$('#dinner > article').append(html);
+	                			}
+	                		});
+	                		
+	                		var nohtml = "<div class=\"nofood-wrap\">";
+		                		nohtml += "<img src=\"../../public/images/moods/mood_cry.png\">";
+		                		nohtml += "<p>Sorry, there is no food !</p>";
+		                		nohtml += "<p>Click to add an new food !</p>";
+		                		nohtml += "</div>";
+	        				
+	                		$('article.ac-food').each(function(){
+	                			if($(this).children().length == 0){
+	                				$(this).append(nohtml);
+	                			}
+	                		});
+	                	}
+	                }
+	            });
+			}
 		});
 		
 		$('#menu-submit').click(function(){
@@ -146,7 +144,6 @@
                 	if(status == "success"){
                 		var menu = jQuery.parseJSON(JSON.stringify(response));
                 		menusObj[dateStr] = menu;
-                		$('.menu-content').empty();
                 		updateMenu(new Date(dateStr));
                 		$('#addmenu-model').modal('hide');
                 	}
@@ -223,6 +220,7 @@
 		$.each(daysOfWeek, function(index, value){
 			var menuItem = $('li#' + weekday[index]);	
 			var menuContent = menuItem.find('div.menu-content');
+				menuContent.empty();
 			var menu = menusObj[formDateByFormat(daysOfWeek[index])];
 			if(menu == null){
 				var html = "<div class=\"nomenu-wrap\">";
@@ -230,7 +228,7 @@
 	    			html += "<p>Sorry, The menu is empty !</p><p>Click to create a menu !</p>";
 	    			html += "<button id=\"cre-menu-btn\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#addmenu-model\">&nbsp;&nbsp;&nbsp;Create an new menu&nbsp;&nbsp;&nbsp;&nbsp;</button>";
 	    			html += "<button id=\"chse-menu-btn\" class=\"btn btn-info\">Choose from existing one</button></div>";
-			}else{
+			}else{	
 				var breakfastHtml="", brunchHtml="", lunchHtml="", highTeaHtml="", dinnerHtml="";
 				var html = "<table class=\"menu-tb\">";
 					html += "<thead><tr><th>Time</th><th>Food</th></tr></thead>";
@@ -321,6 +319,7 @@
 					html += "</td></tr>";
 				}
 				html += "</tbody></table>";
+				html += "<button class=\"btn btn-success edit-menu-submit\" data-toggle=\"modal\" data-target=\"#addmenu-model\">Edit</button>";
 			}
 			menuContent.append(html);
 		});

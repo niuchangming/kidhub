@@ -125,12 +125,14 @@ public class ClassLifeController extends Controller{
 	}
 	
 	public static void createMenuByClzId(long clzId, long[] foodIds, String dateStr, boolean isTemplate){
-		Menu menu = null;
 		KidClass clz = KidClass.findById(clzId);
-		if(!clz.menus.containsKey(dateStr)){
+		Menu menu = clz.menus.get(dateStr);
+		if(menu == null){
 			menu = new Menu();
 			menu.createMenuByFoodIds(foodIds, isTemplate);
 			clz.addMenu(menu, dateStr);
+		}else{
+			menu.updateMenuByFoodIds(foodIds);
 		}
 		renderJSON(CommonUtils.getObjectAsJsonStr(menu));
 	}

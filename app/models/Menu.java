@@ -55,6 +55,13 @@ public class Menu extends Model{
 		this.save();
 	}
 	
+	public void updateMenuByFoodIds(long[] foodIds){
+		this.food.clear();
+		List<Food> foodArr = Food.find(getQueryByFoodIds(foodIds)).fetch();
+		this.food.addAll(foodArr);
+		this.save();
+	}
+	
 	private String getQueryByFoodIds(long[] foodIds){
 		StringBuilder query = new StringBuilder();
 		for(long foodId : foodIds){
