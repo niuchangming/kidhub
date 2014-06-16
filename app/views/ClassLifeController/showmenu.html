@@ -187,8 +187,9 @@
 	}
 	
 	function updateWeekBar(date){
-		var startDate = new Date('${clz.startDate}');
-		var endDate = new Date('${clz.endDate}');
+		var startDate = getJavascriptDate('${clz.startDate}');
+		var endDate = getJavascriptDate('${clz.endDate}');
+		
 		if(updateToolbarUI(startDate, date, endDate)){
 			var date = getDateOfWeek(date.getWeek(), date.getFullYear());
 			var daysOfWeek = date.getStartAndEnd();
@@ -213,6 +214,16 @@
 			$('li#saturday p.date-num').text(daysOfWeek[6].getDate());
 			$('li#saturday input').val(formDateByFormat(daysOfWeek[6]));
 		}
+	}
+	
+	function getJavascriptDate(dateTime){
+		var dateStr = dateTime.split(" ")[0];
+		var dateData = dateStr.split("-");
+		var y = dateData[0];
+		var m = dateData[1];
+		var d = dateData[2];
+		var date = new Date(y+"-"+m+"-"+d);
+		return date;
 	}
 	
 	function updateMenu(date){
@@ -323,6 +334,25 @@
 			}
 			menuContent.append(html);
 		});
+		
+		pageTest();
+	}
+	
+	function pageTest(){
+		$.ajax({
+            url: "/classlifecontroller/showMenuByWeek",
+            type: "POST",
+            dataType: 'json',
+            data : {
+            	clzId: ${clz.id},
+            	dateStr: $('.menu-content.hovered').parents('li').find('input').val()
+			},
+            success: function(response, status) {
+            	if(status == "success"){
+            		
+            	}
+            }
+        });
 	}
 	
 	function formDateByFormat(date){
@@ -333,6 +363,7 @@
 	function updateToolbarUI(startDate, date, endDate){
 		var weekCount = Math.floor((endDate.getTime() - startDate.getTime()) / 604800000) + 1;
 		var curWeek = Math.floor((date.getTime() - startDate.getTime()) / 604800000) + 1
+		
 		if(curWeek > 0 && curWeek <= weekCount){
 			$('#tool-bar > label').text('Week ' + curWeek + ', ' + date.getFullYear() + '-' + parseInt(date.getMonth() + 1));
 			$('#tool-bar > input').val(date.getTime());
@@ -469,7 +500,7 @@
 						<input type="hidden"/>
 						<div class="menu-wrap">
 							<span class="week-head">Mon</span>
-							<p class="date-num"></p>
+							<p class="date-num">23</p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
 							</div>

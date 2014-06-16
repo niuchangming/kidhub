@@ -4,6 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,6 +34,7 @@ import models.Resource;
 import models.Teacher;
 import models.User;
 import play.data.Upload;
+import play.db.jpa.JPA;
 import play.mvc.Controller;
 import play.mvc.With;
 import play.utils.HTML;
@@ -135,6 +140,28 @@ public class ClassLifeController extends Controller{
 			menu.updateMenuByFoodIds(foodIds);
 		}
 		renderJSON(CommonUtils.getObjectAsJsonStr(menu));
+	}
+	
+	public static void showMenuByWeek(long clzId, String dateStr){
+		String sql = "select * from menu inner join date_menu on menu.id=date_menu.menu_id where date_menu.clz_id='1' and date_menu.date_key=\"2014-06-09\"";
+		List<Menu> menus = JPA.em().createNativeQuery(sql, Menu.class).getResultList();
+		System.out.println("Result: " + menus);
+		/*Statement stmt = null;
+		Connection conn = play.db.DB.getConnection();
+		try {
+		    stmt = conn.createStatement();
+		    ResultSet result = stmt.executeQuery(sql);
+		    System.out.println("Result: " + result.getRow());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+		    try {
+		    	stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}*/
 	}
 }
 
