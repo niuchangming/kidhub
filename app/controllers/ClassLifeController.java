@@ -1,5 +1,7 @@
 package controllers;
 
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +16,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -22,15 +27,19 @@ import com.google.gson.Gson;
 import com.sun.xml.internal.ws.api.message.Attachment;
 
 import flexjson.JSONSerializer;
+import models.Attendance;
 import models.Child;
 import models.Food;
 import models.KidClass;
+import models.Lesson;
 import models.MarkType;
 import models.Menu;
 import models.Mood;
+import models.MenuOrder;
 import models.Report;
 import models.ResModuleBase;
 import models.Resource;
+import models.Schedule;
 import models.Teacher;
 import models.User;
 import play.data.Upload;
@@ -45,22 +54,60 @@ import vo.ReportVO;
 @With(Interceptor.class)
 public class ClassLifeController extends Controller{
 	
-	public static void classReport(long clzId){
-		KidClass clz = KidClass.findById(clzId);
+	public static void classReport(){
+		long clzId = renderArgs.get("clzId", Long.class);
 		List<Report> reports = Report.getReportsByRange(clzId, 0, ReportVO.DEFAULT_CCOUNT_PER_PAGE);
-		render(clz, reports);
+		render(reports);
 	}
 	
-	public static void reportsByRange(long clzId, int offset, int max){
+	public static void reportsByRange(int offset, int max){
+		long clzId = renderArgs.get("clzId", Long.class);
 		List<Report> reports = Report.getReportsByRange(clzId, offset, max);
 		renderJSON(reports);
 	}
 	
-	public static void markGrid(long clzId){
-		KidClass clz = KidClass.findById(clzId);
+	public static void classAttendance(){
+		long clzId = renderArgs.get("clzId", Long.class);
+		List<Child> children = Child.find("clz_id = ?", clzId).fetch();
+		render(children);
+	}
+	
+	public static void saveAvatarByChildId(long childId, int x, int y, int width, int height, float ratio, Upload image){
+		Child child = Child.findById(childId); 
+		String uuid = UUID.randomUUID().toString();
+		File dir = new File(User.AVATAR_BASE);
+		if(!dir.exists()){
+			dir.mkdirs();
+		}
+		File outFile = new File(User.AVATAR_BASE + uuid);
+		BufferedImage img;
+		try {
+			img = ImageIO.read(image.asStream());
+			BufferedImage cropped = img.getSubimage(Math.round(x / ratio), Math.round(y / ratio), Math.round(width / ratio), Math.round(height / ratio));
+			BufferedImage resized = cropped;
+			if (width != 100) {
+				resized = User.getScaledInstance(cropped, 100, 100, RenderingHints.VALUE_INTERPOLATION_BICUBIC, true);
+			}
+			ImageIO.write(resized, "png", outFile);
+			child.createAvatarByChildId(User.AVATAR_BASE + uuid);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		renderJSON(CommonUtils.getJsonString(child, Child.class));
+	}
+	
+	public static void markAttendToChildByChildId(long childId, int status){
+		Child child = Child.findById(childId);
+		Attendance attendance = child.markAttendance(status);
+		renderJSON(attendance);
+	}
+	
+	public static void markGrid(){
+		long clzId = renderArgs.get("clzId", Long.class);
+		List<Child> children  = Child.find("clz_id = ?", clzId).fetch(); 
 		List<MarkType> posTypes = MarkType.find("byWeightGreaterThan", 0).fetch();
 		List<MarkType> negTypes = MarkType.find("byWeightLessThan", 0).fetch();
-		render(clz, posTypes, negTypes);
+		render(children, posTypes, negTypes);
 	}
 	
 	public static void markChildbyId(long childId, long typeId, String reason, String othBehavior, int othWeight){
@@ -85,7 +132,8 @@ public class ClassLifeController extends Controller{
 		renderBinary(resource.file.get());
 	}
 	
-	public static void createReport(String reportByJson, long clzId){
+	public static void createReport(String reportByJson){
+		long clzId = renderArgs.get("clzId", Long.class);
 		KidClass clz = KidClass.findById(clzId);
 		Report report = new Report();
 		Teacher teacher = renderArgs.get("user", Teacher.class);
@@ -94,9 +142,10 @@ public class ClassLifeController extends Controller{
 		renderJSON(report);
 	}
 	
-	public static void moodGrid(long clzId){
-		KidClass clz = KidClass.findById(clzId);
-		render(clz);
+	public static void moodGrid(){
+		long clzId = renderArgs.get("clzId", Long.class);
+		List<Child> children  = Child.find("clz_id = ?", clzId).fetch(); 
+		render(children);
 	}
 	
 	public static void moodChildById(long childId, int moodValue){
@@ -105,9 +154,25 @@ public class ClassLifeController extends Controller{
 		renderJSON(mood);
 	}
 	
-	public static void showMenu(long clzId){
+	public static void showMenuOrder(){
+		long clzId = renderArgs.get("clzId", Long.class);
 		KidClass clz = KidClass.findById(clzId);
-		renderTemplate("/ClassLifeController/showmenu.html", clz);
+		List<MenuOrder> orders;
+		Date today = new Date();
+		if(clz.startDate.after(today)){
+			orders = MenuOrder.showOrderByWeek(clzId, clz.startDate);
+		}else if(clz.endDate.before(today)){
+			orders = MenuOrder.showOrderByWeek(clzId, clz.endDate);
+		}else{
+			orders = MenuOrder.showOrderByWeek(clzId, today);
+		}
+		render(clz, orders);
+	}
+	
+	public static void showMenuOrderByWeek(Date date){
+		long clzId = renderArgs.get("clzId", Long.class);
+		List<MenuOrder> orders = MenuOrder.showOrderByWeek(clzId, date);
+		renderJSON(CommonUtils.getObjectAsJsonStr(orders));
 	}
 	
 	public static void createFood(Food food){
@@ -123,46 +188,61 @@ public class ClassLifeController extends Controller{
 		return food == null;
 	}
 	
-	public static void getClassFood(long clzId){
+	public static void getClassFood(){
+		long clzId = renderArgs.get("clzId", Long.class);
 		KidClass clz = KidClass.findById(clzId);
 		List<Food> food = clz.getFood();
 		renderJSON(CommonUtils.getObjectAsJsonStr(food));
 	}
 	
-	public static void createMenuByClzId(long clzId, long[] foodIds, String dateStr, boolean isTemplate){
+	public static void createOrUpdateOrder(long[] foodIds, Date date, boolean isTemplate){
+		long clzId = renderArgs.get("clzId", Long.class);
 		KidClass clz = KidClass.findById(clzId);
-		Menu menu = clz.menus.get(dateStr);
-		if(menu == null){
-			menu = new Menu();
+		MenuOrder order = MenuOrder.find("byDate", date).first();
+		if(order == null){
+			Menu menu = new Menu();
 			menu.createMenuByFoodIds(foodIds, isTemplate);
-			clz.addMenu(menu, dateStr);
+			order = new MenuOrder(date, menu);
+			clz.addOrder(order);
 		}else{
-			menu.updateMenuByFoodIds(foodIds);
+			order.menu.updateMenuByFoodIds(foodIds);
 		}
-		renderJSON(CommonUtils.getObjectAsJsonStr(menu));
+		renderJSON(CommonUtils.getObjectAsJsonStr(order));
 	}
 	
-	public static void showMenuByWeek(long clzId, String dateStr){
-		String sql = "select * from menu inner join date_menu on menu.id=date_menu.menu_id where date_menu.clz_id='1' and date_menu.date_key=\"2014-06-09\"";
-		List<Menu> menus = JPA.em().createNativeQuery(sql, Menu.class).getResultList();
-		System.out.println("Result: " + menus);
-		/*Statement stmt = null;
-		Connection conn = play.db.DB.getConnection();
-		try {
-		    stmt = conn.createStatement();
-		    ResultSet result = stmt.executeQuery(sql);
-		    System.out.println("Result: " + result.getRow());
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-		    try {
-		    	stmt.close();
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}*/
+	public static boolean isLessonAvailable(String title){
+		Lesson lesson = Lesson.find("byTitle", title).first();
+		return lesson == null;
 	}
+	
+	public static void showSchedule(){
+		long clzId = renderArgs.get("clzId", Long.class);
+		KidClass clz = KidClass.findById(clzId);
+		List<Schedule> schedules;
+		Date today = new Date();
+		if(clz.startDate.after(today)){
+			schedules = Schedule.showScheduleByWeek(clzId, clz.startDate);
+		}else if(clz.endDate.before(today)){
+			schedules = Schedule.showScheduleByWeek(clzId, clz.endDate);
+		}else{
+			schedules = Schedule.showScheduleByWeek(clzId, today);
+		}
+		render(clz, schedules);
+	}
+	
+	public static void showScheduleByWeek(Date date){
+		long clzId = renderArgs.get("clzId", Long.class);
+		List<Schedule> schedules = Schedule.showScheduleByWeek(clzId, date);
+		renderJSON(CommonUtils.getObjectAsJsonStr(schedules));
+	}
+	
+	public static void createLesson(Lesson lesson){
+		User user = renderArgs.get("user", User.class);
+		long teacherId = user.id;
+		lesson.createLessonByTeacher(teacherId);
+		renderJSON(lesson);
+	}
+	
 }
 
 

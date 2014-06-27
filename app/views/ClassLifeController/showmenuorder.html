@@ -1,7 +1,7 @@
 #{extends 'main.html'/}
 #{set user: user /}
 
-<link href="@{'/public/stylesheets/showmenu.css'}" rel="stylesheet">
+<link href="@{'/public/stylesheets/showmenuorder.css'}" rel="stylesheet">
 <script type="text/javascript">
 	$(document).ready(function(){
 		init();
@@ -72,13 +72,12 @@
 	         }
 	    });
 		
+		clzMenuLoaded = false;
 		$('#addmenu-model').on('shown.bs.modal', function (e) {
-			clzMenuLoaded = false;
 			if(!clzMenuLoaded){
 				$.ajax({
 	                url: "/classlifecontroller/getclassfood",
 	                type: "POST",
-	                data : {clzId: ${clz.id}},
 	                success: function(response, status) {
 	                	if(status == "success"){
 	                		clzMenuLoaded = true;
@@ -131,20 +130,30 @@
 			});
 			
 			$.ajax({
-                url: "/classlifecontroller/createmenubyclzId",
+                url: "/classlifecontroller/createorupdateorder",
                 type: "POST",
                 dataType: 'json',
                 data : {
-                	clzId: ${clz.id},
                 	foodIds: foodIds,
-                	dateStr: $('.menu-content.hovered').parents('li').find('input').val(),
+                	date: $('.menu-content.hovered').parents('li').find('input').val(),
                 	isTemplate: $('#is_menu_template').val()
 				},
                 success: function(response, status) {
                 	if(status == "success"){
-                		var menu = jQuery.parseJSON(JSON.stringify(response));
-                		menusObj[dateStr] = menu;
-                		updateMenu(new Date(dateStr));
+                		var order = jQuery.parseJSON(JSON.stringify(response));
+                		setMenuByOrder(order);
+                		var orderArr = orderMap[$('#week-mun-input').val()];
+                		if(orderArr == null){
+                			orderArr = new Array();
+                			orderArr.push(order);
+                			orderMap[$('#week-mun-input').val()] = orderArr;
+                		}else{
+                			orderArr= jQuery.grep(orderArr, function(value){
+                				return value.date != order.date;
+                			});
+                			orderArr.push(order);
+                			orderMap[$('#week-mun-input').val()] = orderArr;
+                		}
                 		$('#addmenu-model').modal('hide');
                 	}
                 }
@@ -154,9 +163,26 @@
 	});
 	
 	function init(){
-		jsonStr = "${new flexjson.JSONSerializer().deepSerialize(clz.menus).escapeJavaScript().raw()}";
+		orderMap = new Array();
+		startDate = getJavascriptDate('${clz.startDate}');
+		endDate = getJavascriptDate('${clz.endDate}');
+		
+		var today = new Date();
+		if(startDate.getTime() > today.getTime()){
+			showTodayMenu(startDate);
+			updateWeekBar(startDate);
+		}else if(endDate.getTime() < today.getTime()){
+			showTodayMenu(endDate);
+			updateWeekBar(endDate);
+		}else{
+			showTodayMenu(today);
+			updateWeekBar(today);
+		}
+		
 		try{
-			menusObj = jQuery.parseJSON(jsonStr);
+			var jsonStr = "${new flexjson.JSONSerializer().deepSerialize(orders).escapeJavaScript().raw()}";
+			orders = jQuery.parseJSON(jsonStr);
+			orderMap[$('#week-mun-input').val()] = orders;
 		}catch(err){
 			console.log(err);
 		}
@@ -168,31 +194,24 @@
 		});
 		
 		$('a#week-pre').on('click', function(){
-			$('.menu-content').empty();
 			var preDate = new Date(parseInt($('#tool-bar > input').val()) - 604800000);
 			updateWeekBar(preDate);
 			updateMenu(preDate);
 		});
 		
 		$('a#week-next').on('click', function(){
-			$('.menu-content').empty();
 			var nextDate = new Date(parseInt($('#tool-bar > input').val()) + 604800000);
 			updateWeekBar(nextDate);
 			updateMenu(nextDate);
 		});
 		
-		showTodayMenu();
-		updateWeekBar(new Date());
-		updateMenu(new Date());
+		updateMenu(today);
 	}
 	
 	function updateWeekBar(date){
-		var startDate = getJavascriptDate('${clz.startDate}');
-		var endDate = getJavascriptDate('${clz.endDate}');
-		
 		if(updateToolbarUI(startDate, date, endDate)){
-			var date = getDateOfWeek(date.getWeek(), date.getFullYear());
 			var daysOfWeek = date.getStartAndEnd();
+			
 			$('li#sunday p.date-num').text(daysOfWeek[0].getDate());
 			$('li#sunday input').val(formDateByFormat(daysOfWeek[0]));
 			
@@ -226,133 +245,142 @@
 		return date;
 	}
 	
-	function updateMenu(date){
-		var daysOfWeek = date.getStartAndEnd();
-		$.each(daysOfWeek, function(index, value){
-			var menuItem = $('li#' + weekday[index]);	
-			var menuContent = menuItem.find('div.menu-content');
-				menuContent.empty();
-			var menu = menusObj[formDateByFormat(daysOfWeek[index])];
-			if(menu == null){
-				var html = "<div class=\"nomenu-wrap\">";
-	    			html += "<img src=\"../../public/images/moods/confused.png\" />";
-	    			html += "<p>Sorry, The menu is empty !</p><p>Click to create a menu !</p>";
-	    			html += "<button id=\"cre-menu-btn\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#addmenu-model\">&nbsp;&nbsp;&nbsp;Create an new menu&nbsp;&nbsp;&nbsp;&nbsp;</button>";
-	    			html += "<button id=\"chse-menu-btn\" class=\"btn btn-info\">Choose from existing one</button></div>";
-			}else{	
-				var breakfastHtml="", brunchHtml="", lunchHtml="", highTeaHtml="", dinnerHtml="";
-				var html = "<table class=\"menu-tb\">";
-					html += "<thead><tr><th>Time</th><th>Food</th></tr></thead>";
-					html += "<tbody>";
-					
-				$.each(menu.food, function(index, food){
-					switch(food.type) {
-			    	    case "BREAKFAST":
-			    	    	breakfastHtml += "<a><span>" + food.name + "</span>";
-			    	    	breakfastHtml += "<div class=\"food-info-wrap\">";
-			    	    	breakfastHtml += "<span class=\"fui-eye food-img-view\"></span>";
-			    	    	breakfastHtml += "<div class=\"tooltip\">";
-			    	    	breakfastHtml += "<div class=\"tooltip-content\">";
-			    	    	breakfastHtml += "<img src=../../" + food.thumbnail + ">";
-			    	    	breakfastHtml += "<p>" + food.description + "</p></div></div></div></a>";
-			    	        break;
-			    	    case "MORNING_TEA":
-			    	    	brunchHtml += "<a><span>" + food.name + "</span>";
-			    	    	brunchHtml += "<div class=\"food-info-wrap\">";
-			    	    	brunchHtml += "<span class=\"fui-eye food-img-view\"></span>";
-			    	    	brunchHtml += "<div class=\"tooltip\">";
-			    	    	brunchHtml += "<div class=\"tooltip-content\">";
-			    	    	brunchHtml += "<img src=../../" + food.thumbnail + ">";
-			    	    	brunchHtml += "<p>" + food.description + "</p></div></div></div></a>";
-			    	        break;
-			    	    case "LAUNCH":
-			    	    	lunchHtml += "<a><span>" + food.name + "</span>";
-			    	    	lunchHtml += "<div class=\"food-info-wrap\">";
-			    	    	lunchHtml += "<span class=\"fui-eye food-img-view\"></span>";
-			    	    	lunchHtml += "<div class=\"tooltip\">";
-			    	    	lunchHtml += "<div class=\"tooltip-content\">";
-			    	    	lunchHtml += "<img src=../../" + food.thumbnail + ">";
-			    	    	lunchHtml += "<p>" + food.description + "</p></div></div></div></a>";
-			    	        break;
-			    	    case "AFTERNOON_TEA":
-			    	    	highTeaHtml += "<a><span>" + food.name + "</span>";
-			    	    	highTeaHtml += "<div class=\"food-info-wrap\">";
-			    	    	highTeaHtml += "<span class=\"fui-eye food-img-view\"></span>";
-			    	    	highTeaHtml += "<div class=\"tooltip\">";
-			    	    	highTeaHtml += "<div class=\"tooltip-content\">";
-			    	    	highTeaHtml += "<img src=../../" + food.thumbnail + ">";
-			    	    	highTeaHtml += "<p>" + food.description + "</p></div></div></div></a>";
-			    	        break;
-			    	    case "DINNER":
-			    	    	dinnerHtml += "<a><span>" + food.name + "</span>";
-			    	    	dinnerHtml += "<div class=\"food-info-wrap\">";
-			    	    	dinnerHtml += "<span class=\"fui-eye food-img-view\"></span>";
-			    	    	dinnerHtml += "<div class=\"tooltip\">";
-			    	    	dinnerHtml += "<div class=\"tooltip-content\">";
-			    	    	dinnerHtml += "<img src=../../" + food.thumbnail + ">";
-			    	    	dinnerHtml += "<p>" + food.description + "</p></div></div></div></a>";
-			    	        break;
-					}
-				});
-				if(breakfastHtml != ""){
-					html += "<tr class=\"breakfast\">";
-					html += "<td class=\"time-col\">Breakfast</td>";
-					html += "<td class=\"food-col\">";
-					html += breakfastHtml;
-					html += "</td></tr>";
-				}
-				if(brunchHtml != ""){
-					html += "<tr class=\"morning-tea\">";
-					html += "<td class=\"time-col\">Morning tea</td>";
-					html += "<td class=\"food-col\">";
-					html += brunchHtml;
-					html += "</td></tr>";
-				}
-				if(lunchHtml != ""){
-					html += "<tr class=\"lunch\">";
-					html += "<td class=\"time-col\">Lunch</td>";
-					html += "<td class=\"food-col\">";
-					html += lunchHtml;
-					html += "</td></tr>";
-				}
-				if(highTeaHtml != ""){
-					html += "<tr class=\"afternoon-tea\">";
-					html += "<td class=\"time-col\">Afternoon tea</td>";
-					html += "<td class=\"food-col\">";
-					html += highTeaHtml;
-					html += "</td></tr>";
-				}
-				if(dinnerHtml != ""){
-					html += "<tr class=\"dinner\">";
-					html += "<td class=\"time-col\">Dinner</td>";
-					html += "<td class=\"food-col\">";
-					html += dinnerHtml;
-					html += "</td></tr>";
-				}
-				html += "</tbody></table>";
-				html += "<button class=\"btn btn-success edit-menu-submit\" data-toggle=\"modal\" data-target=\"#addmenu-model\">Edit</button>";
-			}
-			menuContent.append(html);
+	function updateMenu(dateObj){
+		$('#date-list li').each(function(){
+			var html = "<div class=\"nomenu-wrap\">";
+				html += "<img src=\"../../public/images/moods/confused.png\" />";
+				html += "<p>Sorry, The menu is empty !</p><p>Click to create a menu !</p>";
+				html += "<button id=\"cre-menu-btn\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#addmenu-model\">&nbsp;&nbsp;&nbsp;Create an new menu&nbsp;&nbsp;&nbsp;&nbsp;</button>";
+				html += "<button id=\"chse-menu-btn\" class=\"btn btn-info\">Choose from existing one</button></div>";
+			$(this).find('div.menu-content').empty();
+			$(this).find('div.menu-content').append(html);
 		});
-		
-		pageTest();
+		var orderArr = orderMap[$('#week-mun-input').val()];
+		if(orderArr == null){
+			$.ajax({
+                url: "/classlifecontroller/showmenuorderbyweek",
+                type: "POST",
+                dataType: 'json',
+                data : {
+                	date: formDateByFormat(dateObj),
+				},
+                success: function(response, status) {
+                	if(status == "success"){
+                		var orders = jQuery.parseJSON(JSON.stringify(response));
+                		orderMap[$('#week-mun-input').val()] = orders;
+                		$.each(orders, function(index, order){
+            				setMenuByOrder(order);
+            			});
+                	}
+                }
+            });
+		}else{
+			$.each(orderArr, function(index, order){
+				setMenuByOrder(order);	
+			});
+		}
 	}
 	
-	function pageTest(){
-		$.ajax({
-            url: "/classlifecontroller/showMenuByWeek",
-            type: "POST",
-            dataType: 'json',
-            data : {
-            	clzId: ${clz.id},
-            	dateStr: $('.menu-content.hovered').parents('li').find('input').val()
-			},
-            success: function(response, status) {
-            	if(status == "success"){
-            		
-            	}
-            }
-        });
+	function setMenuByOrder(order){
+		var orderDate = new Date(order.date);
+		var menuItem = $('li#' + weekday[orderDate.getDay()]);
+		var menuContent = menuItem.find('div.menu-content');
+		var dateStr = menuItem.find('input').val();
+		if(formDateByFormat(orderDate) === dateStr){
+			menuContent.empty();
+			var breakfastHtml="", brunchHtml="", lunchHtml="", highTeaHtml="", dinnerHtml="";
+			var html = "<table class=\"menu-tb\">";
+				html += "<thead><tr><th>Time</th><th>Food</th></tr></thead>";
+				html += "<tbody>";
+				
+			$.each(order.menu.food, function(index, food){
+				switch(food.type) {
+		    	    case "BREAKFAST":
+		    	    	breakfastHtml += "<a><span>" + food.name + "</span>";
+		    	    	breakfastHtml += "<div class=\"food-info-wrap\">";
+		    	    	breakfastHtml += "<span class=\"fui-eye food-img-view\"></span>";
+		    	    	breakfastHtml += "<div class=\"tooltip\">";
+		    	    	breakfastHtml += "<div class=\"tooltip-content\">";
+		    	    	breakfastHtml += "<img src=../../" + food.thumbnail + ">";
+		    	    	breakfastHtml += "<p>" + food.description + "</p></div></div></div></a>";
+		    	        break;
+		    	    case "MORNING_TEA":
+		    	    	brunchHtml += "<a><span>" + food.name + "</span>";
+		    	    	brunchHtml += "<div class=\"food-info-wrap\">";
+		    	    	brunchHtml += "<span class=\"fui-eye food-img-view\"></span>";
+		    	    	brunchHtml += "<div class=\"tooltip\">";
+		    	    	brunchHtml += "<div class=\"tooltip-content\">";
+		    	    	brunchHtml += "<img src=../../" + food.thumbnail + ">";
+		    	    	brunchHtml += "<p>" + food.description + "</p></div></div></div></a>";
+		    	        break;
+		    	    case "LAUNCH":
+		    	    	lunchHtml += "<a><span>" + food.name + "</span>";
+		    	    	lunchHtml += "<div class=\"food-info-wrap\">";
+		    	    	lunchHtml += "<span class=\"fui-eye food-img-view\"></span>";
+		    	    	lunchHtml += "<div class=\"tooltip\">";
+		    	    	lunchHtml += "<div class=\"tooltip-content\">";
+		    	    	lunchHtml += "<img src=../../" + food.thumbnail + ">";
+		    	    	lunchHtml += "<p>" + food.description + "</p></div></div></div></a>";
+		    	        break;
+		    	    case "AFTERNOON_TEA":
+		    	    	highTeaHtml += "<a><span>" + food.name + "</span>";
+		    	    	highTeaHtml += "<div class=\"food-info-wrap\">";
+		    	    	highTeaHtml += "<span class=\"fui-eye food-img-view\"></span>";
+		    	    	highTeaHtml += "<div class=\"tooltip\">";
+		    	    	highTeaHtml += "<div class=\"tooltip-content\">";
+		    	    	highTeaHtml += "<img src=../../" + food.thumbnail + ">";
+		    	    	highTeaHtml += "<p>" + food.description + "</p></div></div></div></a>";
+		    	        break;
+		    	    case "DINNER":
+		    	    	dinnerHtml += "<a><span>" + food.name + "</span>";
+		    	    	dinnerHtml += "<div class=\"food-info-wrap\">";
+		    	    	dinnerHtml += "<span class=\"fui-eye food-img-view\"></span>";
+		    	    	dinnerHtml += "<div class=\"tooltip\">";
+		    	    	dinnerHtml += "<div class=\"tooltip-content\">";
+		    	    	dinnerHtml += "<img src=../../" + food.thumbnail + ">";
+		    	    	dinnerHtml += "<p>" + food.description + "</p></div></div></div></a>";
+		    	        break;
+				}
+			});
+			if(breakfastHtml != ""){
+				html += "<tr class=\"breakfast\">";
+				html += "<td class=\"time-col\">Breakfast</td>";
+				html += "<td class=\"food-col\">";
+				html += breakfastHtml;
+				html += "</td></tr>";
+			}
+			if(brunchHtml != ""){
+				html += "<tr class=\"morning-tea\">";
+				html += "<td class=\"time-col\">Morning tea</td>";
+				html += "<td class=\"food-col\">";
+				html += brunchHtml;
+				html += "</td></tr>";
+			}
+			if(lunchHtml != ""){
+				html += "<tr class=\"lunch\">";
+				html += "<td class=\"time-col\">Lunch</td>";
+				html += "<td class=\"food-col\">";
+				html += lunchHtml;
+				html += "</td></tr>";
+			}
+			if(highTeaHtml != ""){
+				html += "<tr class=\"afternoon-tea\">";
+				html += "<td class=\"time-col\">Afternoon tea</td>";
+				html += "<td class=\"food-col\">";
+				html += highTeaHtml;
+				html += "</td></tr>";
+			}
+			if(dinnerHtml != ""){
+				html += "<tr class=\"dinner\">";
+				html += "<td class=\"time-col\">Dinner</td>";
+				html += "<td class=\"food-col\">";
+				html += dinnerHtml;
+				html += "</td></tr>";
+			}
+			html += "</tbody></table>";
+			html += "<button class=\"btn btn-success edit-menu-submit\" data-toggle=\"modal\" data-target=\"#addmenu-model\">Edit</button>";
+			menuContent.append(html);
+		}
 	}
 	
 	function formDateByFormat(date){
@@ -361,12 +389,11 @@
 	}
 	
 	function updateToolbarUI(startDate, date, endDate){
-		var weekCount = Math.floor((endDate.getTime() - startDate.getTime()) / 604800000) + 1;
 		var curWeek = Math.floor((date.getTime() - startDate.getTime()) / 604800000) + 1
-		
-		if(curWeek > 0 && curWeek <= weekCount){
+		if(curWeek > 0 && date.getStartAndEnd()[endDate.getDay()].getTime() <= endDate.getTime()){
 			$('#tool-bar > label').text('Week ' + curWeek + ', ' + date.getFullYear() + '-' + parseInt(date.getMonth() + 1));
 			$('#tool-bar > input').val(date.getTime());
+			$('#week-mun-input').val(curWeek);
 			return true;
 		}
 		return false;
@@ -405,18 +432,18 @@
 	    var today = new Date(this.setHours(0, 0, 0, 0));
 	    var day = today.getDay() - start;
 	    var date = today.getDate() - day;
-
-	    var startDate = new Date(today.setDate(date));
-	   	var dayOne = new Date(today.setDate(date + 1));
-	   	var dayTwo = new Date(today.setDate(date + 2));
-	   	var dayThree = new Date(today.setDate(date + 3));
-	   	var dayFour = new Date(today.setDate(date + 4));
-	   	var dayFive = new Date(today.setDate(date + 5));
-	    var endDate = new Date(today.setDate(date + 6));
-	    return [startDate, dayOne, dayTwo, dayThree, dayFour, dayFive, endDate];
+		
+	    var sun = new Date(today.setDate(date));
+	   	var mon = new Date(today.setDate(sun.getDate() + 1));
+	   	var tue = new Date(today.setDate(mon.getDate() + 1));
+	   	var wed = new Date(today.setDate(tue.getDate() + 1));
+	   	var thu = new Date(today.setDate(wed.getDate() + 1));
+	   	var fir = new Date(today.setDate(thu.getDate() + 1));
+	    var sat = new Date(today.setDate(fir.getDate()+ 1));
+	    return [sun, mon, tue, wed, thu, fir, sat];
 	}
 	
-	function showTodayMenu(){
+	function showTodayMenu(date){
 			weekday = new Array(7);
 			weekday[0]=  "sunday";
 			weekday[1] = "monday";
@@ -425,7 +452,7 @@
 			weekday[4] = "thursday";
 			weekday[5] = "friday";
 			weekday[6] = "saturday";
-		var day = weekday[new Date().getDay()];
+		var day = weekday[date.getDay()];
 		$('li#' + day).find('.menu-content').addClass('hovered');
 		$('li#' + day).find('.dropdown-arrow').addClass('hovered');
 	}
@@ -464,16 +491,17 @@
 </script>
 
 <div class="dash-container">
-	#{subheader user:user, clz:clz, as:"dash"/}
+	#{subheader user:user, as:"dash"/}
 	<div class="dash-content">
 		<div class="left-menu">
 			<div class="list-group">
-			  <a href="#" class="list-group-item active">Daily report</a>
-			  <a href="#" class="list-group-item">Class schedule</a>
-			  <a href="@{ClassLifeController.showmenu(clz?.id)}" class="list-group-item">Food menu</a>
+			  <a href="@{ClassLifeController.classReport()}" class="list-group-item active">Daily report</a>
+			  <a href="@{ClassLifeController.classattendance()}" class="list-group-item">Attendance</a>
+			  <a href="@{ClassLifeController.showSchedule()}" class="list-group-item">Class schedule</a>
+			  <a href="@{ClassLifeController.showmenuorder()}" class="list-group-item">Food menu</a>
 			  <a href="#" class="list-group-item">Class photo</a>
-			  <a href="@{ClassLifeController.markGrid(clz?.id)}" class="list-group-item">Baby behavior</a>
-			  <a href="@{ClassLifeController.moodGrid(clz?.id)}" class="list-group-item">Baby mood</a>
+			  <a href="@{ClassLifeController.markGrid()}" class="list-group-item">Baby behavior</a>
+			  <a href="@{ClassLifeController.moodGrid()}" class="list-group-item">Baby mood</a>
 			  <a href="#" class="list-group-item">Class statistics</a>
 			</div>
 		</div>
@@ -484,6 +512,7 @@
 				<input id="week-num" type="hidden"/>
 			</div>
 			<div>
+				<input id="week-mun-input" type="hidden">
 				<a id="week-pre" class="fui-arrow-left"></a>
 				<ul id="date-list">
 					<li id="sunday">

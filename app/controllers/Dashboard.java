@@ -50,8 +50,9 @@ public class Dashboard extends Controller{
 	}
 	
 	public static void teacherBoard(long clzId){
-		KidClass clz = KidClass.findById(clzId);
-		render(clz);
+		String sessionId = session.get(SESSION);
+		Cache.set(KidClass.SESSION_PREFIX + sessionId, clzId);
+		render();
 	}
 	
 	

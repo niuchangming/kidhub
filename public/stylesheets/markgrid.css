@@ -1,3 +1,8 @@
+a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.active:focus {
+	background-color: #3da8e3;
+	border-color: #3da8e3;
+}
+
 .color-present {
 	background-color: #2ECC71;
 }

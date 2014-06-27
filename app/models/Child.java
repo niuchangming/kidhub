@@ -49,8 +49,8 @@ public class Child extends GenericModel{
 	@ManyToOne
 	public Parent parent;
 	
-	@ManyToOne
-	public KidClass kidClass;
+	@ManyToOne(fetch=FetchType.LAZY)
+	public KidClass clz;
 	
 	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
 	@JoinColumn(name="child_id")
@@ -89,7 +89,7 @@ public class Child extends GenericModel{
 
 	public void createChildByClzId(long clzId){
 		KidClass clz = KidClass.findById(clzId);
-		this.kidClass = clz;
+		this.clz = clz;
 		this.avatarURL = Child.defaultIconUrl;
 		this.save();
 	}
@@ -135,9 +135,9 @@ public class Child extends GenericModel{
 			attendance.status = getStatusValue(status);
 			attendance.save();
 		}else{
-			Attendance attendence = new Attendance(new Date(), getStatusValue(status));
-			attendence.save();
-			this.attendances.add(attendence);
+			attendance = new Attendance(new Date(), getStatusValue(status));
+			attendance.save();
+			this.attendances.add(attendance);
 			this.save();
 		}
 		return attendance;

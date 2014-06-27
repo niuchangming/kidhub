@@ -202,5 +202,15 @@ public class Splitter {
 		System.out.println(Splitter.init("demo.displayName").byUpperCase().by(".").connect(" ").split().upperFirst().toString());
 		System.out.println(Splitter.init("demo.displayName_test").byUpperCase().by(".", "_").connect(" ").split().upperFirst().toString());
 		System.out.println(Splitter.init("doHelloAtGetOrPost").by("do", "At", "Or").connect("/", "@", "|").split().lowerFirst().toString());
+		/*for(int i = 0; i < 9; i++){
+			for(int j = 0; j < 9 - i; j++){
+				System.out.print(" ");
+			}
+			
+			for(int j = 0;j < 2 * i - 1; j++){
+				System.out.print("*");
+			}
+			System.out.println();
+		}*/
 	}
 }

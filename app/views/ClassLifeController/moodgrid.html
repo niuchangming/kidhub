@@ -11,23 +11,24 @@
 #{set user: user /}
 
 <div class="dash-container">
-	#{subheader user:user, clz:clz, as:"dash"/}
+	#{subheader user:user, as:"dash"/}
 	<div class="dash-content">
 		<div class="left-menu">
 			<div class="list-group">
-			  <a href="#" class="list-group-item active">Daily report</a>
-			  <a href="#" class="list-group-item">Class schedule</a>
-			  <a href="@{ClassLifeController.showmenu(clz?.id)}" class="list-group-item">Food menu</a>
+			  <a href="@{ClassLifeController.classReport()}" class="list-group-item active">Daily report</a>
+			  <a href="@{ClassLifeController.classattendance()}" class="list-group-item">Attendance</a>
+			  <a href="@{ClassLifeController.showSchedule()}" class="list-group-item">Class schedule</a>
+			  <a href="@{ClassLifeController.showmenuorder()}" class="list-group-item">Food menu</a>
 			  <a href="#" class="list-group-item">Class photo</a>
-			  <a href="@{ClassLifeController.markGrid(clz?.id)}" class="list-group-item">Baby behavior</a>
-			  <a href="@{ClassLifeController.moodGrid(clz?.id)}" class="list-group-item">Baby mood</a>
+			  <a href="@{ClassLifeController.markGrid()}" class="list-group-item">Baby behavior</a>
+			  <a href="@{ClassLifeController.moodGrid()}" class="list-group-item">Baby mood</a>
 			  <a href="#" class="list-group-item">Class statistics</a>
 			</div>
 		</div>
 		<div class="right-detail">
 			<div class="chgrid-wraper">
-				#{if clz?.children?.size() > 0}
-					#{list items: clz?.children, as:'child'}
+				#{if children?.size() > 0}
+					#{list items: children, as:'child'}
 						%{
 							String imgUrl = models.Mood.defaultIconUrl;
 							if(child.moods != null && child.moods.size() > 0){
@@ -49,7 +50,7 @@
 				#{else}
 					<div id="nonch-wraper">
 						<div class="clz-add-wraper">
-						   	<a class="cre-clz-plus" href="@{RosterController.classRoster(clz?.id)}"></a>
+						   	<a class="cre-clz-plus" href="@{RosterController.classRoster()}"></a>
 						   	<h3 class="add-clz-btn">There is no child in this class<br>Click on \"Plus\" button to add child !</h3>
 						   	<img src="http://www.ck12.org/media/dashboard/images/groups-img.png">
 						</div>

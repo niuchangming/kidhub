@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -107,6 +108,18 @@ public class CommonUtils {
 	public static String getObjectAsJsonStr(Object obj){
 		JSONSerializer serializer = new JSONSerializer();
 		return serializer.deepSerialize(obj);
+	}
+	
+	public static Date[] getWeekStartAndEnd(Date curDate){
+		Calendar c = Calendar.getInstance();
+		c.setTime(curDate == null ? new Date() : curDate);
+		int dayOfWeek = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
+		c.add(Calendar.DAY_OF_MONTH, - dayOfWeek);
+		Date startDate = c.getTime();
+		c.add(Calendar.DAY_OF_MONTH, 6);
+		Date endDate = c.getTime();
+		Date[] dates = {startDate, endDate};
+		return dates;
 	}
 	
 }

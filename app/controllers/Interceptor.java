@@ -1,5 +1,6 @@
 package controllers;
 
+import models.KidClass;
 import models.Teacher;
 import models.User;
 import static models.User.Constant.*;
@@ -24,6 +25,18 @@ public class Interceptor extends Controller{
 			}
 		}
 		renderArgs.put("user", user);
+	}
+	
+	@Before(unless={"Application.index", "Dashboard.index", "Dashboard.classGrid", "Dashboard.teacherBoard", "Dashboard.createClass"})
+	static void checkIfClzExist(){
+		String sessionId = session.get(SESSION);
+		Long clzId = Cache.get(KidClass.SESSION_PREFIX + sessionId, Long.class);
+		if(clzId == null || !session.contains(SESSION)){
+			if(!request.action.equals("Application.index")){
+				Application.index();
+			}
+		}
+		renderArgs.put("clzId", clzId);
 	}
 	
 	@Before(priority = 0, only={"Dashboard.classGrid"})

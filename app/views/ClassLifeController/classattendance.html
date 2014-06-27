@@ -72,7 +72,7 @@
 				data.append('image', file.files[0]);
 			
 			$.ajax({
-                url: "/attendancecontroller/saveavatarbychildid",
+                url: "/classlifecontroller/saveavatarbychildid",
                 type: "POST",
                 data : data,
                 contentType: false,
@@ -94,7 +94,7 @@
 			var childId = $('.ch-att-sel').attr('id');
 				childId = childId.substring(7, childId.length);
 			$.ajax({
-                url: "/attendancecontroller/markAttendToChildByChildId",
+                url: "/classlifecontroller/markAttendToChildByChildId",
                 type: "POST",
                 data : {
                 	childId: childId,
@@ -137,46 +137,74 @@
 	}
 </script>
 <div class="dash-container">
-	#{subheader user:user, clz:clz, as:"dash"/}
-
-	#{list items:clz?.children, as: "child"}
-		%{
-			String attStatus = "P";
-			String r = "present";
-			enums.AttendanceStatus status = enums.AttendanceStatus.PRESENT;
-			if(child.attendances != null && child.attendances.size() > 0){
-				status = child.attendances.get(0).status;
-			}
-			switch(status){
-			case enums.AttendanceStatus.PRESENT:
-				attStatus = "P";
-				attr = "present";
-				break;
-			case enums.AttendanceStatus.LATE:
-				attStatus = "L";
-				attr = "late";
-				break;
-			case enums.AttendanceStatus.ABSENT:
-				attStatus = "A";
-				attr = "absent";
-				break;
-			case enums.AttendanceStatus.MC:
-				attStatus = "M";
-				attr = "mc";
-				break;
-			}
-		}%
-		<div id="ch-att-${child?.id}" class="col-xs-12 col-sm-6 col-md-4 col-lg-2 ch-att-item round-item">
-			<div class="round-item-txt ch-att-content color-${attr}">
-				${attStatus}
-			</div>
-			<div class="round-item-avatar">
-				<a id="avr-${child?.id}" class="avr-edit" data-toggle="modal" data-target="#avr-edit-model">
-					<img src="../../${child.avatarURL}"/>
-				</a>
+	#{subheader user:user, as:"dash"/}
+	<div class="dash-content">
+		<div class="left-menu">
+			<div class="list-group">
+			  <a href="@{ClassLifeController.classReport()}" class="list-group-item active">Daily report</a>
+			  <a href="@{ClassLifeController.classattendance()}" class="list-group-item">Attendance</a>
+			  <a href="#" class="list-group-item">Class schedule</a>
+			  <a href="@{ClassLifeController.showmenuorder()}" class="list-group-item">Food menu</a>
+			  <a href="#" class="list-group-item">Class photo</a>
+			  <a href="@{ClassLifeController.markGrid()}" class="list-group-item">Baby behavior</a>
+			  <a href="@{ClassLifeController.moodGrid()}" class="list-group-item">Baby mood</a>
+			  <a href="#" class="list-group-item">Class statistics</a>
 			</div>
 		</div>
-	#{/list}
+		<div class="right-detail">
+			<div class="chgrid-wraper">
+				#{if children?.size() > 0}
+					#{list items:children, as: "child"}
+						%{
+							String attStatus = "P";
+							String r = "present";
+							enums.AttendanceStatus status = enums.AttendanceStatus.PRESENT;
+							if(child.attendances != null && child.attendances.size() > 0){
+								status = child.attendances.get(0).status;
+							}
+							switch(status){
+							case enums.AttendanceStatus.PRESENT:
+								attStatus = "P";
+								attr = "present";
+								break;
+							case enums.AttendanceStatus.LATE:
+								attStatus = "L";
+								attr = "late";
+								break;
+							case enums.AttendanceStatus.ABSENT:
+								attStatus = "A";
+								attr = "absent";
+								break;
+							case enums.AttendanceStatus.MC:
+								attStatus = "M";
+								attr = "mc";
+								break;
+							}
+						}%
+						<div id="ch-att-${child?.id}" class="col-xs-12 col-sm-6 col-md-4 col-lg-2 ch-att-item round-item">
+							<div class="round-item-txt ch-att-content color-${attr}">
+								${attStatus}
+							</div>
+							<div class="round-item-avatar">
+								<a id="avr-${child?.id}" class="avr-edit" data-toggle="modal" data-target="#avr-edit-model">
+									<img src="../../${child.avatarURL}"/>
+								</a>
+							</div>
+						</div>
+					#{/list}
+				#{/if}
+				#{else}
+					<div id="nonch-wraper">
+						<div class="clz-add-wraper">
+						   	<a class="cre-clz-plus" href="@{RosterController.classRoster()}"></a>
+						   	<h3 class="add-clz-btn">There is no child in this class<br>Click on \"Plus\" button to add child !</h3>
+						   	<img src="http://www.ck12.org/media/dashboard/images/groups-img.png">
+						</div>
+					</div>
+				#{/else}
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="modal fade" id="avr-edit-model" tabindex="-1" role="dialog" aria-hidden="true">

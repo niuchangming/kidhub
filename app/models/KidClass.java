@@ -21,9 +21,13 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.MapKeyTemporal;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import com.google.gson.annotations.Expose;
 
@@ -34,6 +38,9 @@ import utils.CommonUtils;
 @Entity
 @Table(name="class")
 public class KidClass extends Model{
+	@Transient
+	public final static String SESSION_PREFIX = "clz_id_";
+	
 	@Transient
 	public final static String defaultLogoUrl = "/public/images/Brook-icon.png";
 	
@@ -64,7 +71,8 @@ public class KidClass extends Model{
 	@ManyToMany(mappedBy="classes", cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
 	public List<Teacher> teachers;
 	
-	@OneToMany(targetEntity = Child.class, mappedBy="kidClass", cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
+	@OneToMany(mappedBy="clz", cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
+	@LazyCollection(LazyCollectionOption.EXTRA)
 	public Set<Child> children;
 	
 	@OneToMany(cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
@@ -72,9 +80,12 @@ public class KidClass extends Model{
 	public List<Report> reports;
 	
 	@OneToMany(cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
-	@JoinTable(name = "date_menu", joinColumns = {@JoinColumn(name="clz_id")}, inverseJoinColumns={@JoinColumn(name="menu_id")})
-	@MapKeyColumn(name="date_key", nullable=false, unique=true)
-	public Map<String, Menu> menus;
+	@JoinColumn(name="clz_id")
+	public List<MenuOrder> orders;
+	
+	@OneToMany(cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
+	@JoinColumn(name="clz_id")
+	public List<Schedule> schedules;
 	
 	public boolean active = true;
 	
@@ -87,7 +98,7 @@ public class KidClass extends Model{
 		this.logoURL = logoURL;
 		this.classDesc = classDesc;
 		this.reports = new ArrayList<Report>();
-		this.menus = new HashMap<String, Menu>();
+		this.orders = new ArrayList<MenuOrder>();
 	}
 
 	public KidClass createClass(String className, String classLevel, String startDate, 
@@ -102,8 +113,8 @@ public class KidClass extends Model{
 		this.save();
 	}
 	
-	public void addMenu(Menu menu, String dateStr){
-		this.menus.put(dateStr, menu);
+	public void addOrder(MenuOrder order){
+		this.orders.add(order);
 		this.save();
 	}
 	
@@ -116,25 +127,4 @@ public class KidClass extends Model{
 		return food;
 	}
 	
-	public Map<String, Menu> getMenusByWeek(Date date){
-		Map<String, Menu> menuMap = new HashMap<String, Menu>(); 
-		List<BigInteger> menuIds = JPA.em().createNativeQuery("SELECT menu_id FROM date_menu WHERE clz_id = " 
-							+ this.id + " AND " + getWeekQuery(date)).getResultList();
-		for(BigInteger menuId : menuIds){
-			Menu menu = Menu.findById(menuId.longValue());
-			menuMap.put(CommonUtils.getDateString(menu.date, null), menu);
-		}
-		return menuMap;	
-	}
-	
-	private String getWeekQuery(Date curDate){
-		Calendar c = Calendar.getInstance();
-		c.setTime(curDate == null ? new Date() : curDate);
-		int dayOfWeek = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
-		c.add(Calendar.DAY_OF_MONTH, - dayOfWeek);
-		Date weekStart = c.getTime();
-		c.add(Calendar.DAY_OF_MONTH, 6);
-		Date weekEnd = c.getTime();
-		return "date_key between '" + CommonUtils.getDateString(weekStart, null) + "' and '"  + CommonUtils.getDateString(weekEnd, null) + "'";
-	}
 }

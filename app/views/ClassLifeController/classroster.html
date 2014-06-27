@@ -35,7 +35,7 @@
 	            $.ajax({
 	                url: "/rostercontroller/createchild",
 	                type: "POST",
-	                data : $(form).serialize() + "&clzId=" + ${clz?.id},
+	                data : $(form).serialize(),
 	                success: function(response, status) {
 	                	if(status == "success"){
 	                		var child = jQuery.parseJSON(JSON.stringify(response));
@@ -98,7 +98,6 @@
             });
 		});
 		
-		
 		$('table#page_container').each(function() {
 		    var currentPage = 0;
 		    var numPerPage = 10;
@@ -128,7 +127,7 @@
 		if(typeof(Storage) !== "undefined"){
 			var count = $("#ch-table tr").length;
 			sessionStorage.setItem("has_to_update", "yes");
-			sessionStorage.setItem("clz-" + ${clz?.id}, count + " children");
+			sessionStorage.setItem("clz-" + ${clzId}, count + " children");
 		}
 	}
 	
@@ -149,7 +148,7 @@
 </script>
 
 <div class="dash-container">
-	#{subheader user:user, clz:clz, as:"dash"/}
+	#{subheader user:user, as:"dash"/}
 	<div class="dash-content">
 		<div class="left-menu">
 			<div class="list-group">
@@ -174,7 +173,7 @@
 					%{
 						int i = 1;
 					}%
-					#{list items:clz?.children, as: 'child'}
+					#{list items:children, as: 'child'}
 						<tr id="roster-row${child.id}">
 							<td>${i}</td>
 							<td class="td-fn"><input type="text" name="firstName" value="${child.firstName}"></td>
@@ -190,7 +189,7 @@
 			<form id="add-roster-form">
 				<table class="roster-table addch-tb-form">
 					<tr id="roster-addch">
-						<td>${clz?.children?.size() + 1}</td>
+						<td>${children?.size() + 1}</td>
 						<td class="td-fn"><input type="text" name="firstName" placeholder="Click to Add"></td>
 						<td class="td-ln"><input type="text" name="lastName" placeholder="Click to Add"></td>
 						<td class="td-bd"><input type="text" class="date" name="birth" placeholder="Click to Add"></td>

@@ -3,6 +3,15 @@ a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.acti
 	border-color: #3da8e3;
 }
 
+#loading-layer{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	z-index: 9999;
+	opacity: .5;
+	background-color: black;
+}
+
 #date-list{
 	margin-top: 32px;
 	display: inline-block;
@@ -50,7 +59,7 @@ div.weekend{
 	font-size: 0.7em;
 }
 
-.dropdown-arrow{
+.menu-wrap > .dropdown-arrow{
 	border-width: 0 18px 17px;
 	right:inherit;
 	top: inherit;
@@ -74,11 +83,12 @@ div.weekend{
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 }
 
-.hovered{
+div.menu-content.hovered, 
+span.dropdown-arrow.hovered{
 	display:table;
 }
 
-#food-menu-add-wrap {
+#food-menu-add-wrap, #cre-lesson-wrap {
 	float: right;
 }
 
@@ -221,7 +231,7 @@ div.weekend{
 }
 
 #tool-bar > label{
-	line-height: 38px;
+	line-height: 46px;
 	color: white;
 	margin:0;
 }
@@ -293,7 +303,7 @@ div.weekend{
     box-shadow: 0px 0px 0px 1px rgba(155,155,155,0.3);
 }
 
-.ac-container article > div{
+.food-opt{
 	color: #34495e;
 	line-height: 1.2em;
     font-size: 1.2em;
@@ -446,11 +456,15 @@ div.weekend{
 
 .nomenu-wrap, .nofood-wrap {
 	text-align: center;
-	left:0;
-	right: 0;
-	padding: 72px 0;
-	display: table-cell;
 	vertical-align: middle;
+}
+
+.nomenu-wrap{
+	padding: 72px 0;
+}
+
+.nofood-wrap {
+	padding: 36px 0;
 }
 
 .nofood-wrap > img{
@@ -460,11 +474,16 @@ div.weekend{
 .nofood-wrap > p, .nomenu-wrap > p{
 	line-height: 1.2em;
 	font-size: 1.0em;
-	color: white;
 	font-weight: 700;
 }
 
-#chse-menu-btn{
+.nofood-wrap > p{
+	font-size: 1.2em;
+	font-weight: 700;
+	color:#95a5a6;
+}
+
+#chse-menu-btn, #chse-schedule-btn{
 	margin-top: 15px;
 }
 
@@ -566,8 +585,71 @@ tr.dinner{
 }
 /**************************************************** Menu Table End ****************************************************/
 
+.lesson-submit-wrap{
+	text-align: right;
+}
 
+.bootstrap-timepicker-widget.dropdown-menu{
+	padding: 0;
+	opacity: 1;
+	min-width: 124px;
+	visibility: visible;
+	background-color: white;
+	z-index: 9999;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	-webkit-transition: 0.0s;
+	transition: 0.0s;
+	box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
 
+.bootstrap-timepicker > input{
+	width:72px;
+	display: inline-block;
+}
+
+.bootstrap-timepicker > span{
+	display: inline-block;
+}
+
+.menu-content > table.schedule-tb td {
+	color: #f7f7f7;
+	padding: 0.6em 0.4em;
+	text-shadow: 0 0 1px rgba(255,255,255,0.1);
+	font-size: 16px;
+	border-radius: 4px;
+	text-align: center;
+}
+
+.time-picker,
+.lesson-title {
+	width: 100%;
+	height: 32px;
+	line-height: 32px;
+	background: #3da8e3;
+	outline: 0;
+	border-width: 0px;
+	border: none;
+	color: #fff;
+	text-align: center;
+}
+
+.time-picker:hover,
+.lesson-title:hover{
+	background: rgba(0, 0, 0, 0.1);
+}
+
+a.time-arrow{
+	-webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+
+a.time-arrow:before{
+	color: #34495e;
+}
 
 
 
