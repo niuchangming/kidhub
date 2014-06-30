@@ -1,5 +1,5 @@
 package enums;
 
 public enum LessonType {
-	MATH, REST, READING, SECIENCE, ART, MUSIC, OTHER;
+	MATH, REST, STORY, READING, LANGUAGE, SECIENCE, ART, OTHER;
 }

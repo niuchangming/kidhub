@@ -367,7 +367,8 @@ span.dropdown-arrow.hovered{
 	z-index: 9999;
 }
 
-.food-img-view:hover + .tooltip{
+.food-img-view:hover + .tooltip,
+.lesson-eye:hover + .tooltip{
 	opacity: 1;
 	display: block;
 } 
@@ -382,7 +383,7 @@ span.dropdown-arrow.hovered{
 .tooltip {
     position: absolute;
     width: 248px;
-    height: 200px;
+    max-height: 480px;
     right: 8px;
     top: 48px;
     display: none;
@@ -651,6 +652,45 @@ a.time-arrow:before{
 	color: #34495e;
 }
 
+.schedule-edit{
+	width: 100%;
+	padding:0 15px;
+	color: white;
+	display: inline-block;
+}
+
+.schedule-edit > a{
+	color: white;
+	display: inline-block;
+	float: left;
+}
+
+.schedule-edit > input.btn{
+	float: right;
+	padding: 6px 12px;
+}
+
+.lesson-body{
+	padding: 0 20px;
+}
+
+#lesson-list{
+	padding: 0;	
+}
+
+#lesson-list > li{
+	position: relative;
+	padding: 20px;
+	border-bottom: 1px solid #e5e5e5;
+	text-shadow: 1px 1px 1px rgba(255,255,255,0.8);
+	list-style-type: none;
+}
+
+#lesson-list > li a{
+	color: #34495e;
+	line-height: 1.2em;
+	font-size: 1.2em;
+}
 
 
 

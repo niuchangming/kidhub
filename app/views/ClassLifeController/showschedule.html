@@ -52,10 +52,10 @@
 	         }
 	    });
 		
-		$('.time-picker').timepicker({
-			minuteStep: 1,
-			showMeridian: false
+		$(document).on('click', '.lesson-title', function(){
+			$('#lessonlist-model').modal('show');
 		});
+		
 	});
 	
 	function init(){
@@ -101,10 +101,23 @@
 			updateMenu(nextDate);
 		});
 		
-		//	updateMenu(today);
+		//updateMenu(today);
 		
-		$(".lesson-title").on("click", function(){
-			$('#lessonlist-model').modal('show');
+		$(document).on('click', '.add-row', function(){
+			var	html = "<tr><td class=\"time-col\"><div class=\"bootstrap-timepicker\">";
+				html += "<input class=\"time-picker input-small\" type=\"text\">";
+				html += "</div></td>";
+				html += "<td><input class=\"lesson-title\" type=\"text\" value=\"Lesson Title\" readonly></td></tr>";
+			$(this).parent().siblings(".schedule-tb").find('tbody').append(html);
+			$('.time-picker').timepicker({	
+				minuteStep: 1,
+				showMeridian: false
+			});
+		});
+		
+		$('.time-picker').timepicker({	
+			minuteStep: 1,
+			showMeridian: false
 		});
 	}
 	
@@ -140,7 +153,7 @@
 		weekday[0]=  "sunday";
 		weekday[1] = "monday";
 		weekday[2] = "tuesday";
-		weekday[3] = "wednesday";
+		weekday[3] = "sday";
 		weekday[4] = "thursday";
 		weekday[5] = "friday";
 		weekday[6] = "saturday";
@@ -150,39 +163,36 @@
 	}
 	
 	function updateMenu(dateObj){
-		$('#date-list li').each(function(){
-			var html = "<div class=\"nomenu-wrap\">";
-				html += "<img src=\"../../public/images/moods/confused.png\" />";
-				html += "<p>Sorry, The schedule is empty !</p><p>Click to create a menu !</p>";
-				html += "<button id=\"cre-schedule-btn\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#schedule-model\">&nbsp;Create an new schedule&nbsp;</button>";
-				html += "<button id=\"chse-schedule-btn\" class=\"btn btn-info\">Choose from existing one</button></div>";
-			$(this).find('div.menu-content').empty();
-			$(this).find('div.menu-content').append(html);
-		});
-		var scheduleArr = scheduleMap[$('#week-mun-input').val()];
-		if(scheduleArr == null){
-			$.ajax({
-                url: "/classlifecontroller/showschedulebyweek",
-                type: "POST",
-                dataType: 'json',
-                data : {
-                	date: formDateByFormat(dateObj),
-				},
-                success: function(response, status) {
-                	if(status == "success"){
-                		var schedules = jQuery.parseJSON(JSON.stringify(response));
-                		scheduleMap[$('#week-mun-input').val()] = schedules;
-                		$.each(schedules, function(index, schedule){
-            				setMenuByOrder(schedule);
-            			});
-                	}
-                }
-            });
-		}else{
-			$.each(scheduleArr, function(index, schedule){
-				setMenuByOrder(schedule);	
+		schedules = scheduleMap[$('#week-mun-input').val()];
+		$('#date-list li').each(function(index){
+			var html = "<table class=\"schedule-tb\"><thead><tr><th>Time</th><th>Lesson</th></tr></thead>";
+			html += "<tbody>";
+			html += "<tr><td class=\"time-col\"><div class=\"bootstrap-timepicker\">";
+			html += "<input class=\"time-picker input-small\" type=\"text\" >";
+			html += "</div></td>";
+			html += "<td><input class=\"lesson-title\" type=\"text\" value=\"Lesson Title\" readonly></td></tr>";
+			html += "</tbody></table>";
+			html += "<a><span class=\"fui-plus\"></span><span class=\"add-row-txt\">Add an new row</span></a>";
+			
+			$(this).find('.menu-content').empty();
+			$(this).find('.menu-content').append(html);
+			
+			var schedule = schedules[index];
+			if(schedule != null){
+				schedule.lessons.sort(function (a, b) {
+					  return new Date('1970/01/01 ' + a.key) - new Date('1970/01/01 ' + b.key);
+				});
+				
+				$.each(schedule.lessons, function(index, value){
+					alert(index + ": " + value);
+				});
+			}
+			
+			$('.time-picker').timepicker({
+				minuteStep: 1,
+				showMeridian: false
 			});
-		}
+		});
 	}
 	
 	function updateToolbarUI(startDate, date, endDate){
@@ -260,6 +270,17 @@
 							<p class="date-num">23</p>
 							<span class="dropdown-arrow"></span>
 							<div class="menu-content">
+							</div>
+						</div>
+					</li>
+					<li id="monday">
+						<input type="hidden"/>
+						<div class="menu-wrap">
+							<span class="week-head">Mon</span>
+							<p class="date-num">23</p>
+							<span class="dropdown-arrow"></span>
+							<div class="menu-content">
+								<form id="schedule-form"></form>
 								<table class="schedule-tb">
 									<thead>
 										<tr>
@@ -271,35 +292,19 @@
 										<tr>
 											<td class="time-col">
 												<div class="bootstrap-timepicker">
-										        	<input class="time-picker input-small" type="text" >
-										        </div>
+													<input class="time-picker input-small" type="text">
+												</div>
 											</td>
 											<td>
-												<input class="lesson-title" type="text" value="Lesson Title" readonly>
-											</td>
-										</tr>
-										<tr>
-											<td class="time-col">
-												<div class="bootstrap-timepicker">
-										            <input class="time-picker input-small" type="text" >
-										        </div>
-											</td>
-											<td>
-												<input class="lesson-title" type="text" value="Lesson Title" readonly>
+												<input class="lesson-title" type="text" value="Lesson Title" readonly="">
 											</td>
 										</tr>
 									</tbody>
 								</table>
-							</div>
-						</div>
-					</li>
-					<li id="monday">
-						<input type="hidden"/>
-						<div class="menu-wrap">
-							<span class="week-head">Mon</span>
-							<p class="date-num">23</p>
-							<span class="dropdown-arrow"></span>
-							<div class="menu-content">
+								<div class="schedule-edit">
+									<a class="add-row"><span class="fui-plus"></span></a>
+									<input class="btn btn-success" type="submit" value="Save" form="schedule-form">
+								</div>
 							</div>
 						</div>
 					</li>
@@ -421,19 +426,33 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h3>LESSON LIST</h3>
       </div>
-      <div class="modal-body">
-		<div class="form-group menu-submit-wrap">
-			
-		</div>
+      <div class="modal-body lesson-body">
+      	<ul id="lesson-list">
+      		<li>
+      			<a>
+      				<span>Lesson Title</span>
+      				<span class="fui-eye lesson-eye"></span>
+      				<div class="tooltip">
+      					<div class="tooltip-content">
+      						<p>This is a food 5. dos iahd aosdh aosdh oash doi hs aodh ohdo ha sodh oashdoh asoas idh asohas odh as odh ohsa odh oashd oas</p>
+      					</div>
+      				</div>
+      			</a>
+      		</li>
+      		<li>
+      			<a>
+      				<span>Lesson Title</span>
+      				<span class="fui-eye lesson-eye"></span>
+      				<div class="tooltip">
+      					<p>This is a food 5.</p>
+      				</div>
+      			</a>
+      		</li>
+      	</ul>
       </div>
     </div>
   </div>
 </div>
-
-
-
-
-
 
 
 
