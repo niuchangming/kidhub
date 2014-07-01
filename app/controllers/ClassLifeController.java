@@ -237,10 +237,15 @@ public class ClassLifeController extends Controller{
 	}
 	
 	public static void createLesson(Lesson lesson){
-		User user = renderArgs.get("user", User.class);
-		long teacherId = user.id;
-		lesson.createLessonByTeacher(teacherId);
+		long clzId = renderArgs.get("clzId", Long.class);
+		lesson.createLessonByClzId(clzId);
 		renderJSON(lesson);
+	}
+	
+	public static void getClassLesson(){
+		long clzId = renderArgs.get("clzId", Long.class);
+		KidClass clz = KidClass.findById(clzId);
+		renderJSON(CommonUtils.getObjectAsJsonStr(clz.lessons));
 	}
 	
 }

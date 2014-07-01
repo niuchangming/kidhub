@@ -488,7 +488,8 @@ span.dropdown-arrow.hovered{
 	margin-top: 15px;
 }
 
-.food-opt.selected {
+.food-opt.selected,
+#lesson-list > li.selected {
 	-moz-box-shadow: inset 0 0 5px 2px #3498DB;
 	-webkit-box-shadow: inset 0 0 5px 2px #3498DB;
 	box-shadow: inset 0 0 5px 2px #3498DB;

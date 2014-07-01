@@ -32,10 +32,6 @@ public class Teacher extends User{
 	@JoinColumn(name="teacher_id")
 	public List<Food> food;
 	
-	@OneToMany(cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
-	@JoinColumn(name="teacher_id")
-	public List<Lesson> lessons;
-	
 	public void addClass(KidClass clz){
 		if(this.classes == null){
 			this.classes = new ArrayList<KidClass>();

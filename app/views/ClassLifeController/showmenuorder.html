@@ -63,6 +63,7 @@
 	                		showMsg("fail");
 	                	}
 	                	$('#addfood-model').modal('hide');
+	                	clzMenuLoaded = false;
 	                },
 	                error: function(error){
 	                	showMsg("fail");
@@ -80,6 +81,7 @@
 	                type: "POST",
 	                success: function(response, status) {
 	                	if(status == "success"){
+	                		$('article.ac-food').empty();
 	                		clzMenuLoaded = true;
 	                		var food = jQuery.parseJSON(JSON.stringify(response));
 	                		$.each(food, function(index, value){
@@ -168,6 +170,7 @@
 		endDate = getJavascriptDate('${clz.endDate}');
 		
 		var today = new Date();
+		today.setHours(0,0,0,0);
 		if(startDate.getTime() > today.getTime()){
 			showTodayMenu(startDate);
 			updateWeekBar(startDate);

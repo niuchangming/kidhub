@@ -87,6 +87,10 @@ public class KidClass extends Model{
 	@JoinColumn(name="clz_id")
 	public List<Schedule> schedules;
 	
+	@OneToMany(cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
+	@JoinColumn(name="clz_id")
+	public List<Lesson> lessons;
+	
 	public boolean active = true;
 	
 	public KidClass(String className, String classLevel, Date startDate,
