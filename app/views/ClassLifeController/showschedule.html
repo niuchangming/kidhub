@@ -239,20 +239,18 @@
 	}
 	
 	function updateMenu(dateObj){
-		schedules = scheduleMap[$('#week-mun-input').val()];
 		$('#date-list li').each(function(index){
 			var html = "<table class=\"schedule-tb\"><thead><tr><th>Time</th><th>Lesson</th></tr></thead>";
-			html += "<tbody>";
-			html += "<tr class=\"lesson-item\"><td class=\"time-col\"><div class=\"bootstrap-timepicker\">";
-			html += "<input class=\"time-picker input-small\" type=\"text\" value=\"8:00\" name=\"8:00\">";
-			html += "</div></td>";
-			html += "<td><input class=\"lesson-title\" type=\"text\" value=\"Lesson Title\" readonly></td></tr>";
-			html += "</tbody></table></form>";
-			html += "<div class=\"schedule-edit\">";
-			html += "<a class=\"add-row\"><span class=\"fui-plus\"></span></a>";
-			html += "<input class=\"schedule-submit btn btn-success\" type=\"submit\" value=\"Save\">";
-			html += "</div>";
-			
+				html += "<tbody>";
+				html += "<tr class=\"lesson-item\"><td class=\"time-col\"><div class=\"bootstrap-timepicker\">";
+				html += "<input class=\"time-picker input-small\" type=\"text\" value=\"8:00\" name=\"8:00\">";
+				html += "</div></td>";
+				html += "<td><input class=\"lesson-title\" type=\"text\" value=\"Lesson Title\" readonly></td></tr>";
+				html += "</tbody></table></form>";
+				html += "<div class=\"schedule-edit\">";
+				html += "<a class=\"add-row\"><span class=\"fui-plus\"></span></a>";
+				html += "<input class=\"schedule-submit btn btn-success\" type=\"submit\" value=\"Save\">";
+				html += "</div>";
 			$(this).find('.menu-content').empty();
 			$(this).find('.menu-content').append(html);
 		});

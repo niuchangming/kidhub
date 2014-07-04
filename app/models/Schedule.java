@@ -13,6 +13,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.JoinColumn;
@@ -27,15 +28,14 @@ public class Schedule extends Model{
 	@Column(nullable = false, unique=true)
 	public Date date;
 	
-	@ManyToMany(cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
-	@JoinTable(name = "time_lesson", joinColumns = {@JoinColumn(name="schedule_id")}, inverseJoinColumns={@JoinColumn(name="lesson_id")})
-	@MapKeyColumn(name="time_key", nullable=false, unique=true)
-	@Temporal(TemporalType.TIME)
-	public Map<Date, Lesson> lessons;
+	@OneToMany(cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
+	@JoinColumn(name="schedule_id")
+	@OrderBy(value="dateTime asc")
+	public List<LessonTiming> lessons;
 
 	public static List<Schedule> showScheduleByWeek(long clzId, Date date) {
 		Date[] dates = CommonUtils.getWeekStartAndEnd(date);
-		List<Schedule> schedules = Schedule.find("clz_id = ? and date between ? and ? order by date desc", clzId, dates[0], dates[1]).fetch();
+		List<Schedule> schedules = Schedule.find("clz_id = ? and date between ? and ? order by date asc", clzId, dates[0], dates[1]).fetch();
 		return schedules;
 	}
 	
