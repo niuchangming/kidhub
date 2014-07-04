@@ -248,6 +248,18 @@ public class ClassLifeController extends Controller{
 		renderJSON(CommonUtils.getObjectAsJsonStr(clz.lessons));
 	}
 	
+	public static void createScheduleByJson(Date date, String lessonJson){
+		long clzId = renderArgs.get("clzId", Long.class);
+		KidClass clz = KidClass.findById(clzId);
+		Schedule schedule = Schedule.find("date = ? and clz_id = ?", date, clzId).first();
+		if(schedule == null){
+			schedule = clz.addScheduleByLessonIds(date, lessonJson);
+		}else{
+			schedule.updateSchedule(lessonJson);
+		}
+		renderJSON(CommonUtils.getObjectAsJsonStr(schedule));
+	}
+	
 }
 
 

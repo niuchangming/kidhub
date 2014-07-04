@@ -7,6 +7,11 @@ html, body{
 	background-image:url('/public/images/billie_holiday.png');
 }
 
+.modal-content{
+	max-height: 640px;
+	overflow: auto;	
+}
+
 /******************************************* Start Header *******************************************/
 
 .header-jag{

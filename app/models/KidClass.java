@@ -34,6 +34,7 @@ import com.google.gson.annotations.Expose;
 import play.db.jpa.JPA;
 import play.db.jpa.Model;
 import utils.CommonUtils;
+import vo.ScheduleVO;
 
 @Entity
 @Table(name="class")
@@ -103,6 +104,7 @@ public class KidClass extends Model{
 		this.classDesc = classDesc;
 		this.reports = new ArrayList<Report>();
 		this.orders = new ArrayList<MenuOrder>();
+		this.schedules = new ArrayList<Schedule>();
 	}
 
 	public KidClass createClass(String className, String classLevel, String startDate, 
@@ -129,6 +131,14 @@ public class KidClass extends Model{
 			food.addAll(teacher.food);
 		}
 		return food;
+	}
+	
+	public Schedule addScheduleByLessonIds(Date date, String lessonJson){
+		Schedule schedule = new Schedule();
+		schedule.addSchedule(date, lessonJson);
+		this.schedules.add(schedule);
+		this.save();
+		return schedule;
 	}
 	
 }

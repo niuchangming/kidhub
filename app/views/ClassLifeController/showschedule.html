@@ -44,6 +44,7 @@
 	                data : $(form).serialize(),
 	                success: function(response, status) {
 	                	$('#addlesson-model').modal('hide');
+	                	clzLessonLoaded = false;
 	                },
 	                error: function(error){
 	                	$('#addlesson-model').modal('hide');
@@ -52,52 +53,39 @@
 	         }
 	    });
 		
-		$("form.schedule-form").validate({
-	        rules: {
-	        	"lesson.title":{
-	                minlength: 3,
-	                maxlength: 20,
-	                required: true,
-	                remote: {
-	                    url: "/classlifecontroller/islessonavailable",
-	                    type: 'get',
-	                    data: {
-	                        "title": function() {
-	                            return $('#lesson-title').val();
-	                        }
-	                    },
-	                }
-	            },
-	            "lesson.description":{
-	            	minlength: 6,
-	            	required:true
-	            }
-	        },
-	        messages: {
-	        	"lesson.title":{
-               		remote:"Lesson Title already exists."
-               }
-            },
-	        highlight: function (element) {
-	            $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-	        },
-	        unhighlight: function (element) {
-	            $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-	        },
-	        submitHandler: function(form) {
-	        	$.ajax({
-	                url: "/classlifecontroller/createlesson",
-	                type: "POST",
-	                data : $(form).serialize(),
-	                success: function(response, status) {
-	                	$('#addlesson-model').modal('hide');
-	                },
-	                error: function(error){
-	                	$('#addlesson-model').modal('hide');
-	                }
-	            });
-	         }
-	    });
+		$(document).on('click', 'input.schedule-submit', function(){
+			var date = $(this).parents('li').find('input.date-ipt').val();
+			var lessonsData = "[";
+			$(this).parents('li').find('tr.lesson-item')
+			.each(function(){
+				var id = $(this).find('.lesson-title').attr('id');
+				if(id){
+					lessonsData += "{";
+					lessonsData += "\"lessonId\":" + "\"" + $(this).find('input.lesson-title').attr('id').replace('title-ipt-', '') + "\",";
+					lessonsData += "\"time\":" + "\"" + date + " " + $(this).find('input.time-picker').val() + "\"";
+					lessonsData += "},";
+				} 
+			});
+			lessonsData = lessonsData.substring(0, lessonsData.length - 1);
+			lessonsData += "]";
+			
+			$.ajax({
+                url: "/classlifecontroller/createschedulebyJson",
+                type: "POST",
+                data: {
+                	date: date,
+                	lessonJson: lessonsData
+                },
+                success: function(response, status) {
+                	if(status == "success"){
+                		
+                	}
+                },
+                error: function(err){
+                	
+                }
+            });
+		});
 		
 		var clzLessonLoaded = false;
 		$('#lessonlist-model').on('shown.bs.modal', function (e) {
@@ -110,8 +98,9 @@
 	                		clzLessonLoaded = true;	
 	                		var lessons = jQuery.parseJSON(JSON.stringify(response));
 	                		if(lessons.length > 0){
+	                			$('#lesson-list').empty();
 	                			$.each(lessons, function(index, lesson){
-	                				var html = "<li>";
+	                				var html = "<li id=\"lesson-" + lesson.id + "\">";
 		                			html += "<input type=\"hidden\" value=\"" + lesson.title + "\">";
 		                			html += "<a>";
 		                			html += "<span>" + lesson.title + "</span>";
@@ -140,6 +129,7 @@
 			$('li.selected').removeClass('selected');
 			$(this).addClass('selected');
 			$('input.clicked').val($(this).find('input').val());
+			$('input.clicked').attr('id', 'title-ipt-' + $(this).attr('id').replace('lesson-', ''));
 			$('#lessonlist-model').modal('hide');
 		});
 		
@@ -192,20 +182,18 @@
 		updateMenu(today);
 		
 		$(document).on('click', '.add-row', function(){
-			var	html = "<tr><td class=\"time-col\"><div class=\"bootstrap-timepicker\">";
-				html += "<input class=\"time-picker input-small\" type=\"text\">";
+			var	html = "<tr class=\"lesson-item\"><td class=\"time-col\"><div class=\"bootstrap-timepicker\">";
+				html += "<input class=\"time-picker input-small\" type=\"text\" value=\"8:00\" name=\"8:00\">";
 				html += "</div></td>";
 				html += "<td><input class=\"lesson-title\" type=\"text\" value=\"Lesson Title\" readonly></td></tr>";
+				
 			$(this).parent().siblings(".schedule-tb").find('tbody').append(html);
-			$('.time-picker').timepicker({	
+			$('.time-picker').timepicker({
 				minuteStep: 1,
 				showMeridian: false
+			}).on('hide.timepicker', function(e){
+				$(this).attr('value', e.time.value);
 			});
-		});
-		
-		$('.time-picker').timepicker({	
-			minuteStep: 1,
-			showMeridian: false
 		});
 	}
 	
@@ -241,7 +229,7 @@
 		weekday[0]=  "sunday";
 		weekday[1] = "monday";
 		weekday[2] = "tuesday";
-		weekday[3] = "sday";
+		weekday[3] = "wednesday";
 		weekday[4] = "thursday";
 		weekday[5] = "friday";
 		weekday[6] = "saturday";
@@ -253,39 +241,28 @@
 	function updateMenu(dateObj){
 		schedules = scheduleMap[$('#week-mun-input').val()];
 		$('#date-list li').each(function(index){
-			var html = "<form id=\"schedule-form\">";
-			html = "<table class=\"schedule-tb\"><thead><tr><th>Time</th><th>Lesson</th></tr></thead>";
+			var html = "<table class=\"schedule-tb\"><thead><tr><th>Time</th><th>Lesson</th></tr></thead>";
 			html += "<tbody>";
-			html += "<tr><td class=\"time-col\"><div class=\"bootstrap-timepicker\">";
-			html += "<input class=\"time-picker input-small\" type=\"text\">";
+			html += "<tr class=\"lesson-item\"><td class=\"time-col\"><div class=\"bootstrap-timepicker\">";
+			html += "<input class=\"time-picker input-small\" type=\"text\" value=\"8:00\" name=\"8:00\">";
 			html += "</div></td>";
 			html += "<td><input class=\"lesson-title\" type=\"text\" value=\"Lesson Title\" readonly></td></tr>";
 			html += "</tbody></table></form>";
 			html += "<div class=\"schedule-edit\">";
 			html += "<a class=\"add-row\"><span class=\"fui-plus\"></span></a>";
-			html += "<input class=\"btn btn-success\" type=\"submit\" value=\"Save\" form=\"schedule-form\">";
+			html += "<input class=\"schedule-submit btn btn-success\" type=\"submit\" value=\"Save\">";
 			html += "</div>";
 			
 			$(this).find('.menu-content').empty();
 			$(this).find('.menu-content').append(html);
-			
-			var schedule = schedules[index];
-			if(schedule != null){
-				schedule.lessons.sort(function (a, b) {
-					  return new Date('1970/01/01 ' + a.key) - new Date('1970/01/01 ' + b.key);
-				});
-				
-				$.each(schedule.lessons, function(index, value){
-					alert(index + ": " + value);
-				});
-			}
-			
-			$('.time-picker').timepicker({
-				minuteStep: 1,
-				showMeridian: false
-			});
 		});
 		
+		$('.time-picker').timepicker({
+			minuteStep: 1,
+			showMeridian: false
+		}).on('hide.timepicker', function(e){
+			$(this).attr('value', e.time.value);
+		});
 	}
 	
 	function updateToolbarUI(startDate, date, endDate){
@@ -321,7 +298,7 @@
 		var y = dateData[0];
 		var m = dateData[1];
 		var d = dateData[2];
-		var date = new Date(y+"-"+m+"-"+d);
+		var date = new Date(y + "-" + m + "-" + d);
 		return date;
 	}
 	
@@ -357,7 +334,7 @@
 				<a id="week-pre" class="fui-arrow-left"></a>
 				<ul id="date-list">
 					<li id="sunday">
-						<input type="hidden"/>
+						<input class="date-ipt" type="hidden">
 						<div class="menu-wrap weekend">
 							<span class="week-head">Sun</span>
 							<p class="date-num">23</p>
@@ -367,7 +344,7 @@
 						</div>
 					</li>
 					<li id="monday">
-						<input type="hidden"/>
+						<input class="date-ipt" type="hidden">
 						<div class="menu-wrap">
 							<span class="week-head">Mon</span>
 							<p class="date-num">23</p>
@@ -377,7 +354,7 @@
 						</div>
 					</li>
 					<li id="tuesday">
-						<input type="hidden"/>
+						<input class="date-ipt" type="hidden">
 						<div class="menu-wrap">
 							<span class="week-head">Tue</span>
 							<p class="date-num"></p>
@@ -387,7 +364,7 @@
 						</div>
 					</li>
 					<li id="wednesday">
-						<input type="hidden"/>
+						<input class="date-ipt" type="hidden">
 						<div class="menu-wrap">
 							<span class="week-head">Web</span>
 							<p class="date-num"></p>
@@ -397,7 +374,7 @@
 						</div>
 					</li>
 					<li id="thursday">
-						<input type="hidden"/>
+						<input class="date-ipt" type="hidden">
 						<div class="menu-wrap">
 							<span class="week-head">Thu</span>
 							<p class="date-num"></p>
@@ -407,7 +384,7 @@
 						</div>
 					</li>
 					<li id="friday">
-						<input type="hidden"/>
+						<input class="date-ipt" type="hidden">
 						<div class="menu-wrap">
 							<span class="week-head">Fri</span>
 							<p class="date-num"></p>
@@ -417,7 +394,7 @@
 						</div>
 					</li>
 					<li id="saturday" class="weekend">
-						<input type="hidden"/>
+						<input class="date-ipt" type="hidden">
 						<div class="menu-wrap weekend">
 							<span class="week-head">Sat</span>
 							<p class="date-num"></p>
@@ -495,9 +472,7 @@
         <h3>LESSON LIST</h3>
       </div>
       <div class="modal-body lesson-body">
-      	<ul id="lesson-list">
-      		
-      	</ul>
+      	<ul id="lesson-list"></ul>
       </div>
     </div>
   </div>
