@@ -257,7 +257,7 @@ public class ClassLifeController extends Controller{
 		}else{
 			schedule.updateSchedule(lessonJson);
 		}
-		renderJSON(CommonUtils.getObjectAsJsonStr(schedule));
+		renderJSON(schedule);
 	}
 	
 }

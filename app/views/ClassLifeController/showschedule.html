@@ -78,12 +78,12 @@
                 },
                 success: function(response, status) {
                 	if(status == "success"){
-                		
+                		var schedule = jQuery.parseJSON(JSON.stringify(response));
+                		var schedules = scheduleMap[$('#week-mun-input').val()];
+                		schedule.push(schedule);
                 	}
                 },
-                error: function(err){
-                	
-                }
+                error: function(err){}
             });
 		});
 		
@@ -155,7 +155,7 @@
 		
 		try{
 			var jsonStr = "${new flexjson.JSONSerializer().deepSerialize(schedules).escapeJavaScript().raw()}";
-			schedules = jQuery.parseJSON(jsonStr);
+			var schedules = jQuery.parseJSON(jsonStr);
 			scheduleMap[$('#week-mun-input').val()] = schedules;
 		}catch(err){
 			console.log(err);
@@ -239,13 +239,47 @@
 	}
 	
 	function updateMenu(dateObj){
+		var schedules = scheduleMap[$('#week-mun-input').val()];
+		if(schedules == null){
+			$.ajax({
+                url: "/classlifecontroller/showschedulebyweek",
+                type: "POST",
+                dataType: 'json',
+                data : {
+                	date: formDateByFormat(dateObj),
+				},
+                success: function(response, status) {
+                	if(status == "success"){
+                		var schedules = jQuery.parseJSON(JSON.stringify(response));
+                		scheduleMap[$('#week-mun-input').val()] = schedules;
+                		setupScheduleMenu(schedules);
+                	}
+                }
+            });
+		}else{
+			setupScheduleMenu(schedules);
+		}
+	}
+	
+	function setupScheduleMenu(schedules){
 		$('#date-list li').each(function(index){
 			var html = "<table class=\"schedule-tb\"><thead><tr><th>Time</th><th>Lesson</th></tr></thead>";
 				html += "<tbody>";
-				html += "<tr class=\"lesson-item\"><td class=\"time-col\"><div class=\"bootstrap-timepicker\">";
-				html += "<input class=\"time-picker input-small\" type=\"text\" value=\"8:00\" name=\"8:00\">";
-				html += "</div></td>";
-				html += "<td><input class=\"lesson-title\" type=\"text\" value=\"Lesson Title\" readonly></td></tr>";
+			
+			var dateStr = $(this).find('.date-ipt').val();
+			$.each(schedules, function(index, schedule){
+				var date = new Date(schedule.date);
+				if(dateStr === formDateByFormat(date)){
+					$.each(schedule.lessons, function(index, lesson){
+						var fullTime = new Date(lesson.dateTime);
+						var time = fullTime.getHours() + ":" + fullTime.getMinutes();
+						html += "<tr class=\"lesson-item\"><td class=\"time-col\"><div class=\"bootstrap-timepicker\">";
+						html += "<input class=\"time-picker input-small\" type=\"text\" value=\"" + time + "\" name=\"" + time + "\">";
+						html += "</div></td>";
+						html += "<td><input class=\"lesson-title\" type=\"text\" value=\"" + lesson.lesson.title + "\" readonly></td></tr>";
+					});
+				}
+			});
 				html += "</tbody></table></form>";
 				html += "<div class=\"schedule-edit\">";
 				html += "<a class=\"add-row\"><span class=\"fui-plus\"></span></a>";
@@ -254,7 +288,6 @@
 			$(this).find('.menu-content').empty();
 			$(this).find('.menu-content').append(html);
 		});
-		
 		$('.time-picker').timepicker({
 			minuteStep: 1,
 			showMeridian: false
