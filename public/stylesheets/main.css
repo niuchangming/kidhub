@@ -12,6 +12,10 @@ html, body{
 	overflow: auto;	
 }
 
+.chgrid-wraper{
+	margin-top: 20px;
+}
+
 /******************************************* Start Header *******************************************/
 
 .header-jag{
@@ -594,3 +598,116 @@ input[type=radio].css-checkbox {
 ::-webkit-scrollbar { 
     display: none; 
 }
+
+/****************************************************** Start Tool Bar **************************************************/
+
+#toolbar{
+	width:100%;
+}
+
+.hidden{
+	display: none;
+}
+
+.layer{
+	width: 100%;
+}
+
+#multi-sel-btn, #cancel-btn{
+	float: right;
+}
+
+#cancel-btn{
+	margin-right: 15px;
+}
+
+.multi-cb {
+	width: 28px;
+	height: 28px;
+	float:right;
+	bottom: 26px;
+	right: 26px;
+	background: white;
+	-webkit-border-radius: 14px;
+	-moz-border-radius: 14px;
+	border-radius: 14px;
+	position: relative;
+}
+
+.multi-cb > input[type=checkbox] {
+	visibility: hidden;
+}
+
+.multi-cb label {
+	cursor: pointer;
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	left: 4px;
+	top: 4px;
+	-webkit-box-shadow: box-shadow: 1px 1px 5px #888888;
+	-moz-box-shadow: box-shadow: 1px 1px 5px #888888;
+	box-shadow: 1px 1px 5px #888888;
+}
+
+.multi-cb label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity=0);
+	opacity: 0;
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 8px;
+	background: transparent;
+	top: 5px;
+	left: 4px;
+	border: 3px solid #2ECC71;
+	border-top: none;
+	border-right: none;
+	-webkit-transform: rotate(-45deg);
+	-moz-transform: rotate(-45deg);
+	-o-transform: rotate(-45deg);
+	-ms-transform: rotate(-45deg);
+	transform: rotate(-45deg);
+}
+
+.multi-cb input[type=checkbox]:checked + label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	filter: alpha(opacity=100);
+	opacity: 1;
+}
+
+.multi-cb label:hover::after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+	filter: alpha(opacity=30);
+	opacity: 0.3;
+}
+/******************************************************* End Tool Bar ***************************************************/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

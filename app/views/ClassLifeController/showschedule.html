@@ -80,6 +80,17 @@
                 	if(status == "success"){
                 		var schedule = jQuery.parseJSON(JSON.stringify(response));
                 		var schedules = scheduleMap[$('#week-mun-input').val()];
+                		if(schedules == null){
+                			schedules = new Array();
+                			schedules.push(schedule);
+                			scheduleMap[$('#week-mun-input').val()] = schedules;
+                		}else{
+                			schedules = jQuery.grep(schedules, function(value){
+                				return value.date != schedule.date;
+                			});
+                			schedules.push(schedule);
+                			scheduleMap[$('#week-mun-input').val()] = schedules;
+                		}
                 		schedule.push(schedule);
                 	}
                 },
@@ -137,8 +148,8 @@
 	
 	function init(){
 		scheduleMap = new Array();
-		startDate = getJavascriptDate('${clz.startDate}');
-		endDate = getJavascriptDate('${clz.endDate}');
+		startDate = new Date(${clz.startDate.getTime()});
+		endDate = new Date(${clz.endDate.getTime()});
 		
 		var today = new Date();
 		today.setHours(0,0,0,0);
@@ -288,6 +299,7 @@
 			$(this).find('.menu-content').empty();
 			$(this).find('.menu-content').append(html);
 		});
+		
 		$('.time-picker').timepicker({
 			minuteStep: 1,
 			showMeridian: false
@@ -297,7 +309,7 @@
 	}
 	
 	function updateToolbarUI(startDate, date, endDate){
-		var curWeek = Math.floor((date.getTime() - startDate.getTime()) / 604800000) + 1
+		var curWeek = Math.floor((date.getStartAndEnd()[startDate.getDay()].getTime() - startDate.getTime()) / 604800000) + 1;
 		if(curWeek > 0 && date.getStartAndEnd()[endDate.getDay()].getTime() <= endDate.getTime()){
 			$('#tool-bar > label').text('Week ' + curWeek + ', ' + date.getFullYear() + '-' + parseInt(date.getMonth() + 1));
 			$('#tool-bar > input').val(date.getTime());
@@ -321,16 +333,6 @@
 	   	var fir = new Date(today.setDate(thu.getDate() + 1));
 	    var sat = new Date(today.setDate(fir.getDate()+ 1));
 	    return [sun, mon, tue, wed, thu, fir, sat];
-	}
-	
-	function getJavascriptDate(dateTime){
-		var dateStr = dateTime.split(" ")[0];
-		var dateData = dateStr.split("-");
-		var y = dateData[0];
-		var m = dateData[1];
-		var d = dateData[2];
-		var date = new Date(y + "-" + m + "-" + d);
-		return date;
 	}
 	
 	function formDateByFormat(date){

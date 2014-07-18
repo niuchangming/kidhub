@@ -166,8 +166,8 @@
 	
 	function init(){
 		orderMap = new Array();
-		startDate = getJavascriptDate('${clz.startDate}');
-		endDate = getJavascriptDate('${clz.endDate}');
+		startDate = new Date(${clz.startDate.getTime()});
+		endDate = new Date(${clz.endDate.getTime()});
 		
 		var today = new Date();
 		today.setHours(0,0,0,0);
@@ -236,16 +236,6 @@
 			$('li#saturday p.date-num').text(daysOfWeek[6].getDate());
 			$('li#saturday input').val(formDateByFormat(daysOfWeek[6]));
 		}
-	}
-	
-	function getJavascriptDate(dateTime){
-		var dateStr = dateTime.split(" ")[0];
-		var dateData = dateStr.split("-");
-		var y = dateData[0];
-		var m = dateData[1];
-		var d = dateData[2];
-		var date = new Date(y+"-"+m+"-"+d);
-		return date;
 	}
 	
 	function updateMenu(dateObj){
@@ -392,7 +382,7 @@
 	}
 	
 	function updateToolbarUI(startDate, date, endDate){
-		var curWeek = Math.floor((date.getTime() - startDate.getTime()) / 604800000) + 1
+		var curWeek = Math.floor((date.getStartAndEnd()[startDate.getDay()].getTime() - startDate.getTime()) / 604800000) + 1;
 		if(curWeek > 0 && date.getStartAndEnd()[endDate.getDay()].getTime() <= endDate.getTime()){
 			$('#tool-bar > label').text('Week ' + curWeek + ', ' + date.getFullYear() + '-' + parseInt(date.getMonth() + 1));
 			$('#tool-bar > input').val(date.getTime());

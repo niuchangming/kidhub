@@ -90,43 +90,6 @@
             });
 		});
 		
-		$('ul.attend-list li').click(function(e) {
-			var childId = $('.ch-att-sel').attr('id');
-				childId = childId.substring(7, childId.length);
-			$.ajax({
-                url: "/classlifecontroller/markAttendToChildByChildId",
-                type: "POST",
-                data : {
-                	childId: childId,
-                	status: $(this).find('input').val()
-                },
-                success: function(response, status) {
-                	if(status == "success"){
-                		var attendance = jQuery.parseJSON(JSON.stringify(response));
-						var ele = $('.ch-att-sel').find('.ch-att-content');
-							ele.removeAttr('class');
-                		if(attendance.status === "PRESENT"){
-                			ele.addClass('round-item-txt ch-att-content color-present');
-                			ele.text('P');
-                		}else if(attendance.status === "LATE"){
-                			ele.addClass('round-item-txt ch-att-content color-late');
-                			ele.text('L');
-                		}else if(attendance.status === "ABSENT"){
-                			ele.addClass('round-item-txt ch-att-content color-absent');
-                			ele.text('A');
-                		}else if(attendance.status === "MC"){
-                			ele.addClass('round-item-txt ch-att-content color-mc');
-                			ele.text('M');
-                		}
-                	}
-                	$('#attend-edit-model').modal('hide');
-                },
-                error: function (error) {
-                    alert(error);
-                } 
-            });
-	    });
-
 	});
 
 	function showCoords(obj){
@@ -152,6 +115,7 @@
 			</div>
 		</div>
 		<div class="right-detail">
+			#{toolbar/}
 			<div class="chgrid-wraper">
 				#{if children?.size() > 0}
 					#{list items:children, as: "child"}
@@ -184,6 +148,10 @@
 						<div id="ch-att-${child?.id}" class="col-xs-12 col-sm-6 col-md-4 col-lg-2 ch-att-item round-item">
 							<div class="round-item-txt ch-att-content color-${attr}">
 								${attStatus}
+							</div>
+							<div class="multi-cb hidden">
+								<input type="checkbox"id="cb-${child?.id}">
+								<label for="cb-${child?.id}"></label>
 							</div>
 							<div class="round-item-avatar">
 								<a id="avr-${child?.id}" class="avr-edit" data-toggle="modal" data-target="#avr-edit-model">

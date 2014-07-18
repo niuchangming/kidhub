@@ -102,6 +102,11 @@ public class ClassLifeController extends Controller{
 		renderJSON(attendance);
 	}
 	
+	public static void markAttendToChildrenByChildIds(int status, long... childIds){
+		int count = Child.getChildrenByIds(status, childIds);
+		renderText(count);
+	}
+	
 	public static void markGrid(){
 		long clzId = renderArgs.get("clzId", Long.class);
 		List<Child> children  = Child.find("clz_id = ?", clzId).fetch(); 

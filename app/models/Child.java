@@ -143,7 +143,7 @@ public class Child extends GenericModel{
 		return attendance;
 	}
 	
-	private AttendanceStatus getStatusValue(int status){
+	private static AttendanceStatus getStatusValue(int status){
 		AttendanceStatus attStatus = AttendanceStatus.PRESENT;
 		switch(status){
 		case 0:
@@ -175,6 +175,19 @@ public class Child extends GenericModel{
 			this.save();
 		}
 		return mood;
+	}
+	
+	public static int getChildrenByIds(int status, long...ids){
+		if(ids.length < 1){
+			return 0;
+		}
+		String sql = "update attendance set status = " + status + " where ";
+		for(long id : ids){
+			sql += "child_id = " + id + " or "; 
+		}
+		sql = sql.substring(0, sql.length() - 4) + " and attendance_date order by attendance_date desc limit " + ids.length;
+		int count = JPA.em().createNativeQuery(sql).executeUpdate();
+		return count;
 	}
 	
 }
