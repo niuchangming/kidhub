@@ -103,7 +103,7 @@ public class ClassLifeController extends Controller{
 	}
 	
 	public static void markAttendToChildrenByChildIds(int status, long... childIds){
-		int count = Child.getChildrenByIds(status, childIds);
+		int count = Child.markAttendChildrenByIds(status, childIds);
 		renderText(count);
 	}
 	
@@ -157,6 +157,11 @@ public class ClassLifeController extends Controller{
 		Child child = Child.findById(childId);
 		Mood mood = child.moodChildByMoodValue(moodValue);
 		renderJSON(mood);
+	}
+	
+	public static void moodChildrenByIds(int moodValue, long... childIds){
+		int count = Child.moodChildrenByIds(moodValue, childIds);
+		renderText(count);
 	}
 	
 	public static void showMenuOrder(){

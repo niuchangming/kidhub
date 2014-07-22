@@ -26,13 +26,18 @@
 			</div>
 		</div>
 		<div class="right-detail">
+			#{toolbar as:"mark"/}
 			<div class="chgrid-wraper">
 				#{if children?.size() > 0}
 					#{list items: children, as:'child'}
 						<div id="ch-${child?.id}" class="col-xs-12 col-sm-6 col-md-4 col-lg-2 ch-info round-item">
-							<a class="round-item-txt round-item-link color-present" data-toggle="modal" data-target="#bemark-model">
+							<a class="round-item-txt color-present" data-toggle="modal" data-target="#mark-model">
 								${child?.score}
 							</a>
+							<div class="multi-cb hidden">
+								<input type="checkbox"id="cb-${child?.id}">
+								<label for="cb-${child?.id}"></label>
+							</div>
 							<div class="round-item-avatar">
 								<a>
 									<img src="../../${child.avatarURL}"/>
@@ -56,7 +61,7 @@
 	</div>
 </div>
 
-<div class="modal fade" id="bemark-model" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="mark-model" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-center">
     <div class="modal-content">
       <div class="modal-header">
@@ -78,7 +83,7 @@
 			
 		        <div class="content">
 			        <div class="content-1">
-			        	<ul class="pop-list">
+			        	<ul class="model-list">
 			        		#{list items:posTypes, as:'pos'}
 				        		<li id="type-${pos.id}" class="type-item">
 				        			<a><img src="${pos?.iconURL}" /></a>
@@ -88,7 +93,7 @@
 			        	</ul>
 				    </div>
 			        <div class="content-2">
-			        	<ul class="pop-list">
+			        	<ul class="model-list">
 			        		#{list items:negTypes, as:'neg'}
 				        		<li id="type-${neg.id}" class="type-item">
 				        			<a><img src="${neg?.iconURL}" /></a>
@@ -152,7 +157,7 @@
                 success: function(response, status){
                 	if(status == "success"){
                 		var child = jQuery.parseJSON(JSON.stringify(response));
-                		var oldScore = $('#ch-' + child.id).find('.round-item-link').text();
+                		var oldScore = $('#ch-' + child.id).find('.round-item-txt').text();
                 		var newScore = child.score;
                 		var dif = newScore - oldScore;
                 		if(dif >= 0){
@@ -163,8 +168,8 @@
              				$('div.cb-alert').addClass("alert-danger");
              			}
                 		
-                		$('#bemark-model').modal('hide');
-                		$('#ch-' + child.id).find('.round-item-link').text(child.score);
+                		$('#mark-model').modal('hide');
+                		$('#ch-' + child.id).find('.round-item-txt').text(child.score);
                 		
                 		popupAlert();
                 		
@@ -190,7 +195,7 @@
                 success: function(response, status){
                 	if(status == "success"){
                 		var child = jQuery.parseJSON(JSON.stringify(response));
-                		var oldScore = $('#ch-' + child.id).find('.round-item-link').text();
+                		var oldScore = $('#ch-' + child.id).find('.round-item-txt').text();
                 		var newScore = child.score;
                 		var dif = newScore - oldScore;
              			if(dif >= 0){
@@ -201,8 +206,8 @@
              				$('div.cb-alert').addClass("alert-danger");
              			}
                 		
-                		$('#bemark-model').modal('hide');
-                		$('#ch-' + child.id).find('.round-item-link').text(child.score);
+                		$('#mark-model').modal('hide');
+                		$('#ch-' + child.id).find('.round-item-txt').text(child.score);
                 		
                 		popupAlert();
                 		
@@ -219,7 +224,7 @@
 			});
 		});
 		
-		$("div.chgrid-wraper").on('click', '.round-item-link', function(event){
+		$("div.chgrid-wraper").on('click', '.round-item-txt', function(event){
 			var id = $(this).parent().attr('id');
 			$('.ch-info.selected').removeClass('selected');
 			$(this).parent().addClass('selected');
@@ -229,7 +234,7 @@
 	
 	function initSetup(){
 		$('.reasons').css("display", "none");
-		$('.pop-list > li').on('click', function(){
+		$('.model-list > li').on('click', function(){
 			$(".tabs").css("display", "none");
 			$('.reasons').css("display", "block");
 			
@@ -238,14 +243,12 @@
 			$(this).addClass('selected');
 		});
 		
-		
 		$('.mark-pre').on('click', function(){
 			$(".tabs").css("display", "block");
 			$('.reasons').css("display", "none");
 		});
 		
-		
-		$('#bemark-model').on('hidden.bs.modal', function () {
+		$('#mark-model').on('hidden.bs.modal', function () {
 			$(".tabs").css("display", "block");
 			$('.reasons').css("display", "none");
 		})

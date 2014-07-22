@@ -54,7 +54,7 @@ public class Child extends GenericModel{
 	
 	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
 	@JoinColumn(name="child_id")
-	@OrderBy(value="attendanceDate desc")
+	@OrderBy(value="date desc")
 	public List<Attendance> attendances;
 	
 	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
@@ -79,6 +79,8 @@ public class Child extends GenericModel{
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.birth = birth;
+		if(marks == null)
+			marks = new ArrayList<Mark>();
 		if(this.attendances == null)
 			this.attendances = new ArrayList<Attendance>();
 		this.attendances.add(new Attendance(new Date(), null));
@@ -104,9 +106,6 @@ public class Child extends GenericModel{
 	}
 	
 	public void markChild(MarkType type, String reason, String othBehavior, int othWeight){
-		if(marks == null){
-			marks = new ArrayList<Mark>();
-		}
 		Mark mark = null;
 		if(type != null){
 			mark = new Mark(reason, type);
@@ -127,9 +126,18 @@ public class Child extends GenericModel{
 		this.save();
 	}
 
+	public Attendance getAttendanceByDate(){
+		Attendance attendance = Attendance.find("child_id = ? and date = ?", this.id, new Date()).first();
+		if(attendance == null){
+			attendance = new Attendance(new Date(), AttendanceStatus.PRESENT).save();
+			this.attendances.add(attendance);
+			this.save();
+		}
+		return attendance;
+	}
+	
 	public Attendance markAttendance(int status) {
-		Attendance attendance = Attendance.find("child_id = ? AND attendance_date = ?", 
-				this.id, CommonUtils.getDateString(new Date(), null)).first();
+		Attendance attendance = Attendance.find("child_id = ? AND date = ?", this.id, new Date()).first();
 		
 		if(attendance != null){
 			attendance.status = getStatusValue(status);
@@ -162,6 +170,16 @@ public class Child extends GenericModel{
 		return attStatus;
 	}
 	
+	public Mood getMoodByDate(){
+		Mood mood = Mood.find("child_id = ? and date = ?", this.id, new Date()).first();
+		if(mood == null){
+			mood = new Mood(MoodType.SMILE, new Date()).save();
+			this.moods.add(mood);
+			this.save();
+		}
+		return mood;
+	}
+	
 	public Mood moodChildByMoodValue(int moodValue){
 		Mood mood = Mood.find("child_id = ? AND date = ?", this.id, new Date()).first();
 		if(mood != null){
@@ -177,7 +195,7 @@ public class Child extends GenericModel{
 		return mood;
 	}
 	
-	public static int getChildrenByIds(int status, long...ids){
+	public static int markAttendChildrenByIds(int status, long...ids){
 		if(ids.length < 1){
 			return 0;
 		}
@@ -185,9 +203,54 @@ public class Child extends GenericModel{
 		for(long id : ids){
 			sql += "child_id = " + id + " or "; 
 		}
-		sql = sql.substring(0, sql.length() - 4) + " and attendance_date order by attendance_date desc limit " + ids.length;
+		sql = sql.substring(0, sql.length() - 4) + " and date order by date desc limit " + ids.length;
 		int count = JPA.em().createNativeQuery(sql).executeUpdate();
 		return count;
+	}
+	
+	public static int moodChildrenByIds(int moodValue, long... ids){
+		if(ids == null || ids.length < 1){
+			return 0;
+		}
+		String sql = "update mood set mood = " + moodValue + ", icon_url = '" + getIconByMood(moodValue) + "' where ";
+		for(long id : ids){
+			sql += "child_id = " + id + " or "; 
+		}
+		sql = sql.substring(0, sql.length() - 4) + " and date order by date desc limit " + ids.length;
+		System.out.println(sql);
+		int count = JPA.em().createNativeQuery(sql).executeUpdate();
+		return count;
+	}
+	
+	public static String getIconByMood(int moodValue){
+		String iconURL = "../../public/images/moods/mood_smile.png";
+		switch(MoodType.of(moodValue)){
+		case SMILE:
+			iconURL = "../../public/images/moods/mood_smile.png";
+			break;
+		case LAUGH:
+			iconURL = "../../public/images/moods/mood_laugh.png";
+			break;
+		case COOL:
+			iconURL = "../../public/images/moods/mood_cool.png";
+			break;
+		case CHEEKY:
+			iconURL = "../../public/images/moods/mood_cheeky.png";
+			break;
+		case DEVIL:
+			iconURL = "../../public/images/moods/mood_devil.png";
+			break;
+		case SAD:
+			iconURL = "../../public/images/moods/mood_sad.png";
+			break;
+		case ANGRY:
+			iconURL = "../../public/images/moods/mood_angry.png";
+			break;
+		case CRY:
+			iconURL = "../../public/images/moods/mood_cry.png";
+			break;
+		}
+		return iconURL;
 	}
 	
 }

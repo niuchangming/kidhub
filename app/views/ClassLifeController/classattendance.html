@@ -13,12 +13,6 @@
 			$('#crop-child').val(childId);
 		});
 		
-		$('.ch-att-content').on('click', function(){
-			$('.ch-att-sel').removeClass('ch-att-sel');
-			$(this).parent().addClass('ch-att-sel');
-			$('#attend-edit-model').modal('show');
-		});
-		
 		$("#avatar-upload").on("change", function(e){
 			for (var i = 0; i < e.originalEvent.srcElement.files.length; i++) {
 		        var file = e.originalEvent.srcElement.files[i];
@@ -115,7 +109,7 @@
 			</div>
 		</div>
 		<div class="right-detail">
-			#{toolbar/}
+			#{toolbar as:"attendance"/}
 			<div class="chgrid-wraper">
 				#{if children?.size() > 0}
 					#{list items:children, as: "child"}
@@ -123,8 +117,9 @@
 							String attStatus = "P";
 							String r = "present";
 							enums.AttendanceStatus status = enums.AttendanceStatus.PRESENT;
-							if(child.attendances != null && child.attendances.size() > 0){
-								status = child.attendances.get(0).status;
+							models.Attendance attendance = child.getAttendanceByDate();
+							if(attendance != null){
+								status = attendance.status;
 							}
 							switch(status){
 							case enums.AttendanceStatus.PRESENT:
@@ -145,8 +140,8 @@
 								break;
 							}
 						}%
-						<div id="ch-att-${child?.id}" class="col-xs-12 col-sm-6 col-md-4 col-lg-2 ch-att-item round-item">
-							<div class="round-item-txt ch-att-content color-${attr}">
+						<div id="ch-${child?.id}" class="col-xs-12 col-sm-6 col-md-4 col-lg-2 round-item">
+							<div class="round-item-txt color-${attr}">
 								${attStatus}
 							</div>
 							<div class="multi-cb hidden">
@@ -204,7 +199,7 @@
   </div>
 </div>
 
-<div class="modal fade" id="attend-edit-model" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="attendance-model" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-center">
     <div class="modal-content">
       <div class="modal-header">
@@ -212,7 +207,7 @@
         <h3>MARK ATTENDANCE</h3>
       </div>
       <div class="modal-body">
-      	<ul class="attend-list">
+      	<ul class="model-list">
        		<li id="attend-p" class="attend-item">
        			<span class="color-present">P</span>
        			<p class="color-present-txt">Present</p>

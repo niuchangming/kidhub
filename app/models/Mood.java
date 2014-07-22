@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
@@ -14,6 +15,14 @@ import enums.MoodType;
 import play.db.jpa.Model;
 
 @Entity
+@org.hibernate.annotations.Table(appliesTo = "mood",
+indexes = {
+        @Index(name = "idx_chid_date",
+                columnNames = {"child_id" , "date"}
+        	  )
+		}
+)
+@Table(name="mood")
 public class Mood extends Model{
 	@Transient
 	public final static String defaultIconUrl = "../../public/images/moods/mood_smile.png";
@@ -65,6 +74,7 @@ public class Mood extends Model{
 			break;
 		}
 	}
+	
 }
 
 

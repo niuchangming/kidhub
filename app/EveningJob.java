@@ -48,7 +48,7 @@ public class EveningJob extends Job{
 	private boolean isAttendanceExistBy(Date date, long childId){
 		Attendance attendance = null;
 		try {
-			attendance = Attendance.find("child_id = ? and attendance_date = ?", childId, CommonUtils.getDateByFormat(date, null)).first();
+			attendance = Attendance.find("child_id = ? and date = ?", childId, CommonUtils.getDateByFormat(date, null)).first();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

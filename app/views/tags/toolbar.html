@@ -4,13 +4,27 @@
 	</div>
 	<div class="layer lower-layer hidden">
 		<a id="sel-all-btn" class="btn btn-info">Select all</a>
-		<a id="multi-sel-btn" class="btn btn-success" data-toggle="modal" data-target="#attend-edit-model">Choose award</a>
+		#{if _as == "attendance"}
+			<a id="multi-sel-btn" class="btn btn-success" data-toggle="modal" data-target="#attendance-model">Choose award</a>
+		#{/if}
+		#{elseif _as == "mood"}
+			<a id="multi-sel-btn" class="btn btn-success" data-toggle="modal" data-target="#mood-model">Choose mood</a>
+		#{/elseif}
+		#{elseif _as == "mark"}
+			<a id="multi-sel-btn" class="btn btn-success" data-toggle="modal" data-target="#bemark-model">Choose behavior</a>
+		#{/elseif}
 		<a id="cancel-btn" class="btn btn-default toolbar-btn">Cancel</a>
 	</div>
 </div>
-
 <script type="text/javascript">
 	$(function(){
+		
+		$('.round-item-txt').on('click', function(){
+			$('.round-item-sel').removeClass('round-item-sel');
+			$(this).parent().addClass('round-item-sel');
+			$('#' + "${_as}" + '-model').modal('show');
+		});
+		
 		$('.toolbar-btn').on('click', function(){
 			hideToolBar();
 		});
@@ -21,92 +35,130 @@
 			});
 		});
 		
-		$('ul.attend-list li').click(function(e) {
+		$('#cancel-btn').on('click', function(){
+			$('.multi-cb > input:checkbox::checked').each(function(){
+				$(this).prop('checked', false);
+			});
+		});
+		
+		$('ul.model-list li').click(function(e) {
 			var mulCbs = $('.multi-cb > input:checkbox');
 			var childIds = [];
-			$('.multi-cb > input:checkbox').each(function(){
+			mulCbs.each(function(){
 				if($(this).is(':checked')){
 					childIds.push($(this).attr('id').replace('cb-', ''));
 				}
 			});
 			
 			var settings = {};
-			if(childIds.length == 0){
-				var childId = $('.ch-att-sel').attr('id');
-				childId = childId.substring(7, childId.length);
-				
-				settings.url = "/classlifecontroller/markAttendToChildByChildId";
-				settings.data = {
-							childId: childId,
-		                	status: $(this).find('input').val()
-	                	};
-			}else{
-				settings.url = "/classlifecontroller/markAttendToChildrenByChildIds";
-				settings.data = {
-							childIds: childIds,
-		                	status: $(this).find('input').val()
-	                	};
-			}
-			settings.method = "POST";
 			
-			sendRequent(
-					function(response, status) {
-		            	if(status == "success"){
-		            		updateHtml((childIds.length > 0), response, e.target);
-		            	}
-		            	$('#attend-edit-model').modal('hide');
-		            },
-		            function (error) {
-		            	console.log(error);
-	                }, 
-	                settings
-            );
+			if(childIds.length == 0){
+				var childId = $('.round-item-sel').attr('id');
+				childId = childId.substring(3, childId.length);
+				
+				if("${_as}" === "attendance"){
+					settings.url = "/classlifecontroller/markAttendToChildByChildId";
+					settings.data = {childId: childId, status: $(this).find('input').val()};
+				}else if("${_as}" === "mood"){
+					settings.url = "/classlifecontroller/moodchildbyid";
+					settings.data = {childId: childId, moodValue: $(this).find('input').val()};
+				}
+			}else{
+				if("${_as}" === "attendance"){
+					settings.url = "/classlifecontroller/markAttendToChildrenByChildIds";
+					settings.data = {childIds: childIds, status: $(this).find('input').val()};
+				}else if("${_as}" === "mood"){
+					settings.url = "/classlifecontroller/moodchildrenbyids";
+					settings.data = {childIds: childIds, moodValue: $(this).find('input').val()};
+				}
+			}
+			settings.method = "POST"; 
+			
+			if("${_as}" === "attendance"){
+				sendRequent(
+						function(response, status) {
+			            	if(status == "success"){
+			            		updateHtml((childIds.length > 0), response, e.target);
+			            	}
+			            	$('#attendance-model').modal('hide');
+			            },
+			            function (error) {
+			            	console.log(error);
+		                }, 
+		                settings
+		            );
+			}else if("${_as}" === "mood"){
+				sendRequent(
+						function(response, status) {
+			            	if(status == "success"){
+			            		updateHtml((childIds.length > 0), response, e.target);
+			            	}
+			            	$('#attendance-model').modal('hide');
+			            },
+			            function (error) {
+			            	console.log(error);
+		                }, 
+		                settings
+		            );
+			}
 	    });
 	});
 	
 	function updateHtml(isMulti, response, ele){
 		if(isMulti){
-			var mulCbs = $('.multi-cb > input:checkbox::checked');
-			mulCbs.each(function(){
-				updateAttendIcon($(this).parent().prev(), ele.innerHTML);
+			var mulCbsed = $('.multi-cb > input:checkbox::checked');
+			mulCbsed.each(function(){
+				if("${_as}" === "attendance"){
+					updateAttendIcon($(this).parent().prev(), ele.innerHTML);
+				}else if("${_as}" === "mood"){
+					updateMoodIcon($(this).parent().prev().find('img'), ele.getAttribute('src'));
+				}
 				$(this).prop('checked', false);
 			});
 			hideToolBar();
 		}else{
-			var attendance = jQuery.parseJSON(JSON.stringify(response));
-			var ele = $('.ch-att-sel').find('.ch-att-content');
-			updateAttendIcon(ele, attendance.status.substring(0, 1));
+			var obj = jQuery.parseJSON(JSON.stringify(response));
+			var ele = $('.round-item-sel').find('.round-item-txt');
+			if("${_as}" === "attendance"){
+				updateAttendIcon(ele, obj.status.substring(0, 1));
+			}else if("${_as}" === "mood"){
+				updateMoodIcon(ele.find('img'), obj.iconURL);
+			}
 		}
 	}
 	
 	function updateAttendIcon(ele, status){
-		alert(ele.prop('tagName'), status);
 		ele.removeAttr('class');
 		if(status === "P"){
-			ele.addClass('round-item-txt ch-att-content color-present');
+			ele.addClass('round-item-txt color-present');
 			ele.text('P');
 		}else if(status === "L"){
-			ele.addClass('round-item-txt ch-att-content color-late');
+			ele.addClass('round-item-txt color-late');
 			ele.text('L');
 		}else if(status === "A"){
-			ele.addClass('round-item-txt ch-att-content color-absent');
+			ele.addClass('round-item-txt color-absent');
 			ele.text('A');
 		}else if(status === "M"){ 
-			ele.addClass('round-item-txt ch-att-content color-mc');
+			ele.addClass('round-item-txt color-mc');
 			ele.text('M');
 		}
+	}
+	
+	function updateMoodIcon(ele, url){
+		ele.attr('src', url);
+		$('#mood-model').modal('hide');
 	}
 	
 	function hideToolBar(){
 		$('.layer').toggleClass('hidden');
 		$('.multi-cb').toggleClass('hidden');
 		if($('.upper-layer').hasClass('hidden')){
-			$('.ch-att-content').off('click');
+			$('.round-item-txt').off('click');
 		}else{
-			$('.ch-att-content').on('click', function(){
-				$('.ch-att-sel').removeClass('ch-att-sel');
-				$(this).parent().addClass('ch-att-sel');
-				$('#attend-edit-model').modal('show');
+			$('.round-item-txt').on('click', function(){
+				$('.round-item-sel').removeClass('round-item-sel');
+				$(this).parent().addClass('round-item-sel');
+				$('#' + "${_as}" + '-model').modal('show');
 			});
 		}
 	}
@@ -120,4 +172,5 @@
             error: errorCallback
         });
 	}
+	
 </script>
