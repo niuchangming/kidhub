@@ -4,6 +4,7 @@
 <link href="@{'/public/stylesheets/classattendance.css'}" rel="stylesheet" media="screen">
 <link href="@{'/public/stylesheets/jcrop/jquery.Jcrop.min.css'}" rel="stylesheet" media="screen">
 <script src="@{'/public/javascripts/jcrop/jquery.Jcrop.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+<script src="@{'/public/javascripts/commonajax.js'}" type="text/javascript" charset="${_response_encoding}"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
 		
@@ -84,8 +85,70 @@
             });
 		});
 		
+		$('ul.model-list li').click(function(e) {
+			var mulCbs = $('.multi-cb > input:checkbox');
+			var childIds = [];
+			mulCbs.each(function(){
+				if($(this).is(':checked')){
+					childIds.push($(this).attr('id').replace('cb-', ''));
+				}
+			});
+			
+			var data = {};
+			var status = $(this).find('input').val();
+			var url = "";
+			if(childIds.length == 0){
+				var childId = $('.round-item-sel').attr('id');
+					childId = childId.substring(3, childId.length);
+					data = {childId: childId, status: status};
+				url = "/classlifecontroller/markAttendToChildByChildId";
+			}else{
+				data = {childIds: childIds, status: status};
+				url = "/classlifecontroller/markAttendToChildrenByChildIds";
+			}
+			
+			var config = new ConfigSetting(url, data, "POST");
+			config.ajaxCall(function(response, status){
+				if(status == "success"){
+					updateHtml((childIds.length > 0), response, e.target);
+			    	$('#attendance-model').modal('hide');
+				}
+			});
+		});
 	});
 
+	function updateHtml(isMulti, response, ele){
+		if(isMulti){
+			var mulCbsed = $('.multi-cb > input:checkbox::checked');
+			mulCbsed.each(function(){
+				updateAttendIcon($(this).parent().prev(), ele.innerHTML);
+				$(this).prop('checked', false);
+			});
+			hideToolBar();
+		}else{
+			var obj = jQuery.parseJSON(JSON.stringify(response));
+			var ele = $('.round-item-sel').find('.round-item-txt');
+			updateAttendIcon(ele, obj.status.substring(0, 1));
+		}
+	}
+	
+	function updateAttendIcon(ele, status){
+		ele.removeAttr('class');
+		if(status === "P"){
+			ele.addClass('round-item-txt color-present');
+			ele.text('P');
+		}else if(status === "L"){
+			ele.addClass('round-item-txt color-late');
+			ele.text('L');
+		}else if(status === "A"){
+			ele.addClass('round-item-txt color-absent');
+			ele.text('A');
+		}else if(status === "M"){ 
+			ele.addClass('round-item-txt color-mc');
+			ele.text('M');
+		}
+	}
+	
 	function showCoords(obj){
 		$('#crop-x').val(obj.x);
 		$('#crop-y').val(obj.y);

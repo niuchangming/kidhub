@@ -11,7 +11,7 @@
 			<a id="multi-sel-btn" class="btn btn-success" data-toggle="modal" data-target="#mood-model">Choose mood</a>
 		#{/elseif}
 		#{elseif _as == "mark"}
-			<a id="multi-sel-btn" class="btn btn-success" data-toggle="modal" data-target="#bemark-model">Choose behavior</a>
+			<a id="multi-sel-btn" class="btn btn-success" data-toggle="modal" data-target="#mark-model">Choose behavior</a>
 		#{/elseif}
 		<a id="cancel-btn" class="btn btn-default toolbar-btn">Cancel</a>
 	</div>
@@ -40,114 +40,7 @@
 				$(this).prop('checked', false);
 			});
 		});
-		
-		$('ul.model-list li').click(function(e) {
-			var mulCbs = $('.multi-cb > input:checkbox');
-			var childIds = [];
-			mulCbs.each(function(){
-				if($(this).is(':checked')){
-					childIds.push($(this).attr('id').replace('cb-', ''));
-				}
-			});
-			
-			var settings = {};
-			
-			if(childIds.length == 0){
-				var childId = $('.round-item-sel').attr('id');
-				childId = childId.substring(3, childId.length);
-				
-				if("${_as}" === "attendance"){
-					settings.url = "/classlifecontroller/markAttendToChildByChildId";
-					settings.data = {childId: childId, status: $(this).find('input').val()};
-				}else if("${_as}" === "mood"){
-					settings.url = "/classlifecontroller/moodchildbyid";
-					settings.data = {childId: childId, moodValue: $(this).find('input').val()};
-				}
-			}else{
-				if("${_as}" === "attendance"){
-					settings.url = "/classlifecontroller/markAttendToChildrenByChildIds";
-					settings.data = {childIds: childIds, status: $(this).find('input').val()};
-				}else if("${_as}" === "mood"){
-					settings.url = "/classlifecontroller/moodchildrenbyids";
-					settings.data = {childIds: childIds, moodValue: $(this).find('input').val()};
-				}
-			}
-			settings.method = "POST"; 
-			
-			if("${_as}" === "attendance"){
-				sendRequent(
-						function(response, status) {
-			            	if(status == "success"){
-			            		updateHtml((childIds.length > 0), response, e.target);
-			            	}
-			            	$('#attendance-model').modal('hide');
-			            },
-			            function (error) {
-			            	console.log(error);
-		                }, 
-		                settings
-		            );
-			}else if("${_as}" === "mood"){
-				sendRequent(
-						function(response, status) {
-			            	if(status == "success"){
-			            		updateHtml((childIds.length > 0), response, e.target);
-			            	}
-			            	$('#attendance-model').modal('hide');
-			            },
-			            function (error) {
-			            	console.log(error);
-		                }, 
-		                settings
-		            );
-			}
-	    });
 	});
-	
-	function updateHtml(isMulti, response, ele){
-		if(isMulti){
-			var mulCbsed = $('.multi-cb > input:checkbox::checked');
-			mulCbsed.each(function(){
-				if("${_as}" === "attendance"){
-					updateAttendIcon($(this).parent().prev(), ele.innerHTML);
-				}else if("${_as}" === "mood"){
-					updateMoodIcon($(this).parent().prev().find('img'), ele.getAttribute('src'));
-				}
-				$(this).prop('checked', false);
-			});
-			hideToolBar();
-		}else{
-			var obj = jQuery.parseJSON(JSON.stringify(response));
-			var ele = $('.round-item-sel').find('.round-item-txt');
-			if("${_as}" === "attendance"){
-				updateAttendIcon(ele, obj.status.substring(0, 1));
-			}else if("${_as}" === "mood"){
-				updateMoodIcon(ele.find('img'), obj.iconURL);
-			}
-		}
-	}
-	
-	function updateAttendIcon(ele, status){
-		ele.removeAttr('class');
-		if(status === "P"){
-			ele.addClass('round-item-txt color-present');
-			ele.text('P');
-		}else if(status === "L"){
-			ele.addClass('round-item-txt color-late');
-			ele.text('L');
-		}else if(status === "A"){
-			ele.addClass('round-item-txt color-absent');
-			ele.text('A');
-		}else if(status === "M"){ 
-			ele.addClass('round-item-txt color-mc');
-			ele.text('M');
-		}
-	}
-	
-	function updateMoodIcon(ele, url){
-		ele.attr('src', url);
-		$('#mood-model').modal('hide');
-	}
 	
 	function hideToolBar(){
 		$('.layer').toggleClass('hidden');
@@ -162,15 +55,4 @@
 			});
 		}
 	}
-	
-	function sendRequent(successCallback, errorCallback, settings){
-		$.ajax({
-            url: settings.url,
-            type: settings.method,
-            data : settings.data,
-            success: successCallback,
-            error: errorCallback
-        });
-	}
-	
 </script>

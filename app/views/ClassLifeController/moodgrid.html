@@ -1,4 +1,60 @@
 <link href="@{'/public/stylesheets/markgrid.css'}" rel="stylesheet" media="screen">
+<script src="@{'/public/javascripts/commonajax.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('ul.model-list li').click(function(e) {
+			var mulCbs = $('.multi-cb > input:checkbox');
+			var childIds = [];
+			mulCbs.each(function(){
+				if($(this).is(':checked')){
+					childIds.push($(this).attr('id').replace('cb-', ''));
+				}
+			});
+			
+			var data = {};
+			var moodValue = $(this).find('input').val();
+			var url = "";
+			if(childIds.length == 0){
+				var childId = $('.round-item-sel').attr('id');
+				childId = childId.substring(3, childId.length);
+				data = {childId: childId, moodValue: moodValue};
+				url = "/classlifecontroller/moodchildbyid";
+			}else{
+				data = {childIds: childIds, moodValue: moodValue};
+				url = "/classlifecontroller/moodchildrenbyids";
+			}
+			
+			var config = new ConfigSetting(url, data, "POST");
+			config.ajaxCall(function(response, status){
+				if(status == "success"){
+					updateHtml((childIds.length > 0), response, e.target);
+			    	$('#mood-model').modal('hide');
+				}
+			});
+		});
+		
+		function updateHtml(isMulti, response, ele){
+			if(isMulti){
+				var mulCbsed = $('.multi-cb > input:checkbox::checked');
+				mulCbsed.each(function(){
+					updateMoodIcon($(this).parent().prev().find('img'), ele.getAttribute('src'));
+					$(this).prop('checked', false);
+				});
+				hideToolBar();
+			}else{
+				var obj = jQuery.parseJSON(JSON.stringify(response));
+				var ele = $('.round-item-sel').find('.round-item-txt');
+				updateMoodIcon(ele.find('img'), obj.iconURL);
+			}
+		}
+		
+		function updateMoodIcon(ele, url){
+			ele.attr('src', url);
+			$('#mood-model').modal('hide');
+		} 
+		
+	});
+</script>
 <div class="alert cb-alert">
 	<img class="al-chico" src="/public/images/monster/cute2.png"/>
 	<div>
@@ -121,27 +177,6 @@
     </div>
   </div>
 </div>
-<!-- <script type="text/javascript">
-	$(document).ready(function(){
-		$('.mood-item').on('click', function(){
-			$.ajax({
-				url: "/classlifecontroller/moodchildbyid",
-                type: "POST",
-                data: {
-                	childId: $('.round-item.round-item-sel').attr('id').replace('ch-', ''),
-					moodValue: $(this).find('input').val()
-                },
-                success: function(response, status){
-                	if(status == "success"){
-                		var mood = jQuery.parseJSON(JSON.stringify(response));
-                		$('.round-item-sel').find('a.round-item-txt > img').attr('src', mood.iconURL);
-                		$('#mood-model').modal('hide');
-                	}
-                }
-			});
-		});
-	});
-</script> -->
 
 
 

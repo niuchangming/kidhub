@@ -79,13 +79,16 @@ public class Child extends GenericModel{
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.birth = birth;
-		if(marks == null)
+		if(marks == null){
 			marks = new ArrayList<Mark>();
-		if(this.attendances == null)
+		}
+		if(this.attendances == null){
 			this.attendances = new ArrayList<Attendance>();
+		}
 		this.attendances.add(new Attendance(new Date(), null));
-		if(this.moods == null)
-				this.moods = new ArrayList<Mood>();
+		if(this.moods == null){
+			this.moods = new ArrayList<Mood>();
+		}
 		this.moods.add(new Mood(null, new Date()));
 	}
 
@@ -96,29 +99,48 @@ public class Child extends GenericModel{
 		this.save();
 	}
 	
-	public void markChildbyType(long typeId, String reason, String othBehavior, int othWeight){
+	public static Child markChildbyType(long childId, long typeId, String reason, String othBehavior, int othWeight){
 		MarkType type = MarkType.findById(typeId);
-		this.markChild(type, reason, othBehavior, othWeight);
+		Child child = markChild(childId, type, reason, othBehavior, othWeight);
+		return child;
 	}
 	
-	public void markChildByOther(String reason, String othBehavior, int othWeight){
-		markChild(null, reason, othBehavior, othWeight);
+	public static List<Child> markChildrenbyType(long typeId, String reason, String othBehavior, int othWeight, long...childIds){
+		List<Child> children = new ArrayList<Child>();
+		MarkType type = MarkType.findById(typeId);
+		for(long childId : childIds){
+			children.add(markChild(childId, type, reason, othBehavior, othWeight));
+		}
+		return children;
 	}
 	
-	public void markChild(MarkType type, String reason, String othBehavior, int othWeight){
+	public static Child markChildByOther(long childId, String reason, String othBehavior, int othWeight){
+		Child child = markChild(childId, null, reason, othBehavior, othWeight);
+		return child;
+	}
+	
+	public static List<Child> markChildrenByOther(String reason, String othBehavior, int othWeight, long...childIds){
+		List<Child> children = new ArrayList<Child>();
+		for(long childId : childIds){
+			children.add(markChild(childId, null, reason, othBehavior, othWeight));
+		}
+		return children;
+	}
+	
+	public static Child markChild(long childId, MarkType type, String reason, String othBehavior, int othWeight){
+		Child child = Child.findById(childId);
+		System.out.println("ID: " + childId +"Child: " + child);
 		Mark mark = null;
 		if(type != null){
 			mark = new Mark(reason, type);
-			this.marks.add(mark);
+			child.marks.add(mark);
 		}else{
-			mark = new Mark();
-			mark.otherType = othBehavior;
-			mark.weight = othWeight;
-			mark.reason = reason;
-			this.marks.add(mark);
+			mark = new Mark(reason, othBehavior, othWeight);
+			child.marks.add(mark);
 		}
-		this.score = this.score + (mark.type == null ? mark.weight : mark.type.weight);
-		this.save();
+		child.score = child.score + (mark.type == null ? mark.weight : mark.type.weight);
+		child.save();
+		return child;
 	}
 	
 	public void createAvatarByChildId(String avatarUrl){

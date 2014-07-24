@@ -1,4 +1,178 @@
 <link href="@{'/public/stylesheets/markgrid.css'}" rel="stylesheet" media="screen">
+<script src="@{'/public/javascripts/commonajax.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		initSetup();
+		
+		$('.mark-submit').on('click', function(){
+			var mulCbs = $('.multi-cb > input:checkbox');
+			var childIds = [];
+			mulCbs.each(function(){
+				if($(this).is(':checked')){
+					childIds.push($(this).attr('id').replace('cb-', ''));
+				}
+			});
+			
+			var data = {};
+			var url = "";
+			if(childIds.length == 0){
+				url = "/classlifecontroller/markChildbyId";
+				data = {
+	                	childId: $('.ch-info.selected').attr('id').replace('ch-', ''),
+	                	typeId: $('.type-item.selected').attr('id').replace('type-', ''),
+						reason: $('#mark-reason').val()
+	                };
+			}else{
+				url = "/classlifecontroller/markChildrenByIds";
+				data = {
+	                	childIds: childIds,
+	                	typeId: $('.type-item.selected').attr('id').replace('type-', ''),
+						reason: $('#mark-reason').val()
+	                };
+			}
+			
+			var config = new ConfigSetting(url, data, "POST");
+			config.ajaxCall(function(response, status){
+				if(status == "success"){
+					successCallBack(response, $('.type-item.selected > span').text());
+					$('#mark-model').modal('hide');
+				}
+			});
+		});
+		
+		$('.othmrk-submit').on('click', function(){
+			var mulCbs = $('.multi-cb > input:checkbox');
+			var childIds = [];
+			mulCbs.each(function(){
+				if($(this).is(':checked')){
+					childIds.push($(this).attr('id').replace('cb-', ''));
+				}
+			});
+			
+			var data = {};
+			var url = "";
+			if(childIds.length == 0){
+				url = "/classlifecontroller/markChildbyId";
+				data = {
+						childId: $('.ch-info.selected').attr('id').replace('ch-', ''),
+						reason: $('#othmrk-reason').val(),
+						othBehavior: $('#oth-behavior').val(),
+						othWeight: $('#oth-weight').val()
+	                };
+			}else{
+				url = "/classlifecontroller/markChildrenByIds";
+				data = {
+						childIds: childIds,
+						reason: $('#othmrk-reason').val(),
+						othBehavior: $('#oth-behavior').val(),
+						othWeight: $('#oth-weight').val()
+	                };
+			}
+			
+			var config = new ConfigSetting(url, data, "POST");
+			config.ajaxCall(function(response, status){
+				if(status == "success"){
+					successCallBack(response, $('#oth-behavior').val());
+					$('#mark-model').modal('hide');
+					
+					setTimeout ( function(){
+            			$(".cb-alert.active").removeClass('active');
+                    }, 3000);
+				}
+			});
+		});
+		
+		$("div.chgrid-wraper").on('click', '.round-item-txt', function(event){
+			var id = $(this).parent().attr('id');
+			$('.ch-info.selected').removeClass('selected');
+			$(this).parent().addClass('selected');
+		});
+		
+	});
+	
+	function initSetup(){
+		$('.reasons').css("display", "none");
+		$('.model-list > li').on('click', function(){
+			$(".tabs").css("display", "none");
+			$('.reasons').css("display", "block");
+			
+			$('#mark-reason').val("");
+			$('.type-item.selected').removeClass('selected');
+			$(this).addClass('selected');
+		});
+		
+		$('.mark-pre').on('click', function(){
+			$(".tabs").css("display", "block");
+			$('.reasons').css("display", "none");
+		});
+		
+		$('#mark-model').on('hidden.bs.modal', function () {
+			$(".tabs").css("display", "block");
+			$('.reasons').css("display", "none");
+		})
+	}
+	
+	function successCallBack(response, alertTxt){
+		var childObj = jQuery.parseJSON(JSON.stringify(response));
+		if($.isPlainObject(childObj)){
+			updateAlertText(childObj, false, alertTxt);
+			updateHtmlByChild(childObj);
+		}else{
+			updateAlertText(childObj[0], true, alertTxt);
+			$.each(childObj, function(index, value){
+				updateHtmlByChild(value);
+			});
+			hideToolBar();
+		}
+		popupAlert();
+	}
+	
+	function updateHtmlByChild(child){
+		var oldScore = $('#ch-' + child.id).find('.round-item-txt').text();
+		var newScore = child.score;
+		var dif = newScore - oldScore;
+				
+		if(dif >= 0){
+				$('div.cb-alert').removeClass("alert-danger");
+				$('div.cb-alert').addClass("alert-success");
+			}else{
+				$('div.cb-alert').removeClass("alert-success");
+				$('div.cb-alert').addClass("alert-danger");
+			}
+		
+		$('#ch-' + child.id).find('.round-item-txt').text(child.score);
+		$('#ch-' + child.id).find('#cb-' + child.id).prop('checked', false);
+	}
+	
+	function updateAlertText(child, isMulti, alertTxt){
+		var oldScore = $('#ch-' + child.id).find('.round-item-txt').text();
+		var newScore = child.score;
+		var dif = newScore - oldScore;
+		if(isMulti){
+			$("div.cb-alert h3").text("Student Group");
+		}else{
+			$("div.cb-alert h3").text(child.firstName + " " + child.lastName);
+		}
+		$("div.cb-alert p").text(dif + " due to "+ alertTxt);
+		$("div.cb-alert img.al-chico").attr("src", "../../" + child.avatarURL);
+		$("div.cb-alert img.al-ico").attr('src', $('.type-item.selected img').attr("src"));
+	}
+	
+	function popupAlert(){
+		var alertEle = $(".cb-alert");
+		alertEle.addClass('appear');
+		setTimeout ( function(){
+			alertEle.addClass('active');
+        }, 1);
+		
+		setTimeout ( function(){
+			alertEle.removeClass('active');
+			setTimeout ( function(){
+    			alertEle.removeClass('appear');
+            }, 300);
+        }, 3000);
+	}
+</script>
 <div class="alert cb-alert">
 	<img class="al-chico" src="/public/images/monster/cute2.png"/>
 	<div>
@@ -140,132 +314,3 @@
     </div>
   </div>
 </div>
-<script type="text/javascript">
-	$(document).ready(function(){
-		
-		initSetup();
-		
-		$('.mark-submit').on('click', function(){
-			$.ajax({
-				url: "/classlifecontroller/markChildbyId",
-                type: "POST",
-                data: {
-                	childId: $('.ch-info.selected').attr('id').replace('ch-', ''),
-                	typeId: $('.type-item.selected').attr('id').replace('type-', ''),
-					reason: $('#mark-reason').val()
-                },
-                success: function(response, status){
-                	if(status == "success"){
-                		var child = jQuery.parseJSON(JSON.stringify(response));
-                		var oldScore = $('#ch-' + child.id).find('.round-item-txt').text();
-                		var newScore = child.score;
-                		var dif = newScore - oldScore;
-                		if(dif >= 0){
-             				$('div.cb-alert').removeClass("alert-danger");
-             				$('div.cb-alert').addClass("alert-success");
-             			}else{
-             				$('div.cb-alert').removeClass("alert-success");
-             				$('div.cb-alert').addClass("alert-danger");
-             			}
-                		
-                		$('#mark-model').modal('hide');
-                		$('#ch-' + child.id).find('.round-item-txt').text(child.score);
-                		
-                		popupAlert();
-                		
-                		$("div.cb-alert h3").text(child.firstName + " " + child.lastName);
-                		$("div.cb-alert p").text(dif + " due to "+ $('.type-item.selected > span').text());
-                		$("div.cb-alert img.al-ico").attr("src", $('.type-item.selected img').attr("src"));
-                		$("div.cb-alert img.al-chico").attr("src", "../../" + child.avatarURL);
-                	}
-                }
-			});
-		});
-		
-		$('.othmrk-submit').on('click', function(){
-			$.ajax({
-				url: "/classlifecontroller/markChildbyId",
-                type: "POST",
-                data: {
-                	childId: $('.ch-info.selected').attr('id').replace('ch-', ''),
-					reason: $('#othmrk-reason').val(),
-					othBehavior: $('#oth-behavior').val(),
-					othWeight: $('#oth-weight').val()
-                },
-                success: function(response, status){
-                	if(status == "success"){
-                		var child = jQuery.parseJSON(JSON.stringify(response));
-                		var oldScore = $('#ch-' + child.id).find('.round-item-txt').text();
-                		var newScore = child.score;
-                		var dif = newScore - oldScore;
-             			if(dif >= 0){
-             				$('div.cb-alert').removeClass("alert-danger");
-             				$('div.cb-alert').addClass("alert-success");
-             			}else{
-             				$('div.cb-alert').removeClass("alert-success");
-             				$('div.cb-alert').addClass("alert-danger");
-             			}
-                		
-                		$('#mark-model').modal('hide');
-                		$('#ch-' + child.id).find('.round-item-txt').text(child.score);
-                		
-                		popupAlert();
-                		
-                		$("div.cb-alert h3").text(child.firstName + " " + child.lastName);
-                		$("div.cb-alert p").text(dif + " due to "+ $('#oth-behavior').val());
-                		$("div.cb-alert img.al-ico").attr("src", $('.type-item.selected img').attr("src"));
-                		$("div.cb-alert img.al-chico").attr("src", "../../" + child.avatarURL);
-                		
-                		setTimeout ( function(){
-                			$(".cb-alert.active").removeClass('active');
-                        }, 3000);
-                	}
-                }
-			});
-		});
-		
-		$("div.chgrid-wraper").on('click', '.round-item-txt', function(event){
-			var id = $(this).parent().attr('id');
-			$('.ch-info.selected').removeClass('selected');
-			$(this).parent().addClass('selected');
-		});
-		
-	});
-	
-	function initSetup(){
-		$('.reasons').css("display", "none");
-		$('.model-list > li').on('click', function(){
-			$(".tabs").css("display", "none");
-			$('.reasons').css("display", "block");
-			
-			$('#mark-reason').val("");
-			$('.type-item.selected').removeClass('selected');
-			$(this).addClass('selected');
-		});
-		
-		$('.mark-pre').on('click', function(){
-			$(".tabs").css("display", "block");
-			$('.reasons').css("display", "none");
-		});
-		
-		$('#mark-model').on('hidden.bs.modal', function () {
-			$(".tabs").css("display", "block");
-			$('.reasons').css("display", "none");
-		})
-	}
-	
-	function popupAlert(){
-		var alertEle = $(".cb-alert");
-		alertEle.addClass('appear');
-		setTimeout ( function(){
-			alertEle.addClass('active');
-        }, 1);
-		
-		setTimeout ( function(){
-			alertEle.removeClass('active');
-			setTimeout ( function(){
-    			alertEle.removeClass('appear');
-            }, 300);
-        }, 3000);
-	}
-</script>

@@ -35,4 +35,12 @@ public class Mark extends Model{
 		this.date = new Date();
 	}
 	
+	public Mark(String reason, String otherType, int weight) {
+		super();
+		this.reason = reason;
+		this.otherType = otherType;
+		this.weight = weight;
+		this.date = new Date();
+	}
+	
 }

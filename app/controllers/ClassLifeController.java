@@ -115,14 +115,24 @@ public class ClassLifeController extends Controller{
 		render(children, posTypes, negTypes);
 	}
 	
-	public static void markChildbyId(long childId, long typeId, String reason, String othBehavior, int othWeight){
-		Child child = Child.findById(childId);
+	public static void markChildById(long childId, long typeId, String reason, String othBehavior, int othWeight){
+		Child child = null;
 		if(typeId != 0){
-			child.markChildbyType(typeId, reason, othBehavior, othWeight);
+			child = Child.markChildbyType(childId, typeId, reason, othBehavior, othWeight);
 		}else{
-			child.markChildByOther(reason, othBehavior, othWeight);
+			child = Child.markChildByOther(childId, reason, othBehavior, othWeight);
 		}
 		renderJSON(CommonUtils.getJsonString(child, Child.class));
+	}
+	
+	public static void markChildrenByIds(long typeId, String reason, String othBehavior, int othWeight, long...childIds){
+		List<Child> children;
+		if(typeId != 0){
+			children = Child.markChildrenbyType(typeId, reason, othBehavior, othWeight, childIds);
+		}else{
+			children = Child.markChildrenByOther(reason, othBehavior, othWeight, childIds);
+		}
+		renderJSON(CommonUtils.getJsonString(children, List.class));
 	}
 	
 	public static void uploadImage(Resource resource){
