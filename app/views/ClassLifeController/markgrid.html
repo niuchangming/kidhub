@@ -3,83 +3,12 @@
 <script type="text/javascript">
 	$(document).ready(function(){
 		initSetup();
-		
 		$('.mark-submit').on('click', function(){
-			var mulCbs = $('.multi-cb > input:checkbox');
-			var childIds = [];
-			mulCbs.each(function(){
-				if($(this).is(':checked')){
-					childIds.push($(this).attr('id').replace('cb-', ''));
-				}
-			});
-			
-			var data = {};
-			var url = "";
-			if(childIds.length == 0){
-				url = "/classlifecontroller/markChildbyId";
-				data = {
-	                	childId: $('.ch-info.selected').attr('id').replace('ch-', ''),
-	                	typeId: $('.type-item.selected').attr('id').replace('type-', ''),
-						reason: $('#mark-reason').val()
-	                };
-			}else{
-				url = "/classlifecontroller/markChildrenByIds";
-				data = {
-	                	childIds: childIds,
-	                	typeId: $('.type-item.selected').attr('id').replace('type-', ''),
-						reason: $('#mark-reason').val()
-	                };
-			}
-			
-			var config = new ConfigSetting(url, data, "POST");
-			config.ajaxCall(function(response, status){
-				if(status == "success"){
-					successCallBack(response, $('.type-item.selected > span').text());
-					$('#mark-model').modal('hide');
-				}
-			});
+			markChildren(false);
 		});
 		
 		$('.othmrk-submit').on('click', function(){
-			var mulCbs = $('.multi-cb > input:checkbox');
-			var childIds = [];
-			mulCbs.each(function(){
-				if($(this).is(':checked')){
-					childIds.push($(this).attr('id').replace('cb-', ''));
-				}
-			});
-			
-			var data = {};
-			var url = "";
-			if(childIds.length == 0){
-				url = "/classlifecontroller/markChildbyId";
-				data = {
-						childId: $('.ch-info.selected').attr('id').replace('ch-', ''),
-						reason: $('#othmrk-reason').val(),
-						othBehavior: $('#oth-behavior').val(),
-						othWeight: $('#oth-weight').val()
-	                };
-			}else{
-				url = "/classlifecontroller/markChildrenByIds";
-				data = {
-						childIds: childIds,
-						reason: $('#othmrk-reason').val(),
-						othBehavior: $('#oth-behavior').val(),
-						othWeight: $('#oth-weight').val()
-	                };
-			}
-			
-			var config = new ConfigSetting(url, data, "POST");
-			config.ajaxCall(function(response, status){
-				if(status == "success"){
-					successCallBack(response, $('#oth-behavior').val());
-					$('#mark-model').modal('hide');
-					
-					setTimeout ( function(){
-            			$(".cb-alert.active").removeClass('active');
-                    }, 3000);
-				}
-			});
+			 markChildren(true);
 		});
 		
 		$("div.chgrid-wraper").on('click', '.round-item-txt', function(event){
@@ -87,7 +16,6 @@
 			$('.ch-info.selected').removeClass('selected');
 			$(this).parent().addClass('selected');
 		});
-		
 	});
 	
 	function initSetup(){
@@ -112,13 +40,77 @@
 		})
 	}
 	
-	function successCallBack(response, alertTxt){
+	function markChildren(isOther){
+		var mulCbs = $('.multi-cb > input:checkbox');
+		var childIds = [];
+		mulCbs.each(function(){
+			if($(this).is(':checked')){
+				childIds.push($(this).attr('id').replace('cb-', ''));
+			}
+		});
+		
+		var data = {};
+		var url = "";
+		if(isOther){
+			if(childIds.length == 0){
+				url = "/classlifecontroller/markChildbyId";
+				data = {
+						childId: $('.ch-info.selected').attr('id').replace('ch-', ''),
+						reason: $('#othmrk-reason').val(),
+						othBehavior: $('#oth-behavior').val(),
+						othWeight: $('#oth-weight').val()
+	                };
+			}else{
+				url = "/classlifecontroller/markChildrenByIds";
+				data = {
+						childIds: childIds,
+						reason: $('#othmrk-reason').val(),
+						othBehavior: $('#oth-behavior').val(),
+						othWeight: $('#oth-weight').val()
+	                };
+			}
+		}else{
+			if(childIds.length == 0){
+				url = "/classlifecontroller/markChildbyId";
+				data = {
+	                	childId: $('.ch-info.selected').attr('id').replace('ch-', ''),
+	                	typeId: $('.type-item.selected').attr('id').replace('type-', ''),
+						reason: $('#mark-reason').val()
+	                };
+			}else{
+				url = "/classlifecontroller/markChildrenByIds";
+				data = {
+	                	childIds: childIds,
+	                	typeId: $('.type-item.selected').attr('id').replace('type-', ''),
+						reason: $('#mark-reason').val()
+	                };
+			}
+		}
+		
+		var config = new ConfigSetting(url, data, "POST");
+		config.ajaxCall(function(response, status){
+			if(status == "success"){
+				if(isOther){
+					successCallBack(response, $('#oth-behavior').val());
+				}else{
+					successCallBack(response, $('.type-item.selected > span').text());
+				}
+				$('#mark-model').modal('hide');
+				
+				setTimeout ( function(){
+        			$(".cb-alert.active").removeClass('active');
+                }, 3000);
+			}
+		});
+	}
+	
+	function successCallBack(response, desc){
 		var childObj = jQuery.parseJSON(JSON.stringify(response));
 		if($.isPlainObject(childObj)){
-			updateAlertText(childObj, false, alertTxt);
+			updateAlertText(childObj, false, desc);
 			updateHtmlByChild(childObj);
 		}else{
-			updateAlertText(childObj[0], true, alertTxt);
+			updateAlertText(childObj[0], true, desc);
 			$.each(childObj, function(index, value){
 				updateHtmlByChild(value);
 			});
@@ -133,12 +125,12 @@
 		var dif = newScore - oldScore;
 				
 		if(dif >= 0){
-				$('div.cb-alert').removeClass("alert-danger");
-				$('div.cb-alert').addClass("alert-success");
-			}else{
-				$('div.cb-alert').removeClass("alert-success");
-				$('div.cb-alert').addClass("alert-danger");
-			}
+			$('div.cb-alert').removeClass("alert-danger");
+			$('div.cb-alert').addClass("alert-success");
+		}else{
+			$('div.cb-alert').removeClass("alert-success");
+			$('div.cb-alert').addClass("alert-danger");
+		}
 		
 		$('#ch-' + child.id).find('.round-item-txt').text(child.score);
 		$('#ch-' + child.id).find('#cb-' + child.id).prop('checked', false);
