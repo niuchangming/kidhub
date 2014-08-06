@@ -1,11 +1,9 @@
 <link href="@{'/public/stylesheets/markgrid.css'}" rel="stylesheet" media="screen">
-<script src="@{'/public/javascripts/commonajax.js'}" type="text/javascript" charset="${_response_encoding}"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
 		$('ul.model-list li').click(function(e) {
-			var mulCbs = $('.multi-cb > input:checkbox');
 			var childIds = [];
-			mulCbs.each(function(){
+			$('.multi-cb > input:checkbox').each(function(){
 				if($(this).is(':checked')){
 					childIds.push($(this).attr('id').replace('cb-', ''));
 				}
@@ -35,8 +33,7 @@
 		
 		function updateHtml(isMulti, response, ele){
 			if(isMulti){
-				var mulCbsed = $('.multi-cb > input:checkbox::checked');
-				mulCbsed.each(function(){
+				$('.multi-cb > input:checkbox::checked').each(function(){
 					updateMoodIcon($(this).parent().prev().find('img'), ele.getAttribute('src'));
 					$(this).prop('checked', false);
 				});
@@ -75,7 +72,7 @@
 			  <a href="@{ClassLifeController.classattendance()}" class="list-group-item">Attendance</a>
 			  <a href="@{ClassLifeController.showSchedule()}" class="list-group-item">Class schedule</a>
 			  <a href="@{ClassLifeController.showmenuorder()}" class="list-group-item">Food menu</a>
-			  <a href="#" class="list-group-item">Class photo</a>
+			  <a href="@{ClassLifeController.showclassalbum()}" class="list-group-item">Class photo</a>
 			  <a href="@{ClassLifeController.markGrid()}" class="list-group-item">Baby behavior</a>
 			  <a href="@{ClassLifeController.moodGrid()}" class="list-group-item">Baby mood</a>
 			  <a href="#" class="list-group-item">Class statistics</a>

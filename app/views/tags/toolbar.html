@@ -1,6 +1,12 @@
 <div id="toolbar">
 	<div class="layer upper-layer">
-		<a id="multi-ed-btn" class="btn btn-info toolbar-btn">Mark multiple students</a>
+		#{if _as != "album"}
+			<a id="multi-ed-btn" class="btn btn-info toolbar-btn">Mark multiple students</a>
+		#{/if}
+		#{else}
+			<a id="cre-album-btn" class="btn btn-success" data-toggle="modal" data-target="#album-model">Create a new album</a>
+			<a id="add-photo-btn" class="btn btn-info" data-toggle="modal" data-target="#photo-model">Add a new photo</a>
+		#{/else}
 	</div>
 	<div class="layer lower-layer hidden">
 		<a id="sel-all-btn" class="btn btn-info">Select all</a>

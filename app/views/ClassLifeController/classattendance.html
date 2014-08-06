@@ -4,7 +4,6 @@
 <link href="@{'/public/stylesheets/classattendance.css'}" rel="stylesheet" media="screen">
 <link href="@{'/public/stylesheets/jcrop/jquery.Jcrop.min.css'}" rel="stylesheet" media="screen">
 <script src="@{'/public/javascripts/jcrop/jquery.Jcrop.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
-<script src="@{'/public/javascripts/commonajax.js'}" type="text/javascript" charset="${_response_encoding}"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
 		
@@ -165,7 +164,7 @@
 			  <a href="@{ClassLifeController.classattendance()}" class="list-group-item">Attendance</a>
 			  <a href="@{ClassLifeController.showSchedule()}" class="list-group-item">Class schedule</a>
 			  <a href="@{ClassLifeController.showmenuorder()}" class="list-group-item">Food menu</a>
-			  <a href="#" class="list-group-item">Class photo</a>
+			  <a href="@{ClassLifeController.showclassalbum()}" class="list-group-item">Class photo</a>
 			  <a href="@{ClassLifeController.markGrid()}" class="list-group-item">Baby behavior</a>
 			  <a href="@{ClassLifeController.moodGrid()}" class="list-group-item">Baby mood</a>
 			  <a href="#" class="list-group-item">Class statistics</a>

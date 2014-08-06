@@ -1,0 +1,198 @@
+#{extends 'main.html'/}
+#{set user: user /}
+
+<link href="@{'/public/stylesheets/classalbum.css'}" rel="stylesheet" media="screen">
+<script type="text/javascript">
+	$(function(){
+		$("#album-form").validate({
+	        rules: {
+	        	"album.title":{
+	                minlength: 3,
+	                maxlength: 20,
+	                required: true
+	            },
+				"album.description": {
+	                maxlength: 150
+				}
+	        },
+	        highlight: function (element) {
+	            $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+	        },
+	        unhighlight: function (element) {
+	            $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+	        },
+          	submitHandler: function(form) {
+          		var config = new ConfigSetting("/classlifecontroller/createAlbum", $(form).serialize(), "POST");
+    			config.ajaxCall(function(response, status){
+    				if(status == "success"){
+    					var album = jQuery.parseJSON(JSON.stringify(response));
+    					var html = "<div id=\"album-" + album.id + "\" class=\"col-xs-14 col-sm-6 col-md-4 col-lg-3 round-item\">";
+    						html += "<div class=\"album-container\">";
+    						html += "<div class=\"album-bar\">";
+    						html += "<p>" + album.title + "</p>";
+    						html += "</div>";
+    						if(album.photos == null){
+    							html += "<p>0</p>";
+    						}else{
+    							html += "<p>" + album.photos.length + "</p>";
+    						}
+    						html += "<button class=\"btn btn-success open-album\">Open album</button>";
+    						html += "</div></div>";
+    					$('.chgrid-wraper').append(html);
+    			    	$('#album-model').modal('hide');
+    				}
+    			});
+	        }
+	    });
+		
+		$(document).on('click', 'button#add-photo-btn', function(){
+			$('input.in-photo-upload').trigger('click');
+		});
+		
+		$(document).on('click', '.add-ico', function(event){
+			$(event.target).siblings('.in-photo-upload').trigger('click');
+		});
+		
+		$(document).on('click', '.del-photo', function(){
+			$(this).closest('.upload-photo-item').remove();
+		});
+		
+		$(document).on('change', 'input.in-photo-upload', function(e){
+			for (var i = 0; i < e.originalEvent.srcElement.files.length; i++) {
+		        var file = e.originalEvent.srcElement.files[i];
+		        $('.add-ico').remove();
+		        
+		        var wraper = document.createElement("div");
+		        wraper.setAttribute("class", "photo-preview");
+		        
+		        var img = document.createElement("img");
+		        var reader = new FileReader();
+		        reader.onloadend = function() {
+		        	img.src = reader.result;
+		        }
+		        reader.readAsDataURL(file);
+		        wraper.appendChild(img);
+		        
+		        var aLink = document.createElement("a");
+		        aLink.setAttribute('class', 'del-photo');
+		        var span = document.createElement("span");
+		        span.setAttribute('class', 'fui-cross');
+		        aLink.appendChild(span);
+		        wraper.appendChild(aLink);
+		        
+		        $(this).after(wraper);
+		        
+		        if($('#add-photo-wrap').length > 0 && $('.photo-preview').length){
+		        	$('#add-photo-wrap').remove();
+		        }
+		        setupAddPhotoIco();
+		    }
+		});
+	});
+	
+	function setupAddPhotoIco(){
+		var html = "<div class=\"col-xs-12 col-sm-5 col-md-3 col-lg-1 upload-photo-item\">";
+			html += "<input class=\"in-photo-upload\" type=\"file\" name=\"image\">";
+			html += "<a class=\"add-ico\"><img src=\"@{'/public/images/addtoalbumicon.png'}\"></a>";
+			html += "</div>";
+ 		$('#upload-photo-form').append(html);
+	}
+</script>
+<div class="dash-container">
+	#{subheader user:user, as:"dash"/}
+	<div class="dash-content">
+		<div class="left-menu">
+			<div class="list-group">
+			  <a href="@{ClassLifeController.classReport()}" class="list-group-item active">Daily report</a>
+			  <a href="@{ClassLifeController.classattendance()}" class="list-group-item">Attendance</a>
+			  <a href="@{ClassLifeController.showSchedule()}" class="list-group-item">Class schedule</a>
+			  <a href="@{ClassLifeController.showmenuorder()}" class="list-group-item">Food menu</a>
+			  <a href="@{ClassLifeController.showclassalbum()}" class="list-group-item">Class photo</a>
+			  <a href="@{ClassLifeController.markGrid()}" class="list-group-item">Baby behavior</a>
+			  <a href="@{ClassLifeController.moodGrid()}" class="list-group-item">Baby mood</a>
+			  <a href="#" class="list-group-item">Class statistics</a>
+			</div>
+		</div>
+		<div class="right-detail">
+			#{toolbar as:"album"/}
+			<div class="chgrid-wraper">
+				#{list items:albums, as:"album"}
+					<div id="album-${album?.id}" class="col-xs-14 col-sm-6 col-md-4 col-lg-3 round-item">
+						<div class="album-container">
+							<div class="album-bar">	
+								<p>${album.title}</p>
+							</div>
+							<p>${album?.photos.size()}</p>
+							<button class="btn btn-success open-album">Open album</button>
+						</div>
+					</div>
+				#{/list}
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="album-model" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-center">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>ADD NEW ALBUM</h3>
+      </div>
+      <div class="modal-body">
+        <form id="album-form">
+			<div class="form-group">
+				<label for="album-title">Lesson title</label>
+				<input type="text" name="album.title" class="form-control" id="album-title" placeholder="Title" >
+			</div>
+			
+			<div class="form-group">
+				<label for="album-desc">Description</label>
+				<textarea id="album-desc" class="form-control" name="album.description" rows="3" placeholder="Description"></textarea>
+			</div>
+			
+			<div class="form-group album-submit-wrap">
+				<input id="album-submit" class="form-submit btn btn-success" type="submit" value="Create" >
+			</div>
+		</form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="photo-model" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-center">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>ADD PHOTOS</h3>
+      </div>
+      <div class="modal-body photo-body">
+        <div id="add-photo-toolbar">
+	        #{if albums.size > 0}
+	        	<label for="album-id" class="album-lbl">Add to</label>
+	        	<div class="form-group album-sel">
+					<div class="custom-dropdown custom-dropdown--white">
+						<select name="albumId" id="album-id" class="custom-dropdown__select custom-dropdown__select--white">
+					        #{list items: albums, as : "album"}
+								<option value="${album.id}">${album.title}</option>				        
+					        #{/list}
+					    </select>
+					</div>
+				</div> 
+			#{/if}
+			<button id="album-upload-btn" class="btn btn-success">Start to upload !</button>
+        </div>
+      </div>
+      <form id="upload-photo-form">
+       	  <div class="col-xs-12 col-sm-5 col-md-3 col-lg-1 upload-photo-item">
+        	  <input class="in-photo-upload" type="file" name="image">
+        	  <a class="add-ico"><img src="@{'/public/images/addtoalbumicon.png'}"></a>
+       	  </div>
+       </form>
+       <div id="add-photo-wrap">
+		  <button id="add-photo-btn" class="btn btn-success">Add a new photo</button>
+       </div>
+    </div>
+  </div>
+</div>

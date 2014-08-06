@@ -605,6 +605,11 @@ input[type=radio].css-checkbox {
 	width:100%;
 }
 
+#toolbar a.btn{
+	padding:0 15px;
+	line-height: 46px;
+}
+
 .hidden{
 	display: none;
 }

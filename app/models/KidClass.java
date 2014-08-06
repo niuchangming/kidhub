@@ -92,6 +92,10 @@ public class KidClass extends Model{
 	@JoinColumn(name="clz_id")
 	public List<Lesson> lessons;
 	
+	@OneToMany(cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
+	@JoinColumn(name="clz_id")
+	public List<Album> albums;
+	
 	public boolean active = true;
 	
 	public KidClass(String className, String classLevel, Date startDate,

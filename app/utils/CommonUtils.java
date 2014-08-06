@@ -105,9 +105,9 @@ public class CommonUtils {
 	    }
 	}
 	
-	public static String getObjectAsJsonStr(Object obj){
+	public static String getObjectAsJsonStr(Object obj, String...fields){
 		JSONSerializer serializer = new JSONSerializer();
-		return serializer.deepSerialize(obj);
+		return serializer.exclude(fields).deepSerialize(obj);
 	}
 	
 	public static Date[] getWeekStartAndEnd(Date curDate){

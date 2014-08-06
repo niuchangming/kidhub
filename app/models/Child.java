@@ -129,7 +129,6 @@ public class Child extends GenericModel{
 	
 	public static Child markChild(long childId, MarkType type, String reason, String othBehavior, int othWeight){
 		Child child = Child.findById(childId);
-		System.out.println("ID: " + childId +"Child: " + child);
 		Mark mark = null;
 		if(type != null){
 			mark = new Mark(reason, type);

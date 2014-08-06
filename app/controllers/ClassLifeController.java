@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.sun.xml.internal.ws.api.message.Attachment;
 
 import flexjson.JSONSerializer;
+import models.Album;
 import models.Attendance;
 import models.Child;
 import models.Food;
@@ -278,6 +279,20 @@ public class ClassLifeController extends Controller{
 			schedule.updateSchedule(lessonJson);
 		}
 		renderJSON(schedule);
+	}
+	
+	public static void showClassAlbum(int offset){
+		long clzId = renderArgs.get("clzId", Long.class);
+		List<Album> albums = Album.find("clz_id = ?", clzId).from(offset).fetch(Album.LOAD_COUNT_PER_PAGE);
+		render(albums);
+	}
+	
+	public static void createAlbum(Album album){
+		long clzId = renderArgs.get("clzId", Long.class);
+		album.clz = KidClass.findById(clzId);
+		album.date = new Date();
+		album.save();
+		renderJSON(CommonUtils.getObjectAsJsonStr(album, "clz"));
 	}
 	
 }

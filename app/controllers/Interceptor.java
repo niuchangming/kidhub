@@ -27,7 +27,8 @@ public class Interceptor extends Controller{
 		renderArgs.put("user", user);
 	}
 	
-	@Before(unless={"Application.index", "Dashboard.index", "Dashboard.classGrid", "Dashboard.teacherBoard", "Dashboard.createClass"})
+	@Before(unless={"Application.index", "Dashboard.index", "Dashboard.classGrid", 
+			"Dashboard.teacherBoard", "Dashboard.createClass", "Application.getArticlesByRange"})
 	static void checkIfClzExist(){
 		String sessionId = session.get(SESSION);
 		Long clzId = Cache.get(KidClass.SESSION_PREFIX + sessionId, Long.class);
