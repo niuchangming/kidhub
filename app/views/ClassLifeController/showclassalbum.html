@@ -2,102 +2,7 @@
 #{set user: user /}
 
 <link href="@{'/public/stylesheets/classalbum.css'}" rel="stylesheet" media="screen">
-<script type="text/javascript">
-	$(function(){
-		$("#album-form").validate({
-	        rules: {
-	        	"album.title":{
-	                minlength: 3,
-	                maxlength: 20,
-	                required: true
-	            },
-				"album.description": {
-	                maxlength: 150
-				}
-	        },
-	        highlight: function (element) {
-	            $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-	        },
-	        unhighlight: function (element) {
-	            $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-	        },
-          	submitHandler: function(form) {
-          		var config = new ConfigSetting("/classlifecontroller/createAlbum", $(form).serialize(), "POST");
-    			config.ajaxCall(function(response, status){
-    				if(status == "success"){
-    					var album = jQuery.parseJSON(JSON.stringify(response));
-    					var html = "<div id=\"album-" + album.id + "\" class=\"col-xs-14 col-sm-6 col-md-4 col-lg-3 round-item\">";
-    						html += "<div class=\"album-container\">";
-    						html += "<div class=\"album-bar\">";
-    						html += "<p>" + album.title + "</p>";
-    						html += "</div>";
-    						if(album.photos == null){
-    							html += "<p>0</p>";
-    						}else{
-    							html += "<p>" + album.photos.length + "</p>";
-    						}
-    						html += "<button class=\"btn btn-success open-album\">Open album</button>";
-    						html += "</div></div>";
-    					$('.chgrid-wraper').append(html);
-    			    	$('#album-model').modal('hide');
-    				}
-    			});
-	        }
-	    });
-		
-		$(document).on('click', 'button#add-photo-btn', function(){
-			$('input.in-photo-upload').trigger('click');
-		});
-		
-		$(document).on('click', '.add-ico', function(event){
-			$(event.target).siblings('.in-photo-upload').trigger('click');
-		});
-		
-		$(document).on('click', '.del-photo', function(){
-			$(this).closest('.upload-photo-item').remove();
-		});
-		
-		$(document).on('change', 'input.in-photo-upload', function(e){
-			for (var i = 0; i < e.originalEvent.srcElement.files.length; i++) {
-		        var file = e.originalEvent.srcElement.files[i];
-		        $('.add-ico').remove();
-		        
-		        var wraper = document.createElement("div");
-		        wraper.setAttribute("class", "photo-preview");
-		        
-		        var img = document.createElement("img");
-		        var reader = new FileReader();
-		        reader.onloadend = function() {
-		        	img.src = reader.result;
-		        }
-		        reader.readAsDataURL(file);
-		        wraper.appendChild(img);
-		        
-		        var aLink = document.createElement("a");
-		        aLink.setAttribute('class', 'del-photo');
-		        var span = document.createElement("span");
-		        span.setAttribute('class', 'fui-cross');
-		        aLink.appendChild(span);
-		        wraper.appendChild(aLink);
-		        
-		        $(this).after(wraper);
-		        
-		        if($('#add-photo-wrap').length > 0 && $('.photo-preview').length){
-		        	$('#add-photo-wrap').remove();
-		        }
-		        setupAddPhotoIco();
-		    }
-		});
-	});
-	
-	function setupAddPhotoIco(){
-		var html = "<div class=\"col-xs-12 col-sm-5 col-md-3 col-lg-1 upload-photo-item\">";
-			html += "<input class=\"in-photo-upload\" type=\"file\" name=\"image\">";
-			html += "<a class=\"add-ico\"><img src=\"@{'/public/images/addtoalbumicon.png'}\"></a>";
-			html += "</div>";
- 		$('#upload-photo-form').append(html);
-	}
-</script>
+<script src="@{'/public/javascripts/plupload/plupload.full.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
 <div class="dash-container">
 	#{subheader user:user, as:"dash"/}
 	<div class="dash-content">
@@ -122,7 +27,7 @@
 							<div class="album-bar">	
 								<p>${album.title}</p>
 							</div>
-							<p>${album?.photos.size()}</p>
+							<p class="album-count">${album?.photos.size()}</p>
 							<button class="btn btn-success open-album">Open album</button>
 						</div>
 					</div>
@@ -175,24 +80,189 @@
 					<div class="custom-dropdown custom-dropdown--white">
 						<select name="albumId" id="album-id" class="custom-dropdown__select custom-dropdown__select--white">
 					        #{list items: albums, as : "album"}
-								<option value="${album.id}">${album.title}</option>				        
+								<option value="${album.id}">${album.title}</option>	        
 					        #{/list}
 					    </select>
 					</div>
-				</div> 
+				</div>
 			#{/if}
 			<button id="album-upload-btn" class="btn btn-success">Start to upload !</button>
         </div>
+        <div id="add-photo-content">
+	        <div id="uploader" class="col-xs-14 col-sm-6 col-md-4 col-lg-2 add-photo-btn">
+	        	<a id="pick-file-btn" class="add-ico"><img src="@{'/public/images/addtoalbumicon.png'}"></a>
+	       	</div>
+        </div>
       </div>
-      <form id="upload-photo-form">
-       	  <div class="col-xs-12 col-sm-5 col-md-3 col-lg-1 upload-photo-item">
-        	  <input class="in-photo-upload" type="file" name="image">
-        	  <a class="add-ico"><img src="@{'/public/images/addtoalbumicon.png'}"></a>
-       	  </div>
-       </form>
-       <div id="add-photo-wrap">
-		  <button id="add-photo-btn" class="btn btn-success">Add a new photo</button>
-       </div>
     </div>
   </div>
 </div>
+
+<script type="text/javascript">
+    (function( $, plupload ) {
+    	
+    	$("#album-form").validate({
+	        rules: {
+	        	"album.title":{
+	                minlength: 3,
+	                maxlength: 20,
+	                required: true
+	            },
+				"album.description": {
+	                maxlength: 150
+				}
+	        },
+	        highlight: function (element) {
+	            $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+	        },
+	        unhighlight: function (element) {
+	            $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+	        },
+          	submitHandler: function(form) {
+          		var config = new ConfigSetting("/classlifecontroller/createAlbum", $(form).serialize(), "POST");
+    			config.ajaxCall(function(response, status){
+    				if(status == "success"){
+    					var album = jQuery.parseJSON(JSON.stringify(response));
+    					var html = "<div id=\"album-" + album.id + "\" class=\"col-xs-14 col-sm-6 col-md-4 col-lg-3 round-item\">";
+    						html += "<div class=\"album-container\">";
+    						html += "<div class=\"album-bar\">";
+    						html += "<p>" + album.title + "</p>";
+    						html += "</div>";
+    						if(album.photos == null){
+    							html += "<p>0</p>";
+    						}else{
+    							html += "<p>" + album.photos.length + "</p>";
+    						}
+    						html += "<button class=\"btn btn-success open-album\">Open album</button>";
+    						html += "</div></div>";
+    					$('.chgrid-wraper').append(html);
+    					$('<option>').val(album.id).text(album.title).appendTo('#album-id');
+    			    	$('#album-model').modal('hide');
+    				}
+    			});
+	        }
+	    });
+
+        var dom = {
+            uploader: $( "#uploader" )
+        };
+		
+        $('#album-upload-btn').click(function(e){
+        	e.preventDefault();
+        	uploader.start();
+        });
+        
+        var uploader = new plupload.Uploader({
+            runtimes: "html5,flash",
+            url: "/ClassLifeController/uploadPhotosByAlbumId",
+            drop_element: "uploader",
+            browse_button: "pick-file-btn",
+            container: "uploader",
+            multipart : true,
+            max_file_size: '10mb',
+            max_file_count: 10,
+            flash_swf_url: "@{'/public/javascripts/plupload/assets/Moxie.swf'}",
+    		silverlight_xap_url : "@{'/public/javascripts/plupload/assets/Moxie.xap'}",
+            urlstream_upload: true,
+            file_data_name: "blobs"
+        });
+
+        uploader.bind("FilesAdded", handlePluploadFilesAdded);
+        
+        uploader.bind('BeforeUpload', function(up){
+       	    up.settings.multipart_params = {
+    	    	"albumId" : $("#album-id").val()
+       	    };
+        });
+        
+        uploader.bind('UploadProgress', function(up, file) {
+        	$('#' + file.id).find('.progress-bar').removeClass('ico-hidden');
+        	$('#' + file.id).find('.progress-bar').css('width', file.percent + '%').attr('aria-valuenow', file.percent);
+        	if(parseInt(file.percent) === 100){
+        		$('#' + file.id).find('.done-ico').removeClass('ico-hidden');
+        		$('#' + file.id).find('.del-link').addClass('ico-hidden');
+        		$('#' + file.id).find('.progress-bar').addClass('ico-hidden');
+        	}
+        });
+        
+        uploader.bind("UploadComplete", function(up, files){
+        	var uploadedItem = $(".upload-photo-item");
+        	var albumTxt = $('#album-' + $("#album-id").val()).find("p.album-count");
+        	var count = parseInt(albumTxt.text()) + uploadedItem.length;
+        	$('#album-' + $("#album-id").val()).find("p.album-count").text(count);
+        	uploadedItem.each(function(index){
+        		$(this).remove();
+        	});
+        	$('#photo-model').modal('hide');
+        });
+
+        uploader.init();
+
+        function handlePluploadFilesAdded( uploader, files ) {
+            for ( var i = 0 ; i < files.length ; i++ ) {
+                showImagePreview(files[i]);
+            }
+        }
+
+        function showImagePreview(file) {
+        	var previewItem = $("<div id=\"" + file.id + "\" class=\"col-xs-14 col-sm-6 col-md-4 col-lg-2 upload-photo-item\"></div>");
+        	var imgLink = $("<a class=\"preview-ico\"></a>");
+        	var img = $( new Image() ).appendTo(imgLink);
+        	imgLink.appendTo(previewItem);
+        	
+        	var delLink = $("<a class=\"del-link\"><span class=\"fui-cross\"></span></a>");
+        	delLink.appendTo(previewItem);
+        	
+        	var doneIco = $("<a class=\"done-ico ico-hidden\"><span class=\"fui-check\"></span></a>");
+        	doneIco.appendTo(previewItem);
+        	
+        	var loadingBar = $("<img class=\"loading-bar\" src=\"@{'/public/images/loading_icon.gif'}\">");
+        	loadingBar.appendTo(previewItem);
+        	
+        	var proressBar = $("<div class=\"progress-bar ico-hidden\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\">");
+        	proressBar.appendTo(previewItem);
+        	
+        	$('#uploader').before(previewItem);
+        	
+            var preloader = new mOxie.Image();
+            preloader.onload = function() {
+                preloader.downsize(300, 300);
+                img.prop("src", preloader.getAsDataURL());
+                $('#' + file.id).find('img.loading-bar').remove();
+            };
+            preloader.load(file.getSource());
+            
+            $('#' + file.id + ' a.del-link').click(function(e) {
+                e.preventDefault();
+                uploader.removeFile(file);
+                previewItem.remove();
+            });
+        }
+    })( jQuery, plupload );
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

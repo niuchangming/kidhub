@@ -1,5 +1,7 @@
 package models;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
@@ -13,6 +15,7 @@ import javax.persistence.Transient;
 
 import play.db.jpa.Blob;
 import play.db.jpa.Model;
+import play.libs.Images;
 
 /**
  * @author cmniu
@@ -21,12 +24,10 @@ import play.db.jpa.Model;
 @Entity
 public class Photo extends Model{
 	@Transient
+	public final String THUMNAIL_BASE = "data/thumnails/";
+	
+	@Transient
 	public final static int LOAD_COUNT_PER_PAGE = 20;
-	
-	public String title;
-	
-	@Lob
-	public String description;
 	
 	@Temporal(TemporalType.DATE)
 	public Date date;
@@ -36,5 +37,29 @@ public class Photo extends Model{
 	
 	public Blob image;
 	
-	public Blob thumbnail;
+	public String thumbnail;
+
+	public Photo(User author, Blob image) {
+		super();
+		this.date = new Date();
+		this.author = author;
+		this.image = image;
+		setThumbnail(this.image);
+	}
+	
+	public void setThumbnail(Blob blob){
+		File dir = new File(THUMNAIL_BASE);
+		if(!dir.exists()){
+			dir.mkdir();
+		}
+		File newFile = new File(dir, blob.getUUID()); // create random unique filename here
+		try {
+			newFile.createNewFile();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Images.resize(blob.getFile(), newFile, 240, -1);
+		thumbnail = THUMNAIL_BASE + blob.getUUID();
+	}
+	
 }

@@ -37,6 +37,7 @@ import models.MarkType;
 import models.Menu;
 import models.Mood;
 import models.MenuOrder;
+import models.Photo;
 import models.Report;
 import models.ResModuleBase;
 import models.Resource;
@@ -44,9 +45,13 @@ import models.Schedule;
 import models.Teacher;
 import models.User;
 import play.data.Upload;
+import play.data.binding.As;
+import play.data.binding.types.FileArrayBinder;
+import play.db.jpa.Blob;
 import play.db.jpa.JPA;
 import play.mvc.Controller;
 import play.mvc.With;
+import play.mvc.Http.Request;
 import play.utils.HTML;
 import utils.CommonException;
 import utils.CommonUtils;
@@ -295,6 +300,19 @@ public class ClassLifeController extends Controller{
 		renderJSON(CommonUtils.getObjectAsJsonStr(album, "clz"));
 	}
 	
+	public static void uploadPhotosByAlbumId(long albumId, List<Blob> blobs){
+	    if(blobs != null) {
+	    	User user = renderArgs.get("user", User.class);
+	    	Album album = Album.findById(albumId);
+	        for(Blob blob : blobs) {
+                if(blob.type().equals("image/jpeg") || blob.type().equals("image/png")) {
+                    Photo photo = new Photo(user, blob).save();
+                    album.photos.add(photo);
+                }
+	        }
+	        album.save();
+	    }
+	}
 }
 
 
