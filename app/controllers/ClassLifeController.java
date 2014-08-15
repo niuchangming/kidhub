@@ -313,6 +313,17 @@ public class ClassLifeController extends Controller{
 	        album.save();
 	    }
 	}
+	
+	public static void showThumbnails(long albumId, int offset){
+		List<Photo> photos = Photo.find("album_id = ?", albumId).from(offset).fetch(Photo.LOAD_COUNT_PER_PAGE);
+		render(photos);
+	}
+	
+	public static void showPhoto(long photoId){
+		Photo photo = Photo.findById(photoId);
+		renderBinary(photo.image.get());
+	}
+	
 }
 
 

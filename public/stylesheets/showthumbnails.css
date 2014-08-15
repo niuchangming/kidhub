@@ -1,0 +1,23 @@
+#links {
+	width: 100%;
+	height: auto;
+	padding: 30px 15px;
+}
+
+.thumb {
+    margin-bottom: 30px;
+}
+
+.thumbnail {
+	min-height: 180px;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.prev > span, .next > span{
+	font-size: 24px;
+	font-weight: 300;
+	line-height: 40px;
+	display: block;
+}
+

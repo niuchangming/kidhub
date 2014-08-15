@@ -58,7 +58,7 @@ public class Photo extends Model{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Images.resize(blob.getFile(), newFile, 240, -1);
+		Images.resize(blob.getFile(), newFile, 240, 180);
 		thumbnail = THUMNAIL_BASE + blob.getUUID();
 	}
 	

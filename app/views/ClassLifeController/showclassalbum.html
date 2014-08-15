@@ -28,7 +28,7 @@
 								<p>${album.title}</p>
 							</div>
 							<p class="album-count">${album?.photos.size()}</p>
-							<button class="btn btn-success open-album">Open album</button>
+							<a class="btn btn-success open-album" href="@{ClassLifeController.showThumbnails(album.id)}">Open album</a>
 						</div>
 					</div>
 				#{/list}
@@ -74,18 +74,16 @@
       </div>
       <div class="modal-body photo-body">
         <div id="add-photo-toolbar">
-	        #{if albums.size > 0}
-	        	<label for="album-id" class="album-lbl">Add to</label>
-	        	<div class="form-group album-sel">
-					<div class="custom-dropdown custom-dropdown--white">
-						<select name="albumId" id="album-id" class="custom-dropdown__select custom-dropdown__select--white">
-					        #{list items: albums, as : "album"}
-								<option value="${album.id}">${album.title}</option>	        
-					        #{/list}
-					    </select>
-					</div>
+        	<label for="album-id" class="album-lbl">Add to</label>
+        	<div class="form-group album-sel">
+				<div class="custom-dropdown custom-dropdown--white">
+					<select name="albumId" id="album-id" class="custom-dropdown__select custom-dropdown__select--white">
+				        #{list items: albums, as : "album"}
+							<option value="${album.id}">${album.title}</option>	        
+				        #{/list}
+				    </select>
 				</div>
-			#{/if}
+			</div>
 			<button id="album-upload-btn" class="btn btn-success">Start to upload !</button>
         </div>
         <div id="add-photo-content">
@@ -129,11 +127,11 @@
     						html += "<p>" + album.title + "</p>";
     						html += "</div>";
     						if(album.photos == null){
-    							html += "<p>0</p>";
+    							html += "<p class=\"album-count\">0</p>";
     						}else{
-    							html += "<p>" + album.photos.length + "</p>";
+    							html += "<p class=\"album-count\">" + album.photos.length + "</p>";
     						}
-    						html += "<button class=\"btn btn-success open-album\">Open album</button>";
+    						html += "<a class=\"btn btn-success open-album\" href=\"@{ClassLifeController.showThumbnails(album.id)}\">Open album</a>";
     						html += "</div></div>";
     					$('.chgrid-wraper').append(html);
     					$('<option>').val(album.id).text(album.title).appendTo('#album-id');
@@ -142,14 +140,18 @@
     			});
 	        }
 	    });
-
+    	
         var dom = {
             uploader: $( "#uploader" )
         };
 		
         $('#album-upload-btn').click(function(e){
         	e.preventDefault();
-        	uploader.start();
+        	if($('.round-item').length == 0){
+        		alert("There is no album in the class.\nPlease create an album before adding photo !");
+        	}else{
+        		uploader.start();
+        	}
         });
         
         var uploader = new plupload.Uploader({
@@ -186,14 +188,16 @@
         });
         
         uploader.bind("UploadComplete", function(up, files){
-        	var uploadedItem = $(".upload-photo-item");
         	var albumTxt = $('#album-' + $("#album-id").val()).find("p.album-count");
-        	var count = parseInt(albumTxt.text()) + uploadedItem.length;
+        	var count = parseInt(albumTxt.text()) + $(".upload-photo-item").length;
         	$('#album-' + $("#album-id").val()).find("p.album-count").text(count);
-        	uploadedItem.each(function(index){
+        	$('#photo-model').modal('hide');
+        });
+        
+        $('#photo-model').on('hidden.bs.modal', function () {
+        	$(".upload-photo-item").each(function(index){
         		$(this).remove();
         	});
-        	$('#photo-model').modal('hide');
         });
 
         uploader.init();
