@@ -14,7 +14,7 @@
 	background-size: cover;
 }
 
-.prev > span, .next > span{
+.prev > span, .next > span, .play-pause > span{
 	font-size: 24px;
 	font-weight: 300;
 	line-height: 40px;
