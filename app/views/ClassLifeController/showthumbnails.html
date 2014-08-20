@@ -7,7 +7,9 @@
 <div id="links">
 	#{list items : photos, as:"photo"}
 		<div class="col-lg-3 col-md-4 col-xs-6 thumb">
-			<a class="thumbnail" href="@{ClassLifeController.showPhoto(photo.id)}" data-gallery="" style="background-image: url('../../${photo?.thumbnail}');"></a>
+			<a class="thumbnail" href="@{ClassLifeController.showPhoto(photo.id)}" data-gallery="">
+				<img style="background-image: url('../../${photo?.thumbnail}');">
+			</a>
 		</div>
 	#{/list}
 </div>

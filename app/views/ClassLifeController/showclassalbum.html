@@ -131,7 +131,7 @@
     						}else{
     							html += "<p class=\"album-count\">" + album.photos.length + "</p>";
     						}
-    						html += "<a class=\"btn btn-success open-album\" href=\"@{ClassLifeController.showThumbnails(album.id)}\">Open album</a>";
+    						html += "<a class=\"btn btn-success open-album\" href=\"@{ClassLifeController.showThumbnails(album?.id)}\">Open album</a>";
     						html += "</div></div>";
     					$('.chgrid-wraper').append(html);
     					$('<option>').val(album.id).text(album.title).appendTo('#album-id');
@@ -140,10 +140,6 @@
     			});
 	        }
 	    });
-    	
-        var dom = {
-            uploader: $( "#uploader" )
-        };
 		
         $('#album-upload-btn').click(function(e){
         	e.preventDefault();
