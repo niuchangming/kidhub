@@ -184,7 +184,7 @@
 			  <a href="@{ClassLifeController.classattendance()}" class="list-group-item">Attendance</a>
 			  <a href="@{ClassLifeController.showSchedule()}" class="list-group-item">Class schedule</a>
 			  <a href="@{ClassLifeController.showmenuorder()}" class="list-group-item">Food menu</a>
-			  <a href="#" class="list-group-item">Class photo</a>
+			  <a href="@{ClassLifeController.showclassalbum()}" class="list-group-item">Class photo</a>
 			  <a href="@{ClassLifeController.markGrid()}" class="list-group-item">Baby behavior</a>
 			  <a href="@{ClassLifeController.moodGrid()}" class="list-group-item">Baby mood</a>
 			  <a href="#" class="list-group-item">Class statistics</a>
@@ -196,7 +196,7 @@
 				#{if children?.size() > 0}
 					#{list items: children, as:'child'}
 						<div id="ch-${child?.id}" class="col-xs-12 col-sm-6 col-md-4 col-lg-2 ch-info round-item">
-							<a class="round-item-txt color-present" data-toggle="modal" data-target="#mark-model">
+							<a class="round-item-txt color-present">
 								${child?.score}
 							</a>
 							<div class="multi-cb hidden">

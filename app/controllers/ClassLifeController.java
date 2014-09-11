@@ -165,7 +165,7 @@ public class ClassLifeController extends Controller{
 	
 	public static void moodGrid(){
 		long clzId = renderArgs.get("clzId", Long.class);
-		List<Child> children  = Child.find("clz_id = ?", clzId).fetch(); 
+		List<Child> children  = Child.find("clz_id = ?", clzId).fetch();
 		render(children);
 	}
 	
@@ -322,6 +322,24 @@ public class ClassLifeController extends Controller{
 	public static void showPhoto(long photoId){
 		Photo photo = Photo.findById(photoId);
 		renderBinary(photo.image.get());
+	}
+	
+	public static void deletePhotosById(long...ids){
+		String query = "";
+		int delCount = 0;
+		for(long id : ids){
+			query += "id = " + id + " or ";
+		}
+		if(!CommonUtils.isBlank(query)){
+			query = query.substring(0, query.length() - 3);
+			delCount = Photo.delete(query);
+		}
+		renderText(delCount);
+	}
+	
+	public static void deletePhotoById(long id){
+		int delCount = Photo.delete("id = ?", id);
+		renderText(delCount);
 	}
 	
 }

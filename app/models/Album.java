@@ -53,7 +53,7 @@ public class Album extends Model{
 		this.date = new Date();
 		this.photos = new ArrayList<Photo>();
 	}
-	
+
 }
 
 

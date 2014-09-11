@@ -93,13 +93,9 @@
 	         }
 	    });
 	    
-	    $('.dropdown').bind('click', function(event) {
+	    $('.dropdown').on('click', function(event) {
 			var dropdown = $('.dropdown');
-			if(dropdown.hasClass( "open" )){
-				dropdown.removeClass( "open" );
-			}else{
-				dropdown.addClass( "open" );
-			}
+			dropdown.troggleClass('open');
 		});
 	    
 	    $('#signup-link').bind('click', function(event){

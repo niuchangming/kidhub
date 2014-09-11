@@ -26,6 +26,9 @@
 						<div class="album-container">
 							<div class="album-bar">	
 								<p>${album.title}</p>
+								<a class="album-edit">
+									<span class="fui-gear"></span>
+								</a>
 							</div>
 							<p class="album-count">${album?.photos.size()}</p>
 							<a class="btn btn-success open-album" href="@{ClassLifeController.showThumbnails(album.id)}">Open album</a>
@@ -125,6 +128,7 @@
     						html += "<div class=\"album-container\">";
     						html += "<div class=\"album-bar\">";
     						html += "<p>" + album.title + "</p>";
+    						html += "<a class=\"album-edit\"><span class=\"fui-gear\"></span></a>";
     						html += "</div>";
     						if(album.photos == null){
     							html += "<p class=\"album-count\">0</p>";
@@ -141,6 +145,10 @@
 	        }
 	    });
 		
+    	$(document).on('click', '.album-edit', function(){
+    		
+    	});
+    	
         $('#album-upload-btn').click(function(e){
         	e.preventDefault();
         	if($('.round-item').length == 0){

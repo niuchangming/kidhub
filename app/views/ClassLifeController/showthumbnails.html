@@ -4,11 +4,24 @@
 <link href="@{'/public/stylesheets/bootstrap/bootstrap-image-gallery.min.css'}" rel="stylesheet" media="screen">
 <link href="@{'/public/stylesheets/blueimp/blueimp-gallery.min.css'}" rel="stylesheet" media="screen">
 <link href="@{'/public/stylesheets/showthumbnails.css'}" rel="stylesheet" media="screen">
+
+#{subheader user:user, as:"thumbnail_show"/}
+
 <div id="links">
 	#{list items : photos, as:"photo"}
-		<div class="col-lg-3 col-md-4 col-xs-6 thumb">
+		<div id="${photo.id}" class="col-lg-3 col-md-4 col-xs-6 thumb">
 			<a class="thumbnail" href="@{ClassLifeController.showPhoto(photo.id)}" data-gallery="">
 				<img style="background-image: url('../../${photo?.thumbnail}');">
+				<a class="thumb-chx hidden"></a>
+				<div class="thumb-edit">
+					<a class="dropdown-toggle" data-toggle="dropdown"><span class="fui-new"></span></a>
+					<span class="dropdown-arrow"></span>
+					<ul class="ph-thumb-edit dropdown-menu">
+	                    <li><a class="ph-del-link">Delete</a></li>
+	                    <li><a class="ph-comt-link">Comment</a></li>
+	                    <li><a class="ph-fovr-link">Favourite</a></li>
+	                </ul>
+				</div>
 			</a>
 		</div>
 	#{/list}
@@ -27,13 +40,65 @@
 <script src="@{'/public/javascripts/blueimp/jquery.blueimp-gallery.min.js'}"></script>
 <script src="@{'/public/javascripts/bootstrap/bootstrap-image-gallery.min.js'}"></script>
 <script type="text/javascript">
-	$(window).load(function(){
+	$(document).ready(function() {
 		$('.thumbnail').each(function(){
 			var width = $(this).width();
 			var height = 0.75 * width;
 			$(this).css("height", height);
 		});
+		
+		$('#ed-mul-pho-btn').click(function(){
+			$('.thumb-chx').removeClass('hidden');
+			switchUpperAndLower();
+			$('.thumb-edit').addClass('hidden');
+		});
+		
+		$('#cnl-mul-btn').click(function(){
+			$('.thumb-chx').addClass('hidden');
+			switchUpperAndLower();
+			$('.fui-check').removeClass('fui-check');
+			$('.thumb-edit').removeClass('hidden');
+		});
+		
+		$('.thumb-chx').on('click', function(){
+			$(this).toggleClass('fui-check');
+		});
+		
+		$('#del-pho-btn').on('click', function(){
+			var selPhotos = $('.fui-check');
+			var ids = [];
+			selPhotos.each(function(index){
+				ids[index] = $(this).parents('.thumb').attr('id');
+			});
+			
+			var config = new ConfigSetting("/ClassLifeController/deletePhotosById", {ids:ids}, "POST");
+			config.ajaxCall(function(response, status){
+				if(status == "success" && response > 0){
+					selPhotos.each(function(index){
+						$(this).parents('.thumb').remove();
+					});
+					$('#cnl-mul-btn').trigger('click');
+				}
+			});
+		});
+		
+		$('.ph-del-link').on('click', function(){
+			var root = $(this).parents('.thumb');
+			var id = root.attr('id');
+			var config = new ConfigSetting("/ClassLifeController/deletePhotoById", {id:id}, "POST");
+			config.ajaxCall(function(response, status){
+				if(status == "success" && response > 0){
+					root.remove();
+				}
+			});
+		});
+		
 	});	
+	
+	function switchUpperAndLower(){
+		$('#lower-layer').toggleClass('hidden');
+		$('#upper-layer').toggleClass('hidden');
+	}
 </script>
 
 

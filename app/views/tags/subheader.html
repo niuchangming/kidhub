@@ -73,6 +73,19 @@
 			<button type="button" class="btn btn-success back_btn" onclick="history.back();">Back to previous page!</button>
 		</div>
 	#{/elseif}
+	
+	#{elseif _as == "thumbnail_show"}
+		<div class="btn-container">
+			<div id="upper-layer">
+				<button id="add-pho_btn" type="button" class="btn btn-success">Add new photos</button>
+				<button id="ed-mul-pho-btn" type="button" class="btn btn-info">Edit multiple photos</button>
+			</div>
+			<div id="lower-layer" class="hidden">
+				<button id="del-pho-btn" type="button" class="btn btn-danger">Delete selected photos</button>
+				<button id="cnl-mul-btn" type="button" class="btn btn-default">Cancel</button>
+			</div>
+		</div>
+	#{/elseif}
 </div>
 
 <script type="text/javascript">
